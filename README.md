@@ -76,4 +76,4 @@ To report an issue or submit a feature request, [go to the *Issues* section of t
 
 ## Technical documentation for developers
 
-See [./DEVELOPMENT.md](./DEVELOPMENT.md)
+See [DEVELOPMENT.md](./DEVELOPMENT.md)
