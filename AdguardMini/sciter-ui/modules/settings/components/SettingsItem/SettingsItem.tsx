@@ -32,6 +32,7 @@ export type SettingsItemProps = {
     children?: ComponentChildren;
     noHover?: boolean;
     defaultHovered?: boolean;
+    newLabel?: boolean;
 };
 
 /**
@@ -52,6 +53,7 @@ function SettingsItemComponent({
     additionalText,
     noHover,
     defaultHovered,
+    newLabel,
     trackEventOnRouteChange,
 }: SettingsItemProps) {
     const { router, telemetry } = useSettingsStore();
@@ -122,6 +124,7 @@ function SettingsItemComponent({
                 )}
             </div>
             {routeName && (<div className={routeName && s.SettingsItem_container_routeBorder} />)}
+            {newLabel && (<div className={s.SettingsItem_container_newLabel}><Text type="t2">{translate('new')}</Text></div>)}
             <div
                 className={cx(
                     s.SettingsItem_container,

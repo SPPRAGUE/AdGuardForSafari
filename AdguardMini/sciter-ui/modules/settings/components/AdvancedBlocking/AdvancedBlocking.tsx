@@ -50,12 +50,12 @@ function AdvancedBlockingComponent() {
                         account.showPaywall();
                         return;
                     }
-
                     telemetry.trackEvent(SettingsEvent.AdguardExtraClick);
                     advancedBlocking.updateAdguardExtra(e);
                 }}
                 title={translate('advanced.blocking.extra')}
                 value={isLicenseOrTrialActive ? adguardExtra : false}
+                newLabel
             />
         </Layout>
     );
