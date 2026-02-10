@@ -7,7 +7,7 @@ import { useState } from 'preact/hooks';
 
 import { useOtherEnabledFilters, useSettingsStore } from 'SettingsLib/hooks';
 import { getNotificationSomethingWentWrongText } from 'SettingsLib/utils/translate';
-import { NotificationContext, NotificationsQueueIconType, NotificationsQueueType, RouteName, SettingsEvent } from 'SettingsStore/modules';
+import { NotificationContext, NotificationsQueueIconType, NotificationsQueueType, RouteName, SettingsEvent, ReportProblemVariant } from 'SettingsStore/modules';
 import theme from 'Theme';
 import { Layout, Text, Modal, ConsentModal } from 'UILib';
 
@@ -111,7 +111,7 @@ function SafariProtectionComponent() {
         <Layout type="settingsPage">
             <SettingsTitle
                 description={translate('safari.protection.title.desc')}
-                showReportBugTooltip={!ui.reportProblemWasShown}
+                showReportBugTooltip={ui.reportProblemLabelStatus === ReportProblemVariant.Show}
                 title={translate('menu.safari.protection')}
                 maxTopPadding
                 reportBug

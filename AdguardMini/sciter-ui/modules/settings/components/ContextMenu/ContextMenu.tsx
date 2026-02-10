@@ -55,7 +55,7 @@ function ContextMenuComponent({ elements, reportBug, className, showReportBugToo
     debounceRef.current = debounce(() => {
         if (!open) {
             setOpen(true);
-            ui.setReportProblemWasShown(true);
+            ui.hideProblemLabel();
         }
     }, TOOLTIP_WAIT_TIME);
 
@@ -75,12 +75,12 @@ function ContextMenuComponent({ elements, reportBug, className, showReportBugToo
                 }
             }, TIMEOUT_REPORT_TOOLTIP_SHOW);
             setTimeout(() => {
-                ui.setReportProblemWasShown(true);
+                ui.hideProblemLabel();
             }, TIMEOUT_REPORT_TOOLTIP_TEXT);
         }
         return () => {
             canUpdate = false;
-        }
+        };
     }, [showReportBugTooltip, ui]);
 
     const handleAction = (action: () => void) => () => {

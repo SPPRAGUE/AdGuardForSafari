@@ -65,9 +65,8 @@ async OnSafariExtensionUpdate(param: SafariExtensionUpdate): Promise<EmptyValue>
     async OnWindowDidBecomeMain(param: EmptyValue) {
         store.settings.getSafariExtensions();
         store.settings.getSettings();
-        // We show help tooltip each time when app is focused on SafariProtection page
-        // Due to Settings module start when app started, so simple timeout is not enough
-        store.ui.setReportProblemWasShown(false);
+        // On first open status will change from 'notShown' to 'show', needed label will be shown only once on opening
+        store.ui.tryShowProblemLabel();
         return new EmptyValue();
     }
 
