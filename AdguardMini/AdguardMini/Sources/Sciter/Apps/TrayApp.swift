@@ -98,6 +98,9 @@ final class TrayApp: SciterApp, TrayChangesDelegate, StatusBarItemControllerDele
             window.styleMask.insert(.nonactivatingPanel)
 
             window.isMovable = false
+
+            window.level = .statusBar
+            window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         }
 
         self.statusBarItemController.delegate = self
