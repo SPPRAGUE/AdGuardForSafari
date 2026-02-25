@@ -6,7 +6,7 @@
 version: 2
 deployment:
   name: AdGuard Mini for Mac nightly
-  source-plan: ADGMINI-BFP
+  source-plan: ADGMINI-BFPN
 release-naming:
   next-version-name: ${bamboo.inject.version}.${bamboo.inject.build_number}-nightly
   applies-to-branches: true

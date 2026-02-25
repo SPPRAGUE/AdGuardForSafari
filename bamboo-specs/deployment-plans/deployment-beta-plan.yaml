@@ -6,7 +6,7 @@
 version: 2
 deployment:
   name: AdGuard Mini for Mac beta
-  source-plan: ADGMINI-BFP
+  source-plan: ADGMINI-BFPB
 release-naming:
   next-version-name: ${bamboo.inject.version}.${bamboo.inject.build_number}-beta
   applies-to-branches: true
