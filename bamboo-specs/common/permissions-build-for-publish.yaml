@@ -2,11 +2,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
----
-version: 2
-plan:
-  key: ADGMINI-BFP
-plan-permissions:
 - roles:
   - logged-in
   permissions:
