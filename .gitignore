@@ -243,4 +243,6 @@ fastlane/keychain/
 bin/
 buildServer.json
 
-specs/.current/spec.md
+specs/.current/
+
+support-scripts

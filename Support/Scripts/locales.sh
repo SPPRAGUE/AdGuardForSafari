@@ -8,8 +8,8 @@ set -e
 
 if [ "$1" == "push" ]; then
     yarn locales:pushMaster
-    ./Support/Scripts/localize.rb export -b
+    ./support-scripts/localize.rb export -b
 else
     yarn locales:pull
-    ./Support/Scripts/localize.rb import -l all -b
+    ./support-scripts/localize.rb import -l all -b
 fi

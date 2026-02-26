@@ -16,6 +16,24 @@ fi
 echo "==== Configure environment for: $ENV_NAME ===="
 echo
 
+if [ -f ../adguard-mini-private/config.env ]; then
+    source ../adguard-mini-private/config.env
+fi
+
+if [[ "$1" == "dev" ]]; then
+    if [ -z "$SUPPORT_SCRIPTS_GIT" ]; then
+        echo "Error: SUPPORT_SCRIPTS_GIT not set. Source ../adguard-mini-private/config.env or set via environment."
+        exit 1
+    fi
+    rm -rf support-scripts
+    git clone "$SUPPORT_SCRIPTS_GIT"
+    pushd support-scripts
+    git checkout 'v1.2'
+    bundle config set --local path '../.bundle/vendor'
+    bundle install
+    popd
+fi
+
 bundle config --local path '.bundle/vendor'
 bundle config unset --local without
 
@@ -26,8 +44,10 @@ fi
 bundle install
 
 if [ ! ${bamboo_no_need_private_vars} ]; then
-    source ../adguard-mini-private/config.env
-
+    if [ -z "$KEYCHAIN_GIT" ]; then
+        echo "Error: KEYCHAIN_GIT not set. Source ../adguard-mini-private/config.env or set via environment."
+        exit 1
+    fi
     pushd fastlane
     rm -rf keychain
     git clone $KEYCHAIN_GIT

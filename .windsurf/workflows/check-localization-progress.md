@@ -13,7 +13,7 @@ Steps:
 // turbo
 2. Run the check and print raw output:
 
-./Support/Scripts/localize.rb check -l all -b
+./support-scripts/localize.rb check -l all -b
 
 3. Summarize briefly:
 - List locales below 85%.
