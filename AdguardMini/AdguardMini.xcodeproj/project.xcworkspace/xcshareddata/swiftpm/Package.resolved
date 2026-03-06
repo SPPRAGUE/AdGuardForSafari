@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "ssh://git@bit.int.agrd.dev:7999/adguard-mac/sp-backend.git",
       "state" : {
-        "branch" : "0.6.0",
-        "revision" : "0c8a1e0f189bae8cc98a52d2800fce8f1bf05e16"
+        "branch" : "0.7.0",
+        "revision" : "4a591085cc8b6f23ae62b11e51f527fd953350e5"
       }
     },
     {

@@ -244,7 +244,11 @@ extension SupportImpl: ReportSiteProtocol {
             }
         }
 
-        let isExtraEnabled = self.userSettings.advancedBlockingState.adguardExtra
+        let advancedBlockingState = self.userSettings.advancedBlockingState
+
+        let advancedRules = advancedBlockingState.advancedRules
+
+        let isExtraEnabled = advancedBlockingState.adguardExtra
         let extensions: [ReportsWebAPI.Extension] = [
             Constants.agExtraExtension
         ]
@@ -260,7 +264,8 @@ extension SupportImpl: ReportSiteProtocol {
             filtersLastUpdate: self.userSettings.lastFiltersUpdateTime,
             customFilters:     enabledCustomFilters.isEmpty ? nil : enabledCustomFilters,
             extensions:        extensions.isEmpty ? nil : extensions,
-            extensionsEnabled: isExtraEnabled
+            extensionsEnabled: isExtraEnabled,
+            advancedRules:     advancedRules
         )
     }
 }

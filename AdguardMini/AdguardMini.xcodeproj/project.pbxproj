@@ -6393,7 +6393,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "ssh://git@bit.int.agrd.dev:7999/adguard-mac/sp-backend.git";
 			requirement = {
-				branch = 0.6.0;
+				branch = 0.7.0;
 				kind = branch;
 			};
 		};
