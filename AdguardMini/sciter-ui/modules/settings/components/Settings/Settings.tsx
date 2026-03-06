@@ -299,7 +299,9 @@ export function SettingsComponent() {
             <SettingsItemSwitch
                 additionalText={payedFuncsTitle || (!autoFiltersUpdate && (
                     <Text className={theme.color.orange} type="t2">
-                        {translate('settings.real.time.filter.updates.enable.update.filters')}
+                        {translate('settings.real.time.filter.updates.enable.update.filters', {
+                            b: (text: string) => <span className={s.Settings_underline} id="real-time-updates-link">{text}</span>,
+                        })}
                     </Text>
                 ))}
                 description={translate('settings.real.time.filter.updates.desc')}
