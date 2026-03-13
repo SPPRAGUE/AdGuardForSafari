@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "Saisissez le code d'activation",
     "settings.activation.flow.enter.activation.code.modal.desc": "Vérifiez votre <link>compte AdGuard</link> pour trouver votre code d'activation",
     "settings.activation.flow.enter.activation.code.modal.input.label": "Code",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Contient des chiffres et des lettres",
     "settings.activation.flow.enter.activation.code.modal.activate": "Activer",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "Cette licence n'existe pas. Essayez un autre code",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "Licence annulée. Essayez un autre code ou achetez une nouvelle licence",
@@ -572,5 +571,8 @@
     "migration.step.2.description.1": "Utilisez votre licence AdGuard active pour débloquer les fonctionnalités Pro dans AdGuard Mini",
     "migration.step.2.description.2": "La seule exception est AdGuard pour iOS. AdGuard Mini n’est pas compatible avec sa licence",
     "migration.step.2.button.submit": "Lancer AdGuard Mini",
-    "migration.step.2.button.other": "Activer la licence"
+    "migration.step.2.button.other": "Activer la licence",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Bloque les publicités trompeuses et maintient la protection à jour",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Protection avancée",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Mises à jour des filtres en temps réel"
 }

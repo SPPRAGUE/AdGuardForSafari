@@ -397,7 +397,7 @@
     "settings.paywall.trial.then.monthly": "poi sarà %currencyAndPrice% / mese",
     "settings.paywall.plan.with.discount": "Annuale (<standard>%price%</standard> %withDiscount% per il primo anno)",
     "settings.paywall.plan.with.discount.month": "Mensile (<standard>%price%</standard> %withDiscount% per il primo mese)",
-    "settings.activation.flow.already.purchased": "Già acquistata?",
+    "settings.activation.flow.already.purchased": "Hai già acquistato?",
     "settings.activation.flow.already.purchased.modal.title": "Già acquistato",
     "settings.activation.flow.already.purchased.modal.log.in": "Accedi",
     "settings.activation.flow.already.purchased.modal.restore": "Ripristina dall'App Store",
@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "Inserisci il codice di attivazione",
     "settings.activation.flow.enter.activation.code.modal.desc": "Controlla il tuo <link>profilo AdGuard</link> per trovare il tuo codice di attivazione",
     "settings.activation.flow.enter.activation.code.modal.input.label": "Codice",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Contiene numeri e lettere",
     "settings.activation.flow.enter.activation.code.modal.activate": "Attiva",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "Questa licenza non esiste. Tenta con un altro codice",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "Licenza annullata. Tenta con un altro codice o compra una nuova licenza",
@@ -572,5 +571,8 @@
     "migration.step.2.description.1": "Usa la tua licenza AdGuard attiva per sbloccare le funzionalità Pro in AdGuard Mini",
     "migration.step.2.description.2": "L'unica eccezione è AdGuard per iOS. AdGuard Mini non gestisce la sua licenza",
     "migration.step.2.button.submit": "Lancia AdGuard Mini",
-    "migration.step.2.button.other": "Attiva la licenza"
+    "migration.step.2.button.other": "Attiva la licenza",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blocca le inserzioni ingannevoli e mantiene la protezione aggiornata",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Protezione avanzata",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Aggiornamento dei filtri in tempo reale"
 }

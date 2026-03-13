@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "输入激活码",
     "settings.activation.flow.enter.activation.code.modal.desc": "请在您的 <link>AdGuard 账号</link>中查看激活码。",
     "settings.activation.flow.enter.activation.code.modal.input.label": "代码",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "包含数字和字母",
     "settings.activation.flow.enter.activation.code.modal.activate": "激活",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "此许可证不存在。请尝试其他激活码。",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "许可证已取消。请输入其他激活码或购买新许可证。",
@@ -539,7 +538,7 @@
     "tray.story.adguard.extra.action.3": "获得完整版",
     "tray.story.adguard.extra.action.3.trial": "免费试用 %trialDays% 天 | 免费试用 %trialDays% 天",
     "tray.story.adguard.extra.action.4": "启用",
-    "context.menu.report.problem": "举报问题",
+    "context.menu.report.problem": "报告错误",
     "context.menu.report.problem.tooltip": "遇到问题了吗？<br></br>请告诉我们",
     "telemetry.accept.send.data": "发送匿名的<link>应用使用数据</link>",
     "telemetry.modal.title": "应用程序使用数据",
@@ -572,5 +571,8 @@
     "migration.step.2.description.1": "使用有效的 AdGuard 许可证，即可在 AdGuard Mini 中解锁 Pro 版功能",
     "migration.step.2.description.2": "唯一的例外是 AdGuard iOS 版。AdGuard Mini 不支持其许可证。",
     "migration.step.2.button.submit": "启动 AdGuard Mini",
-    "migration.step.2.button.other": "激活许可"
+    "migration.step.2.button.other": "激活许可",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "拦截复杂广告，持续更新防护",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "高级保护",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "实时过滤器更新"
 }

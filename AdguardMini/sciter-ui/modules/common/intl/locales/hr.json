@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Kupite punu verziju",
     "tray.story.adguard.extra.action.3.trial": "| Isprobajte %trialDays% dan besplatno | Isprobajte %trialDays% dana besplatno | Isprobajte %trialDays% dana besplatno",
     "tray.story.adguard.extra.action.4": "Omogući",
-    "context.menu.report.problem": "Prijavi problem",
+    "context.menu.report.problem": "Prijava problema",
     "context.menu.report.problem.tooltip": "Nešto ne radi kako treba?<br></br>Javite nam",
     "telemetry.accept.send.data": "Pošalji anonimizirane <link>podatke o korištenju aplikacije</link>",
     "telemetry.modal.title": "Podaci o korištenju aplikacije",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Koristite svoju aktivnu AdGuard licencu za otključavanje Pro mogućnosti u AdGuard Mini",
     "migration.step.2.description.2": "Jedini izuzetak je AdGuard za iOS. AdGuard Mini ne podržava njegovu licencu",
     "migration.step.2.button.submit": "Pokreni AdGuard Mini",
-    "migration.step.2.button.other": "Aktiviraj licencu"
+    "migration.step.2.button.other": "Aktiviraj licencu",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokira lukave oglase i održava zaštitu ažurnom",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Napredna zaštita",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Ažuriranja filtera u stvarnom vremenu"
 }

@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "השתמש ברישיון ה-AdGuard הפעיל שלך כדי לפתוח יכולות Pro ב-AdGuard Mini",
     "migration.step.2.description.2": "היוצא מן הכלל היחיד הוא AdGuard עבור iOS. AdGuard Mini אינה תומכת ברישיון שלו",
     "migration.step.2.button.submit": "הפעל את AdGuard Mini",
-    "migration.step.2.button.other": "הפעל רישיון"
+    "migration.step.2.button.other": "הפעל רישיון",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "חוסם פרסומות מתוחכמות ושומר על ההגנה מעודכנת",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "הגנה מתקדמת",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "עדכוני סינון בזמן אמת"
 }

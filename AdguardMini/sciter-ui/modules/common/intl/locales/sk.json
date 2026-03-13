@@ -397,7 +397,7 @@
     "settings.paywall.trial.then.monthly": "potom %currencyAndPrice%/mesiac",
     "settings.paywall.plan.with.discount": "Ročne (<standard>%price%</standard> %withDiscount% za prvý rok)",
     "settings.paywall.plan.with.discount.month": "Mesačne (<standard>%price%</standard> %withDiscount% za prvý mesiac)",
-    "settings.activation.flow.already.purchased": "Už bolo zakúpené?",
+    "settings.activation.flow.already.purchased": "Už ste si kúpili?",
     "settings.activation.flow.already.purchased.modal.title": "Už bolo zakúpené",
     "settings.activation.flow.already.purchased.modal.log.in": "Prihlásenie",
     "settings.activation.flow.already.purchased.modal.restore": "Obnoviť z obchodu App Store",
@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "Zadajte aktivačný kód",
     "settings.activation.flow.enter.activation.code.modal.desc": "Skontrolujte si svoj <link>účet AdGuard</link> a nájdite aktivačný kód",
     "settings.activation.flow.enter.activation.code.modal.input.label": "Kód",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Obsahuje čísla a písmená",
     "settings.activation.flow.enter.activation.code.modal.activate": "Aktivovať",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "Táto licencia neexistuje. Skúste iný kód",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "Licencia bola zrušená. Skúste iný kód alebo si kúpte novú licenciu",
@@ -572,5 +571,8 @@
     "migration.step.2.description.1": "Použite svoju aktívnu licenciu AdGuard na odomknutie funkcií Pro v AdGuard Mini",
     "migration.step.2.description.2": "Jedinou výnimkou je AdGuard pre iOS. AdGuard Mini nepodporuje jeho licenciu",
     "migration.step.2.button.submit": "Spustenie AdGuard Mini",
-    "migration.step.2.button.other": "Aktivovať licenciu"
+    "migration.step.2.button.other": "Aktivovať licenciu",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokuje zákerné reklamy a udržiava ochranu aktuálnu",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Pokročilá ochrana",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Aktualizácie filtrov v reálnom čase"
 }

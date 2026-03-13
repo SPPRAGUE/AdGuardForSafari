@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "AdGuard Mini’de Pro özelliklerin kilidini açmak için aktif AdGuard lisansınızı kullanın",
     "migration.step.2.description.2": "Tek istisna AdGuard for iOS'dir. AdGuard Mini lisansını desteklemez",
     "migration.step.2.button.submit": "AdGuard Mini'yi başlat",
-    "migration.step.2.button.other": "Lisansı etkinleştir"
+    "migration.step.2.button.other": "Lisansı etkinleştir",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Aldatıcı reklamları engeller ve korumayı güncel tutar",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Gelişmiş koruma",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Gerçek zamanlı filtre güncellemeleri"
 }

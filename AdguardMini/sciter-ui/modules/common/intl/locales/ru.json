@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Лицензия AdGuard открывает доступ к полной версии AdGuard Mini",
     "migration.step.2.description.2": "Единственное исключение — AdGuard для iOS. Его лицензию в AdGuard Mini использовать не получится",
     "migration.step.2.button.submit": "Запустить AdGuard Mini",
-    "migration.step.2.button.other": "Активировать лицензию"
+    "migration.step.2.button.other": "Активировать лицензию",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Блокирует сложную рекламу и проверяет, чтобы защита всегда была актуальной",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Расширенная защита",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Обновления фильтров в реальном времени"
 }

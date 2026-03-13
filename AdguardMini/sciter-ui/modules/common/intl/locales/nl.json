@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Volledige versie verkrijgen",
     "tray.story.adguard.extra.action.3.trial": "| %trialDays% dag gratis proberen | %trialDays% dagen gratis proberen",
     "tray.story.adguard.extra.action.4": "Inschakelen",
-    "context.menu.report.problem": "Probleem melden",
+    "context.menu.report.problem": "Een probleem melden",
     "context.menu.report.problem.tooltip": "Werkt er iets niet goed?<br></br>Laat het ons weten",
     "telemetry.accept.send.data": "Geanonimiseerde <link>app-gebruiksgegevens</link> verzenden",
     "telemetry.modal.title": "Gegevens over app-gebruik",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Gebruik je actieve AdGuard-licentie om de Pro-functionaliteiten in AdGuard Mini te ontgrendelen",
     "migration.step.2.description.2": "De enige uitzondering is AdGuard voor iOS. AdGuard Mini biedt geen ondersteuning voor de licentie",
     "migration.step.2.button.submit": "AdGuard Mini starten",
-    "migration.step.2.button.other": "Licentie activeren"
+    "migration.step.2.button.other": "Licentie activeren",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokkeert misleidende advertenties en houdt de bescherming up-to-date",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Geavanceerde bescherming",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Realtime filterupdates"
 }

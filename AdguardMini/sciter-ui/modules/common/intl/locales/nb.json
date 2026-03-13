@@ -572,5 +572,6 @@
     "migration.step.2.description.1": "Bruk din aktive AdGuard-lisens for å låse opp Pro-funksjoner i AdGuard Mini",
     "migration.step.2.description.2": "Det eneste unntaket er AdGuard for iOS. AdGuard Mini støtter ikke lisensen",
     "migration.step.2.button.submit": "Start AdGuard Mini",
-    "migration.step.2.button.other": "Aktiver lisens"
+    "migration.step.2.button.other": "Aktiver lisens",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Avansert beskyttelse"
 }

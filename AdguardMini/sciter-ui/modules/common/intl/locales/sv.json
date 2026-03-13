@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Hämta fullständig version",
     "tray.story.adguard.extra.action.3.trial": "| Prova %trialDays% dag gratis | Prova %trialDays% dagar gratis",
     "tray.story.adguard.extra.action.4": "Aktivera",
-    "context.menu.report.problem": "Rapportera problem",
+    "context.menu.report.problem": "Rapportera ett problem",
     "context.menu.report.problem.tooltip": "Något fungerar inte som det ska?<br></br>Låt oss veta",
     "telemetry.accept.send.data": "Skicka anonymiserad <link>data om appanvändning</link>",
     "telemetry.modal.title": "Appanvändardata",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Använd din aktiva AdGuard-licens för att låsa upp Pro-funktioner i AdGuard Mini",
     "migration.step.2.description.2": "Den enda undantaget är AdGuard för iOS. AdGuard Mini stöder inte dess licens",
     "migration.step.2.button.submit": "Starta AdGuard Mini",
-    "migration.step.2.button.other": "Aktivera licens"
+    "migration.step.2.button.other": "Aktivera licens",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blockerar knepiga annonser och håller skyddet uppdaterat",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Avancerat skydd",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Filteruppdateringar i realtid"
 }

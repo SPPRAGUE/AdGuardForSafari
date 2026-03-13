@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "有効なAdGuardライセンスをお持ちでしたら、AdGuard Mini のPro機能の有効化に使用できます。",
     "migration.step.2.description.2": "唯一の例外はApp Store経由で購入したiOS用AdGuardライセンスです。AdGuard Mini ではそのライセンスは使えません。",
     "migration.step.2.button.submit": "AdGuard Mini を起動する",
-    "migration.step.2.button.other": "ライセンスを認証する"
+    "migration.step.2.button.other": "ライセンスを認証する",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "仕組みが複雑な広告をブロックし、保護機能を最新の状態に保ちます。",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "高度な保護機能",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "フィルタをリアルタイムで更新"
 }

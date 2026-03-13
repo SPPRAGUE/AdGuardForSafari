@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "ใช้ใบอนุญาต AdGuard ที่ใช้งานอยู่ของคุณเพื่อปลดล็อกความสามารถ Pro ใน AdGuard Mini",
     "migration.step.2.description.2": "ข้อยกเว้นเพียงอย่างเดียวคือ AdGuard สำหรับ iOS AdGuard Mini ไม่รองรับใบอนุญาตของแอปนี้",
     "migration.step.2.button.submit": "เปิดใช้งาน AdGuard Mini",
-    "migration.step.2.button.other": "เปิดใช้งานใบอนุญาต"
+    "migration.step.2.button.other": "เปิดใช้งานใบอนุญาต",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "บล็อกโฆษณาที่หลอกลวงและอัปเดตการป้องกันให้เป็นปัจจุบันอยู่เสมอ",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "การป้องกันขั้นสูง",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "การอัปเดตตัวกรองแบบเรียลไทม์"
 }

@@ -405,7 +405,7 @@
     "settings.activation.flow.enter.activation.code.modal.title": "Zadejte aktivační kód",
     "settings.activation.flow.enter.activation.code.modal.desc": "Zkontrolujte svůj <link>AdGuard účet</link> a najděte svůj aktivační kód",
     "settings.activation.flow.enter.activation.code.modal.input.label": "Kód",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Obsahuje čísla a písmena",
+    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Obsahuje číslice a písmena",
     "settings.activation.flow.enter.activation.code.modal.activate": "Aktivovat",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "Tato licence neexistuje. Zkuste jiný kód",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "Licence zrušena. Zkuste jiný kód nebo si kupte novou licenci",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Použijte svou aktivní licenci AdGuardu k odemknutí funkcí Pro v AdGuard Mini",
     "migration.step.2.description.2": "Jedinou výjimkou je AdGuard pro iOS. AdGuard Mini nepodporuje jeho licenci",
     "migration.step.2.button.submit": "Spustit AdGuard Mini",
-    "migration.step.2.button.other": "Aktivovat licenci"
+    "migration.step.2.button.other": "Aktivovat licenci",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokuje záludné reklamy a udržuje ochranu aktuální",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Pokročilá ochrana",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Aktualizace filtrů v reálném čase"
 }

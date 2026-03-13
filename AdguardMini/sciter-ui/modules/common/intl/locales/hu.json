@@ -17,7 +17,7 @@
     "disable.all": "Összes letiltása",
     "disable.all.desc": "Ebben a szakaszban minden beállítás le lesz tiltva",
     "save": "Mentés",
-    "saved": "Elmentve",
+    "saved": "Mentve",
     "create": "Teremt",
     "import": "Importálás",
     "export": "Exportálás",
@@ -303,7 +303,7 @@
     "user.rules.fill.field": "Kérem töltse ki ezt a mezőt",
     "user.rules.domain.invalid": "Ez a domain név érvénytelen",
     "user.rules.editor.update_info.has_updates": "A felhasználói szabályokat az Asszisztens frissítette.<br></br><btn>A frissítések alkalmazása</btn> és a jelenlegi változtatások elvetése?",
-    "user.rules.editor.update_info.saved": "A szabályok elmentve. A Safari-nak szüksége lehet némi időre azok alkalmazásához.",
+    "user.rules.editor.update_info.saved": "Szabályok mentve. A Safarinak időre lehet szüksége az alkalmazásukhoz",
     "user.rules.editor.update_info.applying_updates": "Frissítések alkalmazása az Asszisztenstől...",
     "advanced.blocking.desc": "Olyan bonyolult eseteket kezel, amikor az alapértelmezett hirdetésblokkoló szabályok nem elegendőek",
     "advanced.blocking.rules": "Speciális szabályok",
@@ -466,7 +466,7 @@
     "notification.something.went.wrong": "Valami hiba történt. Próbálja újra, vagy <contactSupport>lépjen kapcsolatba a támogatással</contactSupport>",
     "notification.user.rules.export": "Felhasználói szabályok exportálva",
     "notification.open.in.finder": "Megnyitás a Finderben",
-    "notification.user.rules.save": "Felhasználói szabály elmentve: <b>%rule%</b>",
+    "notification.user.rules.save": "Felhasználói szabály mentve: <b>%rule%</b>",
     "notification.settings.import": "Beállítások importálva",
     "notification.settings.import.partial": "A beállítások részlegesen kerültek importálásra",
     "notification.settings.import.failed": "Nem sikerült importálni a beállításokat. Próbálja újra, vagy <contactSupport>lépjen kapcsolatba a támogatással</contactSupport>",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Használja aktív AdGuard licencét a Pro funkciók feloldásához az AdGuard Mini alkalmazásban",
     "migration.step.2.description.2": "Az egyetlen kivétel az AdGuard iOS-hez. Az AdGuard Mini nem támogatja annak licencét",
     "migration.step.2.button.submit": "AdGuard Mini indítása",
-    "migration.step.2.button.other": "Licenc aktiválása"
+    "migration.step.2.button.other": "Licenc aktiválása",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokkolja a trükkös hirdetéseket, és naprakészen tartja a védelmet",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Fejlett védelem",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Valós idejű szűrőfrissítések"
 }

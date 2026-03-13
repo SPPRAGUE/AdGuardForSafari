@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Використайте свою активну ліцензію AdGuard, щоб розблокувати Pro-можливості в AdGuard Mini",
     "migration.step.2.description.2": "Єдина виняток — AdGuard для iOS. AdGuard Mini не підтримує її ліцензію",
     "migration.step.2.button.submit": "Запустити AdGuard Mini",
-    "migration.step.2.button.other": "Активувати ключ"
+    "migration.step.2.button.other": "Активувати ключ",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Блокує хитру рекламу та підтримує захист в актуальному стані",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Розширений захист",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Оновлення фільтрів у реальному часі"
 }

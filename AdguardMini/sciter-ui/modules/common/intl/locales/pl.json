@@ -397,7 +397,7 @@
     "settings.paywall.trial.then.monthly": "następnie %currencyAndPrice%/miesiąc",
     "settings.paywall.plan.with.discount": "Rocznie (<standard>%price%</standard> %withDiscount% w pierwszym roku)",
     "settings.paywall.plan.with.discount.month": "Miesięcznie (<standard>%price%</standard> %withDiscount% za pierwszy miesiąc)",
-    "settings.activation.flow.already.purchased": "Już zakupiono?",
+    "settings.activation.flow.already.purchased": "Czy już zakupiono?",
     "settings.activation.flow.already.purchased.modal.title": "Już zakupiono",
     "settings.activation.flow.already.purchased.modal.log.in": "Zaloguj się",
     "settings.activation.flow.already.purchased.modal.restore": "Przywróć z App Store",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Użyj aktywnej licencji AdGuard, aby odblokować funkcje Pro w AdGuard Mini",
     "migration.step.2.description.2": "Jedynym wyjątkiem jest AdGuard na iOS. AdGuard Mini nie obsługuje swojej licencji",
     "migration.step.2.button.submit": "Uruchom AdGuard Mini",
-    "migration.step.2.button.other": "Aktywuj licencję"
+    "migration.step.2.button.other": "Aktywuj licencję",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokuje podstępne reklamy i utrzymuje ochronę na bieżąco",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Zaawansowana ochrona",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Aktualizacje filtrów w czasie rzeczywistym"
 }

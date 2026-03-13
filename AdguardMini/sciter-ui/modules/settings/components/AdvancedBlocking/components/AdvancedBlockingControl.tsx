@@ -36,7 +36,7 @@ export function AdvancedBlockingControlComponent() {
         isBVariant ? SettingsEvent.TryForFreeAbTest : SettingsEvent.TryForFreeExtraClick,
     );
     const onAdguardExtraChange = (value: boolean) => {
-        if (isFree && !isBVariant) {
+        if (isFree) {
             account.showPaywall();
             return;
         }
@@ -49,6 +49,7 @@ export function AdvancedBlockingControlComponent() {
     const { settings: { autoFiltersUpdate, realTimeFiltersUpdate } } = settings;
     const onUpdateRealTimeFilters = (value: boolean) => {
         if (isFree) {
+            account.showPaywall();
             return;
         }
         settings.updateRealTimeFiltersUpdate(value);

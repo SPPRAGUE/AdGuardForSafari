@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Beli versi lengkap",
     "tray.story.adguard.extra.action.3.trial": "Coba %trialDays% hari secara gratis | Coba %trialDays% hari secara gratis",
     "tray.story.adguard.extra.action.4": "Aktifkan",
-    "context.menu.report.problem": "Laporkan masalah",
+    "context.menu.report.problem": "Laporkan bug",
     "context.menu.report.problem.tooltip": "Ada yang tidak berfungsi dengan benar?<br></br>Beri tahu kami",
     "telemetry.accept.send.data": "Kirim <link>data penggunaan aplikasi</link> yang dianonimkan",
     "telemetry.modal.title": "Penggunaan data aplikasi",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Gunakan lisensi AdGuard Anda yang aktif untuk membuka kunci kemampuan Pro di AdGuard Mini",
     "migration.step.2.description.2": "Satu-satunya pengecualian adalah AdGuard untuk iOS. AdGuard Mini tidak mendukung lisensinya",
     "migration.step.2.button.submit": "Jalankan AdGuard Mini",
-    "migration.step.2.button.other": "Aktifkan lisensi"
+    "migration.step.2.button.other": "Aktifkan lisensi",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Memblokir iklan yang licik dan menjaga perlindungan tetap terbaru",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Perlindungan tingkat lanjut",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Pembaruan filter secara waktu nyata"
 }

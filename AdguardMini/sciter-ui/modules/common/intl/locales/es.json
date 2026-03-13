@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Utiliza tu licencia activa de AdGuard para desbloquear las capacidades Pro en AdGuard Mini",
     "migration.step.2.description.2": "La única excepción es AdGuard para iOS. AdGuard Mini no soporta su licencia",
     "migration.step.2.button.submit": "Iniciar AdGuard Mini",
-    "migration.step.2.button.other": "Activar licencia"
+    "migration.step.2.button.other": "Activar licencia",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Bloquea anuncios complicados y mantiene la protección actualizada",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Protección avanzada",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Actualizaciones de filtros en tiempo real"
 }

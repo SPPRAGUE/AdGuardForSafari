@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "輸入啟動碼",
     "settings.activation.flow.enter.activation.code.modal.desc": "請在您的 <link>AdGuard 帳戶</link>中檢視啟動碼。",
     "settings.activation.flow.enter.activation.code.modal.input.label": "啟動碼",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "包含數字和字母",
     "settings.activation.flow.enter.activation.code.modal.activate": "啟動",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "此授權不存在。請嘗試其他代碼。",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "授權已取消。請嘗試其他代碼或購買新授權。",
@@ -572,5 +571,8 @@
     "migration.step.2.description.1": "使用有效的 AdGuard 授權，即可在 AdGuard Mini 中解鎖 Pro 版功能",
     "migration.step.2.description.2": "唯一的例外是 AdGuard iOS 版。AdGuard Mini 不支援其授權。",
     "migration.step.2.button.submit": "啟動 AdGuard Mini",
-    "migration.step.2.button.other": "啟動授權"
+    "migration.step.2.button.other": "啟動授權",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "封鎖複雜廣告，持續更新防護",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "進階防護",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "實時過濾器更新"
 }

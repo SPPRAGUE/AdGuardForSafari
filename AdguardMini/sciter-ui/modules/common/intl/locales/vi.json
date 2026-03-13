@@ -405,7 +405,7 @@
     "settings.activation.flow.enter.activation.code.modal.title": "Nhập mã kích hoạt",
     "settings.activation.flow.enter.activation.code.modal.desc": "Kiểm tra <link>tài khoản AdGuard</link> của bạn để lấy mã kích hoạt",
     "settings.activation.flow.enter.activation.code.modal.input.label": "Mã",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Bao gồm số và chữ cái",
+    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "Bao gồm các chữ số và chữ cái",
     "settings.activation.flow.enter.activation.code.modal.activate": "Kích hoạt",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "Giấy phép này không tồn tại. Thử mã khác",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "Giấy phép đã bị hủy bỏ. Thử mã khác hoặc mua giấy phép mới",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Sử dụng giấy phép AdGuard hiện có của bạn để mở khóa các tính năng Pro trong AdGuard Mini.",
     "migration.step.2.description.2": "Ngoại lệ duy nhất là AdGuard dành cho iOS. AdGuard Mini không hỗ trợ giấy phép của ứng dụng này",
     "migration.step.2.button.submit": "Khởi chạy AdGuard Mini",
-    "migration.step.2.button.other": "Kích hoạt bản quyền"
+    "migration.step.2.button.other": "Kích hoạt bản quyền",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Chặn các quảng cáo tinh vi và luôn cập nhật sự bảo vệ",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Bảo vệ nâng cao",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Cập nhật bộ lọc theo thời gian thực"
 }

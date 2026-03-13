@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Käytä aktiivista AdGuard-lisenssiäsi avataksesi Pro-ominaisuudet AdGuard Minissä",
     "migration.step.2.description.2": "Ainoa poikkeus on AdGuard iOS:lle. AdGuard Mini ei tue lisenssiään",
     "migration.step.2.button.submit": "Käynnistä AdGuard Mini",
-    "migration.step.2.button.other": "Aktivoi lisenssi"
+    "migration.step.2.button.other": "Aktivoi lisenssi",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Estää hankalat mainokset ja pitää suojauksen ajan tasalla",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Edistynyt suojaus",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Reaaliaikaiset suodatinpäivitykset"
 }

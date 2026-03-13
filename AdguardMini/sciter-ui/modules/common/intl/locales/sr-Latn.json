@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Koristite aktivnu AdGuard licencu za otključavanje Pro mogućnosti u AdGuard Mini",
     "migration.step.2.description.2": "Jedino izuzetak je AdGuard za iOS. AdGuard Mini ne podržava njegovu licencu",
     "migration.step.2.button.submit": "Pokreni AdGuard Mini",
-    "migration.step.2.button.other": "Aktiviraj licencu"
+    "migration.step.2.button.other": "Aktiviraj licencu",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blokira nezgodne oglase i održava zaštitu ažurnom",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Napredna zaštita",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Ažuriranja filtera u realnom vremenu"
 }

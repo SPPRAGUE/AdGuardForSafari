@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Χρησιμοποιήστε την ενεργή άδεια AdGuard για να ξεκλειδώσετε τις δυνατότητες Pro στο AdGuard Mini",
     "migration.step.2.description.2": "Η μόνη εξαίρεση είναι το AdGuard για iOS. Το AdGuard Mini δεν υποστηρίζει την άδειά του",
     "migration.step.2.button.submit": "Εκκίνηση του AdGuard Mini",
-    "migration.step.2.button.other": "Ενεργοποίηση άδειας"
+    "migration.step.2.button.other": "Ενεργοποίηση άδειας",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Μπλοκάρει δύσκολες διαφημίσεις και διατηρεί την προστασία ενημερωμένη",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Προηγμένη προστασία",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Ενημερώσεις φίλτρων σε πραγματικό χρόνο"
 }

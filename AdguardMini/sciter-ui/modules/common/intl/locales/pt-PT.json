@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Obter versão completa",
     "tray.story.adguard.extra.action.3.trial": "| Experimente %trialDays% dia gratuitamente | Experimente %trialDays% dias gratuitamente",
     "tray.story.adguard.extra.action.4": "Ativar",
-    "context.menu.report.problem": "Informar problema",
+    "context.menu.report.problem": "Informar um problema",
     "context.menu.report.problem.tooltip": "Algo não está funcionando direito?<br></br>Deixe-nos saber",
     "telemetry.accept.send.data": "Enviar <link>dados de utilização da aplicação anónimos</link>",
     "telemetry.modal.title": "Dados de uso da aplicação",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Use sua licença AdGuard ativa para desbloquear recursos Pro no AdGuard Mini",
     "migration.step.2.description.2": "A única exceção é o AdGuard para iOS. O AdGuard Mini não suporta a sua licença",
     "migration.step.2.button.submit": "Inicie o AdGuard Mini",
-    "migration.step.2.button.other": "Ativar licença"
+    "migration.step.2.button.other": "Ativar licença",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Bloqueia anúncios complicados e mantém a proteção atualizada",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Proteção avançada",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Atualizações de filtros em tempo real"
 }

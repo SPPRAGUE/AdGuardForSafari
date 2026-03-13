@@ -539,7 +539,7 @@
     "tray.story.adguard.extra.action.3": "Cumpărați versiunea completă",
     "tray.story.adguard.extra.action.3.trial": "| Încercați %trialDays% — %trialDays% zi gratuit | Încercați %trialDays% — %trialDays% zile gratuit | Încercați %trialDays% — %trialDays% zile gratuit",
     "tray.story.adguard.extra.action.4": "Activare",
-    "context.menu.report.problem": "Semnalați problemă",
+    "context.menu.report.problem": "Semnalați o problemă",
     "context.menu.report.problem.tooltip": "Ceva nu funcţionează corect?<br></br>Spuneţi-ne",
     "telemetry.accept.send.data": "Trimiteți date de utilizare ale aplicației <link>anonimizate</link>",
     "telemetry.modal.title": "Datele de utilizare a aplicației",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "Utilizați licența AdGuard activă pentru a debloca capabilitățile Pro în AdGuard Mini",
     "migration.step.2.description.2": "Singura excepție este AdGuard pentru iOS. AdGuard Mini nu suportă licența sa",
     "migration.step.2.button.submit": "Lansați AdGuard Mini",
-    "migration.step.2.button.other": "Activați licența"
+    "migration.step.2.button.other": "Activați licența",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "Blochează reclamele complicate și păstrează protecția actualizată",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "Protecție avansată",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "Actualizări ale filtrării în timp real"
 }

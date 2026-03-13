@@ -405,7 +405,6 @@
     "settings.activation.flow.enter.activation.code.modal.title": "کد فعال سازی را وارد کنید",
     "settings.activation.flow.enter.activation.code.modal.desc": "برای یافتن کد فعالسازی به <link>حساب AdGuard</link> خود مراجعه کنید",
     "settings.activation.flow.enter.activation.code.modal.input.label": "رمز",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "شامل اعداد و حروف است",
     "settings.activation.flow.enter.activation.code.modal.activate": "فعالسازي",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "این مجوز وجود ندارد. کد دیگری را امتحان کنید",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "مجوز لغو شد. کد دیگری را امتحان کنید یا مجوز جدیدی بخرید",
@@ -539,7 +538,6 @@
     "tray.story.adguard.extra.action.3": "دریافت نسخه کامل",
     "tray.story.adguard.extra.action.3.trial": "| %trialDays% روز را رایگان امتحان کنید | %trialDays% روز را رایگان امتحان کنید",
     "tray.story.adguard.extra.action.4": "فعالسازي",
-    "context.menu.report.problem": "گزارش مشکل",
     "context.menu.report.problem.tooltip": "چیزی درست کار نمی‌کند؟<br></br>به ما اطلاع دهید",
     "telemetry.accept.send.data": "ارسال ناشناس <link>داده‌ استفاده از برنامک</link>",
     "telemetry.modal.title": "داده‌های استفاده از برنامه",
@@ -572,5 +570,6 @@
     "migration.step.2.description.1": "از مجوز فعال AdGuard خود برای فعال‌کردن قابلیت‌های حرفه‌ای در AdGuard Mini استفاده کنید",
     "migration.step.2.description.2": "تنها استثنا AdGuard برای iOS است. AdGuard Mini از مجوز خود پشتیبانی نمی کند",
     "migration.step.2.button.submit": "راه‌اندازی AdGuard Mini",
-    "migration.step.2.button.other": "فعالسازی مجوز"
+    "migration.step.2.button.other": "فعالسازی مجوز",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "حفاظت پیشرفته"
 }

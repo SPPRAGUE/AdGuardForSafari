@@ -405,7 +405,7 @@
     "settings.activation.flow.enter.activation.code.modal.title": "활성화 코드를 입력",
     "settings.activation.flow.enter.activation.code.modal.desc": "활성화 코드를 찾으려면 <link>AdGuard 계정</link>을 확인하세요.",
     "settings.activation.flow.enter.activation.code.modal.input.label": "코드",
-    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "숫자및 문자 포함",
+    "settings.activation.flow.enter.activation.code.modal.input.placeholder": "숫자 및 문자 포함",
     "settings.activation.flow.enter.activation.code.modal.activate": "활성화",
     "settings.activation.flow.enter.activation.code.modal.error.not.exist": "이 라이선스가 존재하지 않습니다. 다른 코드를 시도해보세요.",
     "settings.activation.flow.enter.activation.code.modal.error.blocked": "라이선스가 취소되었습니다. 다른 코드를 시도하거나 새 라이선스를 구매하세요.",
@@ -572,5 +572,8 @@
     "migration.step.2.description.1": "기존 AdGuard 라이선스를 사용하여 AdGuard Mini의 Pro 기능을 활성화하세요.",
     "migration.step.2.description.2": "유일한 예외는 iOS용 AdGuard입니다. AdGuard Mini는 해당 라이선스를 지원하지 않습니다.",
     "migration.step.2.button.submit": "AdGuard Mini 실행",
-    "migration.step.2.button.other": "라이선스 활성화"
+    "migration.step.2.button.other": "라이선스 활성화",
+    "advanced.blocking.desc.AG_51019_advanced_settings": "까다로운 광고를 차단하고 보호 기능을 최신 상태로 유지합니다.",
+    "menu.advanced.blocking.AG_51019_advanced_settings": "고급 보호",
+    "settings.real.time.filter.updates.AG_51019_advanced_settings": "실시간 필터 업데이트"
 }
