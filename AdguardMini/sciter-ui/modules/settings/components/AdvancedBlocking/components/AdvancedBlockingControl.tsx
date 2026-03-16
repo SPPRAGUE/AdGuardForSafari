@@ -36,24 +36,23 @@ export function AdvancedBlockingControlComponent() {
         isBVariant ? SettingsEvent.TryForFreeAbTest : SettingsEvent.TryForFreeExtraClick,
     );
     const onAdguardExtraChange = (value: boolean) => {
+        telemetry.trackEvent(isBVariant ? SettingsEvent.ExtraAbTest : SettingsEvent.AdguardExtraClick);
         if (isFree) {
             account.showPaywall();
             return;
         }
-
-        telemetry.trackEvent(isBVariant ? SettingsEvent.ExtraAbTest : SettingsEvent.AdguardExtraClick);
         advancedBlocking.updateAdguardExtra(value);
     };
 
     // B variant settings
     const { settings: { autoFiltersUpdate, realTimeFiltersUpdate } } = settings;
     const onUpdateRealTimeFilters = (value: boolean) => {
+        telemetry.trackEvent(SettingsEvent.RealTimeAbTest);
         if (isFree) {
             account.showPaywall();
             return;
         }
         settings.updateRealTimeFiltersUpdate(value);
-        telemetry.trackEvent(SettingsEvent.RealTimeAbTest);
     };
 
     const onUpdateAutoFilters = (value: boolean) => {
