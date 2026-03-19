@@ -17,12 +17,12 @@ export type StoryCardIcon = 'info' | 'quality' | 'phone' | 'custom_filter' | 'st
 /**
  * Story background color classname
  */
-export type StoryBackgroundColor = 'aqua' | 'blue' | 'green' | 'purple' | 'sand' | 'sandBlue' | 'emerald';
+export type StoryBackgroundColor = 'aqua' | 'blue' | 'green' | 'purple' | 'sand' | 'sandBlue' | 'sandGreen' | 'emerald';
 
 /**
  * Story frame image classname
  */
-export type StoryFrameImage = 'advanced' | 'devices' | 'extensions' | 'extra1' | 'extra2' | 'extra3' | 'filters1' | 'filters2' | 'filters3' | 'filters4' | 'filters5' | 'loginItem' | 'rate1' | 'rate2' | 'rate3' | 'telemetry1' | 'telemetry3' | 'telemetry4';
+export type StoryFrameImage = 'advanced' | 'devices' | 'extensions' | 'extra1' | 'extra2' | 'extra3' | 'extra4' | 'filters1' | 'filters2' | 'filters3' | 'filters4' | 'filters5' | 'loginItem' | 'rate' | 'telemetry1' | 'telemetry2' | 'telemetry3' | 'telemetry4';
 
 /**
  * Main story model

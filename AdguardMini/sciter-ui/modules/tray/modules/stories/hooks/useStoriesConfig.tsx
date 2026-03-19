@@ -15,7 +15,7 @@ import { ExternalLink } from 'UILib';
 
 import { telemetryStoryFrameButtonsWrapper } from '../components';
 
-import type { IStoryFrame, StoryInfo } from '../model';
+import type { IStoryFrame, StoryFrameImage, StoryInfo } from '../model';
 
 const openSafariPref = () => {
     window.API.settingsService.OpenSafariExtensionPreferences(new OptionalStringValue());
@@ -98,7 +98,7 @@ export function useStoriesConfig(): StoryInfo[] {
                         frameId: 'loginItem1',
                     },
                 ],
-                backgroundColor: 'purple',
+                backgroundColor: 'sand',
             },
         });
     }
@@ -146,7 +146,7 @@ export function useStoriesConfig(): StoryInfo[] {
                     },
                     frameId: 'devices1',
                 }],
-                backgroundColor: 'emerald',
+                backgroundColor: 'sandBlue',
             },
             telemetryEvent: TrayEvent.StoreUseLicenseClick,
         });
@@ -172,7 +172,7 @@ export function useStoriesConfig(): StoryInfo[] {
                     frameId: 'telemetry2',
                     title: translate('telemetry.story.frame.2.title'),
                     description: translate('telemetry.story.frame.2.desc', { link: (text: string) => <ExternalLink color="inheritColor" href={getTdsLink(TDS_PARAMS.privacy)}>{text}</ExternalLink> }),
-                    image: 'extra1',
+                    image: 'telemetry2',
                     component: telemetryStoryFrameButtonsWrapper(false),
                 }, {
                     frameId: 'telemetry3',
@@ -194,7 +194,7 @@ export function useStoriesConfig(): StoryInfo[] {
                     description: translate('telemetry.story.frame.4.desc'),
                     image: 'telemetry4',
                 }],
-                backgroundColor: 'sandBlue',
+                backgroundColor: 'sandGreen',
             },
             telemetryEvent: TrayEvent.TelemetryClick,
         });
@@ -250,11 +250,11 @@ export function useStoriesConfig(): StoryInfo[] {
     //         frames: [{
     //             title: translate('tray.story.rate.adguard'),
     //             description: translate('tray.story.rate.adguard.desc'),
-    //             image: 'rate1',
+    //             image: 'rate',
     //             component: StarStoryMainFrameButtons,
-    //             frameId: 'rate1',
+    //             frameId: 'rate',
     //         }],
-    //         backgroundColor: 'sandBlue',
+    //         backgroundColor: 'emerald',
     //     },
     //     telemetryEvent: TrayEvent.StoryLoveHearYouClick,
     // });
@@ -278,6 +278,7 @@ export function useStoriesConfig(): StoryInfo[] {
     let extraDescription = '';
     let extraButtonTitle = '';
     let extraButtonAction = noop;
+    let extraImage: StoryFrameImage = 'extra3';
     if (trialAvailableDays > 0) {
         extraTitle = translate('tray.story.adguard.extra.title.3');
         extraDescription = translate('tray.story.adguard.extra.desc.3');
@@ -299,6 +300,7 @@ export function useStoriesConfig(): StoryInfo[] {
                 value: RouteNameSettings.advanced_blocking,
             }));
         };
+        extraImage = 'extra4';
     }
 
     if (!trialAvailableDays && !isLicenseOrTrialActive) {
@@ -332,7 +334,7 @@ export function useStoriesConfig(): StoryInfo[] {
         extraFrames.push({
             title: extraTitle,
             description: extraDescription,
-            image: 'extra3',
+            image: extraImage,
             actionButton: {
                 title: extraButtonTitle,
                 action: extraButtonAction,
@@ -347,7 +349,7 @@ export function useStoriesConfig(): StoryInfo[] {
         storyConfig: {
             id: 'extra',
             frames: extraFrames,
-            backgroundColor: 'sand',
+            backgroundColor: 'purple',
         },
         telemetryEvent: TrayEvent.StoryWhatIsExtraClick,
     });
