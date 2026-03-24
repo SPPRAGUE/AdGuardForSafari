@@ -97,6 +97,8 @@
     "about.version": "Version",
     "about.use.last.verion": "You are using the latest version of AdGuard Mini",
     "about.update.available": "A new version is available. <a>Update</a>",
+    "about.version.copy.notify": "App version copied",
+    "about.libraries.copy.notify": "Libraries versions copied",
     "new.version.available": "A new version is available",
     "about.rights": "© 2009–%year% Adguard Software Ltd. All rights reserved",
     "about.eula": "EULA",
