@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { AppStoreSubscription } from 'Apis/types';
+import { useSettingsStore } from 'Modules/settings/lib/hooks';
+import { SettingsEvent } from 'Modules/settings/store/modules';
 import { Button, Text, Icon } from 'UILib';
 
 import s from './SubscriptionPrices.module.pcss';
+
 import type { AppStoreSubscriptions } from 'Apis/types';
-import { useSettingsStore } from 'Modules/settings/lib/hooks';
-import { SettingsEvent } from 'Modules/settings/store/modules';
 
 type SubscriptionPricesProps = {
     appStoreSubscriptions: AppStoreSubscriptions | undefined;

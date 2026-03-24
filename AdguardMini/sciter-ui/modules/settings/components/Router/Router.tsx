@@ -22,9 +22,9 @@ import { SafariProtection } from '../SafariProtection';
 import { Settings } from '../Settings';
 import { Support } from '../Support';
 import { SupportContact } from '../SupportContact';
+import { Theme } from '../Theme';
 import { UserRule } from '../UserRule';
 import { UserRules } from '../UserRules';
-import { Theme } from '../Theme';
 
 import s from './Router.module.pcss';
 

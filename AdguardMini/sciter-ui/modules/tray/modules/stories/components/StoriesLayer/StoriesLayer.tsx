@@ -120,9 +120,9 @@ export function StoriesLayer({
                 />
                 <FrameContent
                     frame={frame}
+                    frameIdNavigation={handleFrameNavigation}
                     isMASReleaseVariant={isMASReleaseVariant}
                     storyActionButtonHandle={handleButtonAction}
-                    frameIdNavigation={handleFrameNavigation}
                 />
             </div>
         </div>

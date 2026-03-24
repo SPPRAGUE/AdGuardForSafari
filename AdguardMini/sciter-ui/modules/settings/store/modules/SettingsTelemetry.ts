@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Telemetry from 'Modules/common/stores/Telemetry';
+
 import { UserRulesPages, UserRulesEvents } from 'Modules/common/utils/consts';
 
 /**

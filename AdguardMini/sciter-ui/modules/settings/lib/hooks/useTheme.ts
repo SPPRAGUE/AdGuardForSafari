@@ -4,10 +4,10 @@
 
 import { useLayoutEffect } from 'preact/hooks';
 
+import { Theme, type EffectiveTheme } from 'Apis/types';
 import { useSettingsStore } from 'SettingsLib/hooks';
 import { getColorTheme, getEffectiveTheme } from 'Utils/colorThemes';
 
-import { Theme, type EffectiveTheme } from 'Apis/types';
 import type { OnColorThemeChanged } from 'Utils/colorThemes';
 
 /**

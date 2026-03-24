@@ -126,7 +126,7 @@ export interface IStoryFrame {
      *
      * @see FrameContent
      */
-    component?: React.FC<{ isMASReleaseVariant: boolean, frameIdNavigation(frameId: string): void }>;
+    component?: React.FC<{ isMASReleaseVariant: boolean; frameIdNavigation(frameId: string): void }>;
 
     /**
      * Callback to call when frame shown

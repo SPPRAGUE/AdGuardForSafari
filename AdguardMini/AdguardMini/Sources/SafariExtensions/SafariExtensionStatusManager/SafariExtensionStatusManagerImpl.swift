@@ -17,7 +17,7 @@ import AMLC
 
 final class SafariExtensionStatusManagerImpl: SafariExtensionStatusManager {
     private struct CachedResult {
-        private let ttl: TimeInterval = 0.5.seconds
+        private let ttl: TimeInterval = 0.375.seconds
         let isEnabled: Bool
         let timestamp: Date
 

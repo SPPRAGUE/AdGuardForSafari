@@ -13,7 +13,6 @@ import BaseSciterSchema
 extension GlobalSettings {
     public init(
         enabled: Bool = false,
-        allExtensionEnabled: Bool = false,
         newVersionAvailable: Bool = false,
         releaseVariant: ReleaseVariants = .standAlone,
         language: String = "",
@@ -23,7 +22,6 @@ extension GlobalSettings {
     ) {
         self.init()
         self.enabled = enabled
-        self.allExtensionEnabled = allExtensionEnabled
         self.newVersionAvailable = newVersionAvailable
         self.releaseVariant = releaseVariant
         self.language = language

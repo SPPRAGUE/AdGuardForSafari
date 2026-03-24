@@ -10,7 +10,7 @@ import s from './NotificationsRenderer.module.pcss';
 import type { NotificationPropsHolder } from 'SettingsLib/utils/NotificationPropsHolder';
 import type { NotificationPropertiesSelector } from 'SettingsStore/modules';
 
-type Props = {  
+type Props = {
     notification: NotificationPropsHolder<NotificationPropertiesSelector>;
     onCloseNotification(): void;
 };

@@ -62,13 +62,14 @@ export function useStoriesConfig(): StoryInfo[] {
         trialAvailableDays,
         storyCompleted,
         advancedBlocking,
+        safariExtensionsStore,
         license,
         statistics,
     } = settings;
 
-    const { allExtensionEnabled, allowTelemetry } = traySettings || {};
+    const { allowTelemetry } = traySettings || {};
 
-    if (!allExtensionEnabled) {
+    if (!safariExtensionsStore.allExtensionsEnabled) {
         requiredStories.push({
             style: 'warning',
             icon: 'info',

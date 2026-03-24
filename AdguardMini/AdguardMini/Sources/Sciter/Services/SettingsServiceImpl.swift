@@ -73,8 +73,7 @@ extension Sciter {
                                  _ promise: @escaping (SafariExtensions) -> Void) {
             Task {
                 let safariExtensions = await self.safariExtensionStateService.getAllExtensionsStatus()
-                var safariExtProto = safariExtensions.toProto()
-                safariExtProto.allExtensionsEnabled = await self.safariExtensionStatusManager.isAllExtensionsEnabled
+                let safariExtProto = safariExtensions.toProto()
                 promise(safariExtProto)
             }
         }
@@ -187,7 +186,6 @@ extension Sciter {
             Task {
                 let traySettings = GlobalSettings(
                     enabled: self.protectionService.isProtectionEnabled,
-                    allExtensionEnabled: await self.safariExtensionStatusManager.isAllExtensionsEnabled,
                     newVersionAvailable: self.appUpdater.isNewVersionAvailable,
                     releaseVariant: ProductInfo.releaseVariant.toProto(),
                     language: Locales.navigatorLang,

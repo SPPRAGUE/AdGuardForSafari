@@ -79,8 +79,8 @@ function FilterGroupPageComponent({
         return elements.length ? elements : undefined;
     }, [isCustomGroup, customFilters]);
 
-    const [nonCustomFilters, setNonCustomFilters] = useState<number[]>(isCustomGroup 
-        ? [] 
+    const [nonCustomFilters, setNonCustomFilters] = useState<number[]>(isCustomGroup
+        ? []
         : (filtersByGroups[groupId] ?? []));
 
     useLayoutEffect(() => {
@@ -88,7 +88,7 @@ function FilterGroupPageComponent({
             setNonCustomFilters([
                 ...(filtersByGroups[groupId] ?? []).filter((f: number) => enabledFilters.has(f)),
                 ...(filtersByGroups[groupId] ?? []).filter((f: number) => !enabledFilters.has(f)),
-            ])
+            ]);
         }
     }, []);
 

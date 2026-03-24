@@ -593,7 +593,6 @@ export class GlobalSettings extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
         enabled?: boolean;
-        allExtensionEnabled?: boolean;
         newVersionAvailable?: boolean;
         releaseVariant?: ReleaseVariants;
         language?: string;
@@ -606,9 +605,6 @@ export class GlobalSettings extends pb_1.Message {
         if (!Array.isArray(data) && typeof data == "object") {
             if ("enabled" in data && data.enabled != undefined) {
                 this.enabled = data.enabled;
-            }
-            if ("allExtensionEnabled" in data && data.allExtensionEnabled != undefined) {
-                this.allExtensionEnabled = data.allExtensionEnabled;
             }
             if ("newVersionAvailable" in data && data.newVersionAvailable != undefined) {
                 this.newVersionAvailable = data.newVersionAvailable;
@@ -635,12 +631,6 @@ export class GlobalSettings extends pb_1.Message {
     }
     set enabled(value: boolean) {
         pb_1.Message.setField(this, 1, value);
-    }
-    get allExtensionEnabled() {
-        return pb_1.Message.getFieldWithDefault(this, 2, false) as boolean;
-    }
-    set allExtensionEnabled(value: boolean) {
-        pb_1.Message.setField(this, 2, value);
     }
     get newVersionAvailable() {
         return pb_1.Message.getFieldWithDefault(this, 3, false) as boolean;
@@ -680,7 +670,6 @@ export class GlobalSettings extends pb_1.Message {
     }
     static fromObject(data: {
         enabled?: boolean;
-        allExtensionEnabled?: boolean;
         newVersionAvailable?: boolean;
         releaseVariant?: ReleaseVariants;
         language?: string;
@@ -691,9 +680,6 @@ export class GlobalSettings extends pb_1.Message {
         const message = new GlobalSettings({});
         if (data.enabled != null) {
             message.enabled = data.enabled;
-        }
-        if (data.allExtensionEnabled != null) {
-            message.allExtensionEnabled = data.allExtensionEnabled;
         }
         if (data.newVersionAvailable != null) {
             message.newVersionAvailable = data.newVersionAvailable;
@@ -718,7 +704,6 @@ export class GlobalSettings extends pb_1.Message {
     toObject() {
         const data: {
             enabled?: boolean;
-            allExtensionEnabled?: boolean;
             newVersionAvailable?: boolean;
             releaseVariant?: ReleaseVariants;
             language?: string;
@@ -728,9 +713,6 @@ export class GlobalSettings extends pb_1.Message {
         } = {};
         if (this.enabled != null) {
             data.enabled = this.enabled;
-        }
-        if (this.allExtensionEnabled != null) {
-            data.allExtensionEnabled = this.allExtensionEnabled;
         }
         if (this.newVersionAvailable != null) {
             data.newVersionAvailable = this.newVersionAvailable;
@@ -758,8 +740,6 @@ export class GlobalSettings extends pb_1.Message {
         const writer = w || new pb_1.BinaryWriter();
         if (this.enabled != false)
             writer.writeBool(1, this.enabled);
-        if (this.allExtensionEnabled != false)
-            writer.writeBool(2, this.allExtensionEnabled);
         if (this.newVersionAvailable != false)
             writer.writeBool(3, this.newVersionAvailable);
         if (this.releaseVariant != ReleaseVariants.unknown)
@@ -783,9 +763,6 @@ export class GlobalSettings extends pb_1.Message {
             switch (reader.getFieldNumber()) {
                 case 1:
                     message.enabled = reader.readBool();
-                    break;
-                case 2:
-                    message.allExtensionEnabled = reader.readBool();
                     break;
                 case 3:
                     message.newVersionAvailable = reader.readBool();
@@ -894,7 +871,6 @@ export class SafariExtensions extends pb_1.Message {
         other?: SafariExtension;
         custom?: SafariExtension;
         adguardForSafari?: SafariExtension;
-        allExtensionsEnabled?: boolean;
     }) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -919,9 +895,6 @@ export class SafariExtensions extends pb_1.Message {
             }
             if ("adguardForSafari" in data && data.adguardForSafari != undefined) {
                 this.adguardForSafari = data.adguardForSafari;
-            }
-            if ("allExtensionsEnabled" in data && data.allExtensionsEnabled != undefined) {
-                this.allExtensionsEnabled = data.allExtensionsEnabled;
             }
         }
     }
@@ -988,12 +961,6 @@ export class SafariExtensions extends pb_1.Message {
     get has_adguard_for_safari() {
         return pb_1.Message.getField(this, 7) != null;
     }
-    get allExtensionsEnabled() {
-        return pb_1.Message.getFieldWithDefault(this, 8, false) as boolean;
-    }
-    set allExtensionsEnabled(value: boolean) {
-        pb_1.Message.setField(this, 8, value);
-    }
     static fromObject(data: {
         general?: ReturnType<typeof SafariExtension.prototype.toObject>;
         privacy?: ReturnType<typeof SafariExtension.prototype.toObject>;
@@ -1002,7 +969,6 @@ export class SafariExtensions extends pb_1.Message {
         other?: ReturnType<typeof SafariExtension.prototype.toObject>;
         custom?: ReturnType<typeof SafariExtension.prototype.toObject>;
         adguardForSafari?: ReturnType<typeof SafariExtension.prototype.toObject>;
-        allExtensionsEnabled?: boolean;
     }): SafariExtensions {
         const message = new SafariExtensions({});
         if (data.general != null) {
@@ -1026,9 +992,6 @@ export class SafariExtensions extends pb_1.Message {
         if (data.adguardForSafari != null) {
             message.adguardForSafari = SafariExtension.fromObject(data.adguardForSafari);
         }
-        if (data.allExtensionsEnabled != null) {
-            message.allExtensionsEnabled = data.allExtensionsEnabled;
-        }
         return message;
     }
     toObject() {
@@ -1040,7 +1003,6 @@ export class SafariExtensions extends pb_1.Message {
             other?: ReturnType<typeof SafariExtension.prototype.toObject>;
             custom?: ReturnType<typeof SafariExtension.prototype.toObject>;
             adguardForSafari?: ReturnType<typeof SafariExtension.prototype.toObject>;
-            allExtensionsEnabled?: boolean;
         } = {};
         if (this.general != null) {
             data.general = this.general.toObject();
@@ -1063,9 +1025,6 @@ export class SafariExtensions extends pb_1.Message {
         if (this.adguardForSafari != null) {
             data.adguardForSafari = this.adguardForSafari.toObject();
         }
-        if (this.allExtensionsEnabled != null) {
-            data.allExtensionsEnabled = this.allExtensionsEnabled;
-        }
         return data;
     }
     serialize(): Uint8Array;
@@ -1086,8 +1045,6 @@ export class SafariExtensions extends pb_1.Message {
             writer.writeMessage(6, this.custom, () => this.custom.serialize(writer));
         if (this.has_adguard_for_safari)
             writer.writeMessage(7, this.adguardForSafari, () => this.adguardForSafari.serialize(writer));
-        if (this.allExtensionsEnabled != false)
-            writer.writeBool(8, this.allExtensionsEnabled);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1118,9 +1075,6 @@ export class SafariExtensions extends pb_1.Message {
                 case 7:
                     reader.readMessage(message.adguardForSafari, () => message.adguardForSafari = SafariExtension.deserialize(reader));
                     break;
-                case 8:
-                    message.allExtensionsEnabled = reader.readBool();
-                    break;
                 default: reader.skipField();
             }
         }
@@ -1140,6 +1094,7 @@ export class SafariExtension extends pb_1.Message {
         rulesEnabled?: number;
         rulesTotal?: number;
         status?: SafariExtensionStatus;
+        isConsideredEnabled?: boolean;
     } & (({
         safariError?: string;
     })))) {
@@ -1160,6 +1115,9 @@ export class SafariExtension extends pb_1.Message {
             }
             if ("safariError" in data && data.safariError != undefined) {
                 this.safariError = data.safariError;
+            }
+            if ("isConsideredEnabled" in data && data.isConsideredEnabled != undefined) {
+                this.isConsideredEnabled = data.isConsideredEnabled;
             }
         }
     }
@@ -1196,6 +1154,12 @@ export class SafariExtension extends pb_1.Message {
     get has_safari_error() {
         return pb_1.Message.getField(this, 6) != null;
     }
+    get isConsideredEnabled() {
+        return pb_1.Message.getFieldWithDefault(this, 7, false) as boolean;
+    }
+    set isConsideredEnabled(value: boolean) {
+        pb_1.Message.setField(this, 7, value);
+    }
     get _safariError() {
         const cases: {
             [index: number]: "none" | "safariError";
@@ -1211,6 +1175,7 @@ export class SafariExtension extends pb_1.Message {
         rulesTotal?: number;
         status?: SafariExtensionStatus;
         safariError?: string;
+        isConsideredEnabled?: boolean;
     }): SafariExtension {
         const message = new SafariExtension({});
         if (data.id != null) {
@@ -1228,6 +1193,9 @@ export class SafariExtension extends pb_1.Message {
         if (data.safariError != null) {
             message.safariError = data.safariError;
         }
+        if (data.isConsideredEnabled != null) {
+            message.isConsideredEnabled = data.isConsideredEnabled;
+        }
         return message;
     }
     toObject() {
@@ -1237,6 +1205,7 @@ export class SafariExtension extends pb_1.Message {
             rulesTotal?: number;
             status?: SafariExtensionStatus;
             safariError?: string;
+            isConsideredEnabled?: boolean;
         } = {};
         if (this.id != null) {
             data.id = this.id;
@@ -1252,6 +1221,9 @@ export class SafariExtension extends pb_1.Message {
         }
         if (this.safariError != null) {
             data.safariError = this.safariError;
+        }
+        if (this.isConsideredEnabled != null) {
+            data.isConsideredEnabled = this.isConsideredEnabled;
         }
         return data;
     }
@@ -1269,6 +1241,8 @@ export class SafariExtension extends pb_1.Message {
             writer.writeEnum(4, this.status);
         if (this.has_safari_error)
             writer.writeString(6, this.safariError);
+        if (this.isConsideredEnabled != false)
+            writer.writeBool(7, this.isConsideredEnabled);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1292,6 +1266,9 @@ export class SafariExtension extends pb_1.Message {
                     break;
                 case 6:
                     message.safariError = reader.readString();
+                    break;
+                case 7:
+                    message.isConsideredEnabled = reader.readBool();
                     break;
                 default: reader.skipField();
             }

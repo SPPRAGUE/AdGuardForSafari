@@ -5,10 +5,11 @@
 import { LogLevel } from '@adg/sciter-utils-kit';
 import { makeAutoObservable } from 'mobx';
 
-import { EmptyValue, GlobalSettings, LicenseOrError, LicenseStatus, ReleaseVariants, SafariExtensions, SafariExtensionStatus, SafariExtensionType, StatisticsPeriod, StatisticsRequest, StatisticsResponse, StringValue } from 'Apis/types';
+import { EmptyValue, GlobalSettings, LicenseOrError, LicenseStatus, ReleaseVariants, StatisticsPeriod, StatisticsRequest, StatisticsResponse, StringValue } from 'Apis/types';
+import { SafariExtensionsStore } from 'Common/stores/SafariExtensionsStore';
 import { updateLanguage } from 'Intl';
 
-import type { Filters, Filter, FiltersStatus, SafariExtensionUpdate, SafariExtension, AdvancedBlocking } from 'Apis/types';
+import type { Filters, Filter, FiltersStatus, SafariExtensionUpdate, AdvancedBlocking, SafariExtensions } from 'Apis/types';
 import type { StoryId } from 'Modules/tray/modules/stories/model';
 import type { TrayStore } from 'TrayStore';
 
@@ -61,9 +62,9 @@ export class SettingsStore {
     public filtersMap: Filter[] | null = null;
 
     /**
-    * Safari extension status
-    */
-    public safariExtensions = new SafariExtensions();
+     * Safari extensions store
+     */
+    public safariExtensionsStore = new SafariExtensionsStore();
 
     /**
      * Set of completed stories
@@ -117,32 +118,7 @@ export class SettingsStore {
     }
 
     /**
-     * Get count of safari extensions
-     */
-    public get safariExtensionsCount() {
-        return Object.values(this.safariExtensions.toObject()).filter((el) => typeof el !== 'boolean').length;
-    }
-
-    /**
-     * Get count of enabled safari extensions
-     */
-    public get enabledSafariExtensionsCount() {
-        const extensions = Object.values(this.safariExtensions.toObject()).filter((el) => typeof el !== 'boolean') as ReturnType<SafariExtension['toObject']>[];
-
-        if (this.safariExtensions.allExtensionsEnabled) {
-            return extensions.length;
-        }
-        return extensions.reduce((count, ent) => {
-            if (ent.status && ent.status !== SafariExtensionStatus.disabled) {
-                // eslint-disable-next-line no-param-reassign
-                count++;
-            }
-            return count;
-        }, 0);
-    }
-
-    /**
-     *
+     * Ctor
      */
     public constructor(public rootStore: TrayStore) {
         this.rootStore = rootStore;
@@ -162,7 +138,6 @@ export class SettingsStore {
         const newValue = new GlobalSettings();
         if (this.settings) {
             newValue.enabled = this.settings.enabled;
-            newValue.allExtensionEnabled = this.settings.allExtensionEnabled;
             newValue.newVersionAvailable = this.settings.newVersionAvailable;
             newValue.releaseVariant = this.settings.releaseVariant;
             newValue.language = this.settings.language;
@@ -184,9 +159,7 @@ export class SettingsStore {
      * Getter for safari extensions with loading status
      */
     public getSafariExtensionsLoading() {
-        const exts = Object.values(this.safariExtensions.toObject())
-            .filter((ent) => typeof ent === 'object' && ent.status === SafariExtensionStatus.loading);
-        return exts;
+        return this.safariExtensionsStore.safariExtensionsLoading;
     }
 
     /**
@@ -367,50 +340,16 @@ export class SettingsStore {
     }
 
     /**
-     * Updates safari extension
+     * Updates safari extension (facade to safariExtensionsStore)
      */
     public updateSafariExtension(data: SafariExtensionUpdate) {
-        const newState = new SafariExtensions();
-        newState.adguardForSafari = this.safariExtensions.adguardForSafari;
-        newState.custom = this.safariExtensions.custom;
-        newState.general = this.safariExtensions.general;
-        newState.other = this.safariExtensions.other;
-        newState.privacy = this.safariExtensions.privacy;
-        newState.security = this.safariExtensions.security;
-        newState.social = this.safariExtensions.social;
-        newState.allExtensionsEnabled = this.safariExtensions.allExtensionsEnabled;
-
-        switch (data.type) {
-            case SafariExtensionType.adguard_for_safari:
-                newState.adguardForSafari = data.state;
-                break;
-            case SafariExtensionType.custom:
-                newState.custom = data.state;
-                break;
-            case SafariExtensionType.general:
-                newState.general = data.state;
-                break;
-            case SafariExtensionType.other:
-                newState.other = data.state;
-                break;
-            case SafariExtensionType.privacy:
-                newState.privacy = data.state;
-                break;
-            case SafariExtensionType.security:
-                newState.security = data.state;
-                break;
-            case SafariExtensionType.social:
-                newState.social = data.state;
-                break;
-        }
-
-        this.setSafariExtensions(newState);
+        this.safariExtensionsStore.updateSafariExtension(data);
     }
 
     /**
-     * Set safari protection status
+     * Set safari protection status (facade to safariExtensionsStore)
      */
     public setSafariExtensions(data: SafariExtensions) {
-        this.safariExtensions = data;
+        this.safariExtensionsStore.setSafariExtensions(data);
     }
 }

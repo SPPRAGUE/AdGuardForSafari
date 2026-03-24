@@ -15,7 +15,7 @@ export type FrameContentProps = {
     frame: IStoryFrame;
     storyActionButtonHandle(): void;
     isMASReleaseVariant: boolean;
-    frameIdNavigation: (frameId: string) => void;
+    frameIdNavigation(frameId: string): void;
 };
 
 /**
@@ -46,7 +46,7 @@ export function FrameContent({
                 </Button>
             )}
             {Component && (
-                <Component isMASReleaseVariant={isMASReleaseVariant} frameIdNavigation={frameIdNavigation} />
+                <Component frameIdNavigation={frameIdNavigation} isMASReleaseVariant={isMASReleaseVariant} />
             )}
             <div className={s.FrameContent_bottom} />
         </div>

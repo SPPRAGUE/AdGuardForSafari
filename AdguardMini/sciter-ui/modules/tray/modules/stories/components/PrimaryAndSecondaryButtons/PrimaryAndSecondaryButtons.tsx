@@ -19,7 +19,7 @@ export function PrimaryAndSecondaryButtons({
     primaryButtonTitle: string;
     primaryButtonAction(): void;
     secondaryButtonTitle?: string;
-    secondaryButtonAction?: () => void;
+    secondaryButtonAction?(): void;
 }) {
     return (
         <>

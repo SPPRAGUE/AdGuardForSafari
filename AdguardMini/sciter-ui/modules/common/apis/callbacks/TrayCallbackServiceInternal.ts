@@ -11,6 +11,7 @@ export class TrayCallbackServiceInternal implements ITrayCallbackServiceInternal
         if (param.value) {
             store.settings.getSettings();
             store.settings.getStatistics();
+            store.settings.getSafariExtensions();
             store.telemetry.setPage(TrayPage.TrayMenu);
             store.telemetry.trackPageView();
         } else {

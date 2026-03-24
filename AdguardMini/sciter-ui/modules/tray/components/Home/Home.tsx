@@ -49,9 +49,9 @@ function HomeComponent() {
     const [isDarkTheme, setIsDarkTheme] = useState(false);
 
     useEffect(() => {
-        const exts = settings.getSafariExtensionsLoading();
-        setIsLoading(exts.length > 0);
-    }, [settings.safariExtensions]);
+        const isLoadingExts = settings.getSafariExtensionsLoading();
+        setIsLoading(isLoadingExts);
+    }, [settings.safariExtensionsStore.safariExtensions]);
 
     /**
      * Fix for Home component to fix infinite convertation status
@@ -174,7 +174,10 @@ function HomeComponent() {
         allDisabled: allExtensionsDisabled,
         someDisabled: someExtensionsDisabled,
         allEnabled: allExtensionsEnabled,
-    } = getCountableEntityStatuses(settings.enabledSafariExtensionsCount, settings.safariExtensionsCount);
+    } = getCountableEntityStatuses(
+        settings.safariExtensionsStore.enabledSafariExtensionsCount, 
+        settings.safariExtensionsStore.safariExtensionsCount
+    );
 
     const getDisabledExtensionsStatus = () => {
         if (someExtensionsDisabled) {

@@ -57,7 +57,7 @@ export interface NotificationPropertiesBase {
     timeout?: number | false;
     closeable?: boolean;
     onCrossClick?(): void;
-    onMount?: () => void;
+    onMount?(): void;
 }
 
 /**

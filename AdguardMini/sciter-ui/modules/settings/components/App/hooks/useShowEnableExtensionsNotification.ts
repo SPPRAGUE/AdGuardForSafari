@@ -19,7 +19,10 @@ export function useShowEnableExtensionsNotification() {
     const {
         allEnabled: allExtensionsEnabled,
         allDisabled: allExtensionsDisabled,
-    } = getCountableEntityStatuses(settings.enabledSafariExtensionsCount, settings.safariExtensionsCount);
+    } = getCountableEntityStatuses(
+        settings.safariExtensionsStore.enabledSafariExtensionsCount,
+        settings.safariExtensionsStore.safariExtensionsCount,
+    );
 
     const openSafariPref = () => {
         window.API.settingsService.OpenSafariExtensionPreferences(new OptionalStringValue());

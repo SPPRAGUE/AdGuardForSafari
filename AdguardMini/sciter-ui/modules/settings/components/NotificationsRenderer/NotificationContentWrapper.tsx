@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useEffect } from 'preact/hooks';
+
 import { NotificationsQueueVariant } from 'SettingsStore/modules';
 
 import { NotificationButtonSwitch } from './NotificationButtonSwitch';
@@ -10,7 +12,6 @@ import s from './NotificationsRenderer.module.pcss';
 import type { ComponentChild } from 'preact';
 import type { NotificationPropsHolder } from 'SettingsLib/utils/NotificationPropsHolder';
 import type { NotificationPropertiesSelector } from 'SettingsStore/modules';
-import { useEffect } from 'preact/hooks';
 
 type Props = {
     message: ComponentChild;

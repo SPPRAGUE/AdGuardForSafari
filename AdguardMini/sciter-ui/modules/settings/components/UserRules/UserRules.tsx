@@ -40,7 +40,7 @@ function UserRulesComponent() {
         router,
         settings,
         settings: { userActionLastDirectory },
-        telemetry
+        telemetry,
     } = useSettingsStore();
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -223,8 +223,8 @@ function UserRulesComponent() {
                 >
                     {!isScrolling && (
                         <Button
-                            type="text"
                             className={s.UserRules_howTo}
+                            type="text"
                             onClick={() => {
                                 window.OpenLinkInBrowser(getTdsLink(TDS_PARAMS.filterrules, RouteName.user_rules));
                                 telemetry.trackEvent(SettingsEvent.RuleSyntaxClick);

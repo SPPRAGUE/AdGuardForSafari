@@ -46,7 +46,6 @@ message ImportStatus {
 
 message GlobalSettings {
     bool enabled = 1;
-    bool allExtensionEnabled = 2;
     bool newVersionAvailable = 3;
     ReleaseVariants releaseVariant = 4;
     string language = 5;
@@ -74,7 +73,6 @@ message SafariExtensions {
     SafariExtension other = 5;
     SafariExtension custom = 6;
     SafariExtension adguard_for_safari = 7;
-    bool all_extensions_enabled = 8;
 }
 
 message SafariExtension {
@@ -83,6 +81,7 @@ message SafariExtension {
     int32 rules_total = 3;
     SafariExtensionStatus status = 4;
     optional string safari_error = 6;
+    bool is_considered_enabled = 7;
 }
 
 message SafariExtensionUpdate {

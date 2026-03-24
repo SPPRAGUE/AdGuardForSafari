@@ -5,6 +5,7 @@
 import { observer } from 'mobx-react-lite';
 import { useState } from 'preact/hooks';
 
+import { BoolValue } from 'Apis/types';
 import { getTdsLink, TDS_PARAMS } from 'Modules/common/utils/links';
 import { useOnboardingStore } from 'OnboardingLib/hooks';
 import { OnboardingSteps } from 'OnboardingStore/modules';
@@ -13,7 +14,6 @@ import { Text, Checkbox, Button, ExternalLink, AppUsageDataModal } from 'UILib';
 
 import startImage from './images/start.svg';
 import s from './Start.module.pcss';
-import { BoolValue } from 'Apis/types';
 
 /**
  * Step "Start"
@@ -25,10 +25,15 @@ function StartComponent() {
     const [telemetry, setTelemetry] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
-    const { safariExtensions } = steps;
+    const { safariExtensionsStore } = steps;
 
     const action = () => {
-        steps.setCurrentStep(safariExtensions.allExtensionsEnabled ? OnboardingSteps.ads : OnboardingSteps.extensions);
+        steps.setCurrentStep(
+            safariExtensionsStore.allExtensionsEnabled 
+                ? OnboardingSteps.ads 
+                : OnboardingSteps.extensions
+        );
+
         if (telemetry) {
             window.API.settingsService.UpdateAllowTelemetry(new BoolValue({ value: true }));
         }

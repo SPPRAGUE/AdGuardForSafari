@@ -94,7 +94,7 @@ function ContextMenuComponent({ elements, reportBug, className, showReportBugToo
                 <div
                     onClick={() => {
                         telemetry.trackEvent(SettingsEvent.FlagClick);
-                        router?.changePath(RouteName.contact_support)
+                        router?.changePath(RouteName.contact_support);
                     }}
                     onMouseEnter={debounceRef.current}
                     onMouseLeave={closeTooltip}

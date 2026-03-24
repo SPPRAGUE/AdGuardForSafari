@@ -16,7 +16,8 @@ extension SafariExtension {
         rulesEnabled: Int32 = 0,
         rulesTotal: Int32 = 0,
         status: SafariExtensionStatus = .disabled,
-        safariError: String? = nil
+        safariError: String? = nil,
+        isConsideredEnabled: Bool = false
     ) {
         self.init()
         self.id = id
@@ -26,5 +27,6 @@ extension SafariExtension {
         if let safariError {
             self.safariError = safariError
         }
+        self.isConsideredEnabled = isConsideredEnabled
     }
 }

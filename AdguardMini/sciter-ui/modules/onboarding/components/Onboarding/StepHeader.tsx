@@ -17,7 +17,7 @@ import s from './StepHeader.module.pcss';
 function StepHeaderComponent() {
     const { steps } = useOnboardingStore();
 
-    const { currentStep, safariExtensions: { allExtensionsEnabled }, skipTuning } = steps;
+    const { currentStep, safariExtensionsStore: { allExtensionsEnabled }, skipTuning } = steps;
 
     const renderBackButton = () => {
         let prevStep: OnboardingSteps | undefined;

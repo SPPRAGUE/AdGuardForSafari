@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'preact/hooks';
 
 import { provideTrialDaysParam } from 'Common/utils/translate';
 import { useSettingsStore } from 'SettingsLib/hooks';
@@ -15,7 +16,6 @@ import s from './ActivationFlowResultModal.module.pcss';
 import { SuccessImage, FailureImage } from './Images';
 
 import type { ModalProps } from 'UILib';
-import { useEffect } from 'preact/hooks';
 
 type ActivationFlowResultModalProps = {
     activationResult: ActivationFlowResult;

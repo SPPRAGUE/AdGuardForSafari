@@ -3,7 +3,6 @@
  * compiler version: 6.31.1
  * source: Statistics.proto
  * git: https://github.com/thesayyn/protoc-gen-ts */
-import * as dependency_1 from "./PrimitivesWrappers";
 import * as pb_1 from "google-protobuf";
 export enum StatisticsPeriod {
     day = 0,

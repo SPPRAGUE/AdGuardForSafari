@@ -18,13 +18,16 @@ import s from '../Settings.module.pcss';
  * Ad blocking section for settings
  */
 export const AdBlockingSection = observer(() => {
-    const { settings, settings: { enabledSafariExtensionsCount }, filters } = useSettingsStore();
+    const {
+        settings: { safariExtensionsStore: { enabledSafariExtensionsCount, safariExtensionsCount } },
+        filters,
+    } = useSettingsStore();
 
     const {
         allDisabled: allExtensionsDisabled,
         allEnabled: allExtensionsEnabled,
         someDisabled: someExtensionsDisabled,
-    } = getCountableEntityStatuses(settings.enabledSafariExtensionsCount, settings.safariExtensionsCount);
+    } = getCountableEntityStatuses(enabledSafariExtensionsCount, safariExtensionsCount);
 
     const enabledFilters = filters.enabledFilters.size;
 

@@ -372,8 +372,6 @@ public struct GlobalSettings: Sendable {
 
   public var enabled: Bool = false
 
-  public var allExtensionEnabled: Bool = false
-
   public var newVersionAvailable: Bool = false
 
   public var releaseVariant: ReleaseVariants = .unknown
@@ -471,11 +469,6 @@ public struct SafariExtensions: @unchecked Sendable {
   /// Clears the value of `adguardForSafari`. Subsequent reads from it will return its default value.
   public mutating func clearAdguardForSafari() {_uniqueStorage()._adguardForSafari = nil}
 
-  public var allExtensionsEnabled: Bool {
-    get {return _storage._allExtensionsEnabled}
-    set {_uniqueStorage()._allExtensionsEnabled = newValue}
-  }
-
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -504,6 +497,8 @@ public struct SafariExtension: Sendable {
   public var hasSafariError: Bool {return self._safariError != nil}
   /// Clears the value of `safariError`. Subsequent reads from it will return its default value.
   public mutating func clearSafariError() {self._safariError = nil}
+
+  public var isConsideredEnabled: Bool = false
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -755,7 +750,7 @@ extension ImportStatus: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
 
 extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = "GlobalSettings"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}enabled\0\u{1}allExtensionEnabled\0\u{1}newVersionAvailable\0\u{1}releaseVariant\0\u{1}language\0\u{3}debug_logging\0\u{4}\u{2}allow_telemetry\0\u{1}theme\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}enabled\0\u{2}\u{2}newVersionAvailable\0\u{1}releaseVariant\0\u{1}language\0\u{3}debug_logging\0\u{4}\u{2}allow_telemetry\0\u{1}theme\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -764,7 +759,6 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularBoolField(value: &self.enabled) }()
-      case 2: try { try decoder.decodeSingularBoolField(value: &self.allExtensionEnabled) }()
       case 3: try { try decoder.decodeSingularBoolField(value: &self.newVersionAvailable) }()
       case 4: try { try decoder.decodeSingularEnumField(value: &self.releaseVariant) }()
       case 5: try { try decoder.decodeSingularStringField(value: &self.language) }()
@@ -779,9 +773,6 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.enabled != false {
       try visitor.visitSingularBoolField(value: self.enabled, fieldNumber: 1)
-    }
-    if self.allExtensionEnabled != false {
-      try visitor.visitSingularBoolField(value: self.allExtensionEnabled, fieldNumber: 2)
     }
     if self.newVersionAvailable != false {
       try visitor.visitSingularBoolField(value: self.newVersionAvailable, fieldNumber: 3)
@@ -806,7 +797,6 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
 
   public static func ==(lhs: GlobalSettings, rhs: GlobalSettings) -> Bool {
     if lhs.enabled != rhs.enabled {return false}
-    if lhs.allExtensionEnabled != rhs.allExtensionEnabled {return false}
     if lhs.newVersionAvailable != rhs.newVersionAvailable {return false}
     if lhs.releaseVariant != rhs.releaseVariant {return false}
     if lhs.language != rhs.language {return false}
@@ -850,7 +840,7 @@ extension UpdateQuitReactionMessage: SwiftProtobuf.Message, SwiftProtobuf._Messa
 
 extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = "SafariExtensions"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}general\0\u{1}privacy\0\u{1}social\0\u{1}security\0\u{1}other\0\u{1}custom\0\u{3}adguard_for_safari\0\u{3}all_extensions_enabled\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}general\0\u{1}privacy\0\u{1}social\0\u{1}security\0\u{1}other\0\u{1}custom\0\u{3}adguard_for_safari\0")
 
   fileprivate class _StorageClass {
     var _general: SafariExtension? = nil
@@ -860,7 +850,6 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _other: SafariExtension? = nil
     var _custom: SafariExtension? = nil
     var _adguardForSafari: SafariExtension? = nil
-    var _allExtensionsEnabled: Bool = false
 
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
@@ -878,7 +867,6 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _other = source._other
       _custom = source._custom
       _adguardForSafari = source._adguardForSafari
-      _allExtensionsEnabled = source._allExtensionsEnabled
     }
   }
 
@@ -904,7 +892,6 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 5: try { try decoder.decodeSingularMessageField(value: &_storage._other) }()
         case 6: try { try decoder.decodeSingularMessageField(value: &_storage._custom) }()
         case 7: try { try decoder.decodeSingularMessageField(value: &_storage._adguardForSafari) }()
-        case 8: try { try decoder.decodeSingularBoolField(value: &_storage._allExtensionsEnabled) }()
         default: break
         }
       }
@@ -938,9 +925,6 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       try { if let v = _storage._adguardForSafari {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
       } }()
-      if _storage._allExtensionsEnabled != false {
-        try visitor.visitSingularBoolField(value: _storage._allExtensionsEnabled, fieldNumber: 8)
-      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -957,7 +941,6 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._other != rhs_storage._other {return false}
         if _storage._custom != rhs_storage._custom {return false}
         if _storage._adguardForSafari != rhs_storage._adguardForSafari {return false}
-        if _storage._allExtensionsEnabled != rhs_storage._allExtensionsEnabled {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -969,7 +952,7 @@ extension SafariExtensions: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
 
 extension SafariExtension: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = "SafariExtension"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}rules_enabled\0\u{3}rules_total\0\u{1}status\0\u{4}\u{2}safari_error\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}rules_enabled\0\u{3}rules_total\0\u{1}status\0\u{4}\u{2}safari_error\0\u{3}is_considered_enabled\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -982,6 +965,7 @@ extension SafariExtension: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
       case 3: try { try decoder.decodeSingularInt32Field(value: &self.rulesTotal) }()
       case 4: try { try decoder.decodeSingularEnumField(value: &self.status) }()
       case 6: try { try decoder.decodeSingularStringField(value: &self._safariError) }()
+      case 7: try { try decoder.decodeSingularBoolField(value: &self.isConsideredEnabled) }()
       default: break
       }
     }
@@ -1007,6 +991,9 @@ extension SafariExtension: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     try { if let v = self._safariError {
       try visitor.visitSingularStringField(value: v, fieldNumber: 6)
     } }()
+    if self.isConsideredEnabled != false {
+      try visitor.visitSingularBoolField(value: self.isConsideredEnabled, fieldNumber: 7)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1016,6 +1003,7 @@ extension SafariExtension: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
     if lhs.rulesTotal != rhs.rulesTotal {return false}
     if lhs.status != rhs.status {return false}
     if lhs._safariError != rhs._safariError {return false}
+    if lhs.isConsideredEnabled != rhs.isConsideredEnabled {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

@@ -10,19 +10,18 @@ import {
     EmptyValue,
     Path,
     Settings as SettingsEnt,
-    SafariExtensions,
     BoolValue,
     UpdateQuitReactionMessage,
-    SafariExtensionStatus,
-    SafariExtensionType,
     ImportSettingsConfirmation,
     ReleaseVariants,
     StringValue,
     UpdateThemeMessage,
 } from 'Apis/types';
+import { SafariExtensionsStore } from 'Common/stores/SafariExtensionsStore';
 import { updateLanguage } from 'Intl';
 
-import type { ImportMode, QuitReaction, SafariExtensionUpdate, SafariExtension, Theme } from 'Apis/types';
+import type { ImportMode, QuitReaction, SafariExtensionUpdate, Theme,
+    SafariExtensions } from 'Apis/types';
 import type { SettingsStore } from 'SettingsStore';
 
 /**
@@ -42,9 +41,9 @@ export class Settings {
     public loginItemEnabled = true;
 
     /**
-     * Safari extension status
+     * Safari extensions store
      */
-    public safariExtensions = new SafariExtensions();
+    public safariExtensionsStore = new SafariExtensionsStore();
 
     /**
      * Contains ids of filters that should be imported with consent
@@ -186,81 +185,21 @@ export class Settings {
      * Getter for safari extensions with loading status
      */
     public get safariExtensionsLoading() {
-        return Object.values(this.safariExtensions.toObject())
-            .filter((ent) => typeof ent === 'object' && ent.status === SafariExtensionStatus.loading).length > 0;
+        return this.safariExtensionsStore.safariExtensionsLoading;
     }
 
     /**
-     * Updates safari extension
+     * Updates safari extension (facade to safariExtensionsStore)
      */
     public updateSafariExtension(data: SafariExtensionUpdate) {
-        const newState = new SafariExtensions();
-        newState.adguardForSafari = this.safariExtensions.adguardForSafari;
-        newState.custom = this.safariExtensions.custom;
-        newState.general = this.safariExtensions.general;
-        newState.other = this.safariExtensions.other;
-        newState.privacy = this.safariExtensions.privacy;
-        newState.security = this.safariExtensions.security;
-        newState.social = this.safariExtensions.social;
-        newState.allExtensionsEnabled = this.safariExtensions.allExtensionsEnabled;
-
-        switch (data.type) {
-            case SafariExtensionType.adguard_for_safari:
-                newState.adguardForSafari = data.state;
-                break;
-            case SafariExtensionType.custom:
-                newState.custom = data.state;
-                break;
-            case SafariExtensionType.general:
-                newState.general = data.state;
-                break;
-            case SafariExtensionType.other:
-                newState.other = data.state;
-                break;
-            case SafariExtensionType.privacy:
-                newState.privacy = data.state;
-                break;
-            case SafariExtensionType.security:
-                newState.security = data.state;
-                break;
-            case SafariExtensionType.social:
-                newState.social = data.state;
-                break;
-        }
-
-        this.setSafariExtensions(newState);
+        this.safariExtensionsStore.updateSafariExtension(data);
     }
 
     /**
-     * Get count of safari extensions
-     */
-    public get safariExtensionsCount() {
-        return Object.values(this.safariExtensions.toObject()).filter((el) => typeof el !== 'boolean').length;
-    }
-
-    /**
-     * Get count of enabled safari extensions
-     */
-    public get enabledSafariExtensionsCount() {
-        const extensions = Object.values(this.safariExtensions.toObject()).filter((el) => typeof el !== 'boolean') as ReturnType<SafariExtension['toObject']>[];
-
-        if (this.safariExtensions.allExtensionsEnabled) {
-            return extensions.length;
-        }
-        return extensions.reduce((count, ent) => {
-            if (ent.status && ent.status !== SafariExtensionStatus.disabled) {
-                // eslint-disable-next-line no-param-reassign
-                count++;
-            }
-            return count;
-        }, 0);
-    }
-
-    /**
-     * Set safari protection status
+     * Set safari protection status (facade to safariExtensionsStore)
      */
     public setSafariExtensions(data: SafariExtensions) {
-        this.safariExtensions = data;
+        this.safariExtensionsStore.setSafariExtensions(data);
     }
 
     /**

@@ -4,11 +4,12 @@
 
 import { makeAutoObservable } from 'mobx';
 
-import { EmptyValue, FiltersIndex, OptionalStringValue, FiltersUpdate, SafariExtensions, UserConsent } from 'Apis/types';
+import { EmptyValue, FiltersIndex, OptionalStringValue, FiltersUpdate, UserConsent } from 'Apis/types';
+import { SafariExtensionsStore } from 'Common/stores/SafariExtensionsStore';
 import { updateLanguage } from 'Intl';
 
 import type { OnboardingStore } from '../store';
-import type { Filters, Filter } from 'Apis/types';
+import type { Filters, Filter, SafariExtensions } from 'Apis/types';
 
 export enum OnboardingSteps {
     start = 'start',
@@ -50,9 +51,16 @@ export class Steps {
     private _blockAnnoyance = false;
 
     /**
-     * Safari extension status
+     * Safari extensions store
      */
-    public safariExtensions = new SafariExtensions();
+    public safariExtensionsStore = new SafariExtensionsStore();
+
+    /**
+     * Whether all safari extensions are enabled (delegated to store)
+     */
+    public get allExtensionsEnabled() {
+        return this.safariExtensionsStore.allExtensionsEnabled;
+    }
 
     /**
      * System language
@@ -103,10 +111,10 @@ export class Steps {
     }
 
     /**
-     * Set safari protection status
+     * Set safari protection status (delegated to safariExtensionsStore)
      */
     public setSafariExtensions(data: SafariExtensions) {
-        this.safariExtensions = data;
+        this.safariExtensionsStore.setSafariExtensions(data);
     }
 
     /**

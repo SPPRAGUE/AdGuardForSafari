@@ -1,4 +1,3 @@
-/* This code was generated automatically by proto-parser tool version 1 */
 export * from './AdvancedBlockingService';
 export * from './AppInfoService';
 export * from './SettingsService';

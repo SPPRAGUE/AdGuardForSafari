@@ -60,7 +60,7 @@ const smthWrongErrors = [
  */
 export function SafariExtensionComponent() {
     const { settings, filters, router } = useSettingsStore();
-    const { safariExtensions, contentBlockersRulesLimit } = settings;
+    const { safariExtensionsStore, contentBlockersRulesLimit } = settings;
 
     const {
         general,
@@ -70,7 +70,7 @@ export function SafariExtensionComponent() {
         other,
         custom,
         adguardForSafari,
-    } = safariExtensions;
+    } = safariExtensionsStore.safariExtensions;
 
     const { filtersGroupedByExtension, filtersMap } = filters;
 

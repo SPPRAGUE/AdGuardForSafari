@@ -19,5 +19,15 @@ extension SafariExtension {
         case limitExceeded
         case converterError
         case safariError
+
+        /// Whether the extension is considered enabled for UI purposes
+        var isConsideredEnabled: Bool {
+            switch self {
+            case .ok, .loading, .limitExceeded, .converterError, .safariError:
+                true
+            case .disabled, .unknown:
+                false
+            }
+        }
     }
 }

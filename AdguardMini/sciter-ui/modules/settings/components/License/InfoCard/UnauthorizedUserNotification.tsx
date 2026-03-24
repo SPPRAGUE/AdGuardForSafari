@@ -6,13 +6,13 @@ import { observer } from 'mobx-react-lite';
 
 import { Subscription } from 'Apis/types';
 import { provideTrialDaysParam } from 'Common/utils/translate';
+import { SettingsEvent } from 'Modules/settings/store/modules';
 import { useSettingsStore } from 'SettingsLib/hooks';
 import theme from 'Theme';
 import { Button, Text } from 'UILib';
 
 import { InfoCard } from './InfoCard';
 import s from './UnauthorizedUserNotification.module.pcss';
-import { SettingsEvent } from 'Modules/settings/store/modules';
 
 enum NotificationType {
     isAppStoreSubscription = 'isAppStoreSubscription',

@@ -188,7 +188,7 @@ function AppComponent() {
                 <div className={s.App_ContextMenu}>
                     <FlagIcon onClick={() => window.jsBridgeCall(RulesEditorEvents.open_report_bug)} />
                     <div className={s.App_ContextMenu_context}>
-                        <div className={s.App_ContextMenu_action} >
+                        <div className={s.App_ContextMenu_action}>
                             {translate('context.menu.report.problem')}
                         </div>
                     </div>
