@@ -413,7 +413,10 @@ private final class ServiceLocator {
     #endif
 
     private lazy var statusBarItemController: StatusBarItemController = {
-        StatusBarItemControllerImpl(storage: SharedDIContainer.shared.sharedSettingsStorage)
+        StatusBarItemControllerImpl(
+            storage: SharedDIContainer.shared.sharedSettingsStorage,
+            userSettingsManager: self.userSettingsManager
+        )
     }()
 
     private lazy var urlSchemesProcessor: UrlSchemesProcessor = {

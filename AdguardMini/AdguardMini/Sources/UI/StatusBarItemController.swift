@@ -38,27 +38,38 @@ final class StatusBarItemControllerImpl: StatusBarItemController {
     private var statusBarItemView: StatusBarItemView?
 
     private let storage: SharedSettingsStorage
+    private let userSettingsManager: UserSettingsManager
 
     weak var delegate: StatusBarItemControllerDelegate?
 
-    init(storage: SharedSettingsStorage) {
+    private var statusBarItemIsHidden: Bool { !self.userSettingsManager.showInMenuBar }
+
+    init(storage: SharedSettingsStorage, userSettingsManager: UserSettingsManager) {
         self.storage = storage
+        self.userSettingsManager = userSettingsManager
     }
 
     @MainActor
-    func updateTrayIconVisibility(isHidden: Bool) {
+    func updateTrayIconVisibility(isHidden: Bool) async {
         LogDebugTrace()
         if isHidden {
             self.statusBarItemView = nil
             return
         }
 
-        self.updateStatusBarIcon()
+        await self.updateStatusBarIcon()
     }
 
     @MainActor
-    func updateStatusBarIcon() {
+    func updateStatusBarIcon() async {
         LogDebug("Updating status bar icon")
+
+        if self.statusBarItemIsHidden {
+            LogDebug("Status bar item is hidden")
+            self.statusBarItemView = nil
+            return
+        }
+
         if self.statusBarItemView.isNil {
             LogDebug("Recreating status bar item")
             self.statusBarItemView = StatusBarItemView(
@@ -77,7 +88,7 @@ final class StatusBarItemControllerImpl: StatusBarItemController {
     }
 
     @MainActor
-    func getTrayIconRect() -> CGRect {
+    func getTrayIconRect() async -> CGRect {
         LogDebugTrace()
         var trayIconRect: CGRect
         if let statusBarItemView = self.statusBarItemView {
