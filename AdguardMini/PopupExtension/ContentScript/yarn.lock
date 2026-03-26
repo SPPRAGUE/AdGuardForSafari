@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@adguard/agtree@^4.0.1":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@adguard/agtree/-/agtree-4.0.2.tgz#81cde1ae0fbadaed2ded041e97b2c7a5c3588881"
-  integrity sha512-frg1DGOBldBgkAoc3rLBHZfH/t1sq36IbRyIIIEcbo7PRfTXt0b9aD1GTrplefnFfHl+Jx1GP7gY9ijSapLvCg==
+"@adguard/agtree@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@adguard/agtree/-/agtree-4.0.3.tgz#c5349fce8027e996adcbc76a4ba43fdb71b80a2a"
+  integrity sha512-RnBbb4pNVSPLtgERq6klKFCR5U67YtTyWdacAbwXw3DEDViNmFoLOL/oUdL9a8iRfYTnBeOtmnm7yx0qWC5IDg==
   dependencies:
     "@adguard/css-tokenizer" "^1.2.0"
     camelcase-keys "^7.0.2"
@@ -32,20 +32,20 @@
   resolved "https://registry.yarnpkg.com/@adguard/extended-css/-/extended-css-2.1.1.tgz#53677a310cf39259f54dfce79b692b0a327a8bb7"
   integrity sha512-TsHZ20oUWhbtrzQ4w70B96oHkGBIUZg2FdMfkq4StGfLmXQb+kI7fQb6BtXP2D0bvraIHMq6/mtKExglDJ9vsg==
 
-"@adguard/safari-extension@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@adguard/safari-extension/-/safari-extension-4.2.1.tgz#dfd30b0289c2627ad45de8787de4c673b078bf53"
-  integrity sha512-cxyZS2gYC6usVmwSLg4vPK4WMrRTR9y18P0hRp1ditL6UbiNHGoTBUcEx37ZR2iJ7kQOyo1JtHzUaHOAtI17Ew==
+"@adguard/safari-extension@^4.2.2":
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@adguard/safari-extension/-/safari-extension-4.2.2.tgz#5c55620e4b2909e88b04fe8a709aaaead63610eb"
+  integrity sha512-mqgZ29/LHT7Ovv/Pu9+xA2tPZ2pH+hE5O6fLaM4ZYyMDDx9vTaO/U7AltYYs25pOIChKAacmNkhmFd0JR2oRqg==
   dependencies:
     "@adguard/extended-css" "2.1.1"
-    "@adguard/scriptlets" "2.2.16"
+    "@adguard/scriptlets" "2.3.1"
 
-"@adguard/scriptlets@2.2.16":
-  version "2.2.16"
-  resolved "https://registry.yarnpkg.com/@adguard/scriptlets/-/scriptlets-2.2.16.tgz#1a0f695bb9d9ff49b46b0f29ecd256e63478f01c"
-  integrity sha512-CpLzFOIR3ypvGD7Zax2ZiP2Kjhb70scbtRDneQcRnBaO+cPDGwLp0hEzMdI6eBZ8Is53svWzNpqGr9gAVum4SA==
+"@adguard/scriptlets@2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@adguard/scriptlets/-/scriptlets-2.3.1.tgz#f4982f7d3239076c1acb20f29a2a25438c56c130"
+  integrity sha512-E60vnKYv4GIlvtAVriyf3SYZk/u10shlfogTJFQa8ZKS2HHMuRAUTk8Msn42mycmD/Kf9P9J17l1SvgwVJ+otg==
   dependencies:
-    "@adguard/agtree" "^4.0.1"
+    "@adguard/agtree" "^4.0.3"
     "@types/trusted-types" "^2.0.7"
     js-yaml "^3.14.1"
 

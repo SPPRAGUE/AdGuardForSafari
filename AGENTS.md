@@ -22,7 +22,8 @@ synchronization.
     - Swift: Sparkle (updates), XMLCoder, FilterListManager (AdGuardFLM),
       Sciter SDK, Sentry
     - TypeScript: Preact, MobX, Webpack, google-protobuf,
-      @adguard/rules-editor, @adg/sciter-utils-kit
+      @adguard/rules-editor, @adg/sciter-utils-kit, classix, date-fns,
+      lodash
 - **Storage**: UserDefaults, file-based storage (JSON/plist), Safari Content
   Blocker rules (JSON)
 - **Testing**: XCTest (Swift), Jest (TypeScript)
@@ -52,6 +53,11 @@ adguard-mini/
 │   │   │   ├── AppStore/                 # App Store / in-app purchase
 │   │   │   ├── SafariExtensions/         # Safari extension management
 │   │   │   ├── ImportExport/             # Settings import/export
+│   │   │   ├── CustomUrlSchemes/         # URL scheme / deep link handling
+│   │   │   ├── Settings/                 # User settings management
+│   │   │   ├── Telemetry/                # Telemetry event definitions
+│   │   │   ├── LoginItem/                # Launch-at-login management
+│   │   │   ├── UI/                       # Native UI elements (alerts, windows)
 │   │   │   └── Utils/                    # Utility classes
 │   │   ├── Resources/                    # Assets, plists, configs
 │   │   └── Localization/                 # Swift localization strings
@@ -71,13 +77,16 @@ adguard-mini/
 │   ├── SharedSources/                    # Code shared across all targets
 │   │   ├── DI/                           # Shared DI containers
 │   │   ├── ContentBlockers/              # Content blocker shared logic
+│   │   ├── CustomUrlSchemes/             # Shared URL scheme definitions
 │   │   ├── ExtensionBrowserApi/          # Browser API abstractions
 │   │   ├── FileSystem/                   # File storage protocols
+│   │   ├── ProductInfo/                  # App metadata and version info
 │   │   └── Utils/                        # Shared utilities
 │   ├── SciterResources/                  # Compiled Sciter UI resources
 │   │   └── SciterSchema/                 # Generated Protobuf Swift schema
 │   ├── AdguardMini Builder/              # Build-time code generation
 │   ├── AdguardMini Prebuilder/           # Pre-build scripts (deps, defaults)
+│   ├── SafariExtension Builder/          # Safari extension build-time scripts
 │   ├── AdguardMiniTests/                 # XCTest unit tests
 │   ├── Scripts/                          # Shell scripts for build pipeline
 │   ├── Helper/                           # Helper app target
@@ -90,6 +99,7 @@ adguard-mini/
 │   │   │   ├── settings/                 # Settings window UI
 │   │   │   ├── onboarding/               # Onboarding flow UI
 │   │   │   ├── userrules/                # User rules editor (runs in WebView)
+│   │   │   ├── webview/                  # WebView integration module
 │   │   │   ├── inline/                   # Inline element blocking UI
 │   │   │   └── lottie/                   # Lottie animations
 │   │   ├── schema/                       # Protobuf schema definitions
@@ -101,16 +111,18 @@ adguard-mini/
 │   ├── Testing                           # Test lanes
 │   ├── Deploying                         # Deploy lanes
 │   ├── Sciter                            # Sciter UI build lanes
-│   └── Sentry                            # Sentry upload lanes
+│   ├── Sparkle                           # Sparkle update signing lanes
+│   ├── Sentry                            # Sentry upload lanes
+│   └── VCSWork                           # Version control operations
 ├── Support/Scripts/                      # Developer utility scripts
 ├── bamboo-specs/                         # CI/CD pipeline definitions
-├── docs/                                 # Project documentation
-├── specs/                                # SDD feature specifications
 ├── .windsurf/workflows/                  # AI agent workflow definitions
 ├── configure.sh                          # Project setup script
 ├── package.json                          # Node.js dependencies (UI)
 ├── tsconfig.json                         # TypeScript configuration
 ├── Gemfile                               # Ruby dependencies (Fastlane)
+├── REUSE.toml                            # REUSE/SPDX licensing metadata
+├── README.md                             # Project readme
 └── DEVELOPMENT.md                        # Development setup guide
 ```
 
@@ -131,6 +143,7 @@ adguard-mini/
 - `yarn lint` - Run ESLint on TypeScript sources
 - `yarn lint:fix` - Auto-fix ESLint issues
 - `yarn build:userRules` - Build user rules module separately
+- `yarn theme:generate` - Generate theme stylesheets from design tokens
 - `yarn devserver` - Start webpack dev server (web build mode)
 
 ### Platform (Swift/Xcode)
@@ -244,6 +257,11 @@ You MUST follow the following rules for EVERY task that you perform:
    - SwiftUI state properties MUST be private
    - No `[DBG]` logging
    - Use SPDX license headers, not legacy `Created by` / `Copyright` headers
+   - `inclusive_language` is an error
+   - No redundant boolean conditions (`== true`, `== false`)
+   - Capitalize the first word in comments
+   - Analyzer rules enabled: `unused_declaration`, `unused_import`,
+     `capture_variable`, `typesafe_array_init`
 
    **Rationale**: Enforces consistent code style and prevents common issues.
 
