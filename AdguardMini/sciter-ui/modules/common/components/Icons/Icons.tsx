@@ -495,8 +495,8 @@ export function Icons({ icon }: IconsProps): JSXInternal.Element {
         case 'radioChecked': {
             return (
                 <svg fill="none" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
-                    <circle cx="12" cy="12" fill="#67B279" r="5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+                    <circle cx="12" cy="12" r="10" stroke="#67B279" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+                    <circle cx="12" cy="12" fill="#67B279" r="5" stroke="#67B279" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
                 </svg>
             );
         }
