@@ -7,6 +7,8 @@
 //  AdguardMini
 //
 
+// swiftlint:disable file_length
+
 import Foundation
 import SciterSchema
 import AML
@@ -20,6 +22,8 @@ private enum Constants {
     static var loginItemUrl: URL {
         URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!
     }
+
+    static let noUpdatesThreshold: TimeInterval = 7.days
 }
 
 extension Sciter.SettingsServiceImpl:
@@ -133,14 +137,33 @@ extension Sciter {
             promise(EmptyValue())
         }
 
+        func getHealthCheckDismissedCards(_ message: EmptyValue,
+                                          _ promise: @escaping (StringValueArray) -> Void) {
+            var response = StringValueArray()
+            response.value = self.userSettingsService.dismissedHealthCheckCards
+            promise(response)
+        }
+
+        func updateHealthCheckDismissedCards(_ message: StringValueArray,
+                                             _ promise: @escaping (EmptyValue) -> Void) {
+            self.userSettingsService.dismissedHealthCheckCards = message.value
+            promise(EmptyValue())
+        }
+
         func getSettings(_ message: EmptyValue,
                          _ promise: @escaping (Settings) -> Void) {
+            let timeSinceLastFiltersUpdate = max(
+                0,
+                Date.now.timeIntervalSince(self.userSettingsService.lastFiltersUpdateTime)
+            )
             var settings = self.userSettingsService.settings.toProto(
                 userConsent: self.userSettingsService.userConsent,
                 releaseVariant: ProductInfo.releaseVariant,
                 language: Locales.navigatorLang,
-                allowTelemetry: self.userSettingsService.allowTelemetry
+                allowTelemetry: self.userSettingsService.allowTelemetry,
+                lastUpdateMoreSevenDays: timeSinceLastFiltersUpdate > Constants.noUpdatesThreshold
             )
+
             if let geometry = self.userSettingsService.userRulesEditorGeometry {
                 settings.userRulesEditorGeometry = geometry.toProto()
             }
@@ -183,7 +206,8 @@ extension Sciter {
                         userConsent: self.userSettingsService.userConsent,
                         releaseVariant: ProductInfo.releaseVariant,
                         language: Locales.navigatorLang,
-                        allowTelemetry: self.userSettingsService.allowTelemetry
+                        allowTelemetry: self.userSettingsService.allowTelemetry,
+                        lastUpdateMoreSevenDays: false
                     )
                 )
             }
@@ -289,7 +313,12 @@ extension Sciter {
         }
 
         func requestOpenSettingsPage(_ message: StringValue, _ promise: @escaping (EmptyValue) -> Void) {
-            self.eventBus.post(event: .settingsPageRequested, userInfo: message.value)
+            if message.value == "tray_updates" {
+                self.sciterAppController.showApp(.tray)
+                self.eventBus.post(event: .trayPageRequested, userInfo: "updates")
+            } else {
+                self.eventBus.post(event: .settingsPageRequested, userInfo: message.value)
+            }
             promise(EmptyValue())
         }
 
@@ -379,3 +408,5 @@ private extension SciterSchema.StatisticsPeriod {
         }
     }
 }
+
+// swiftlint:enable file_length

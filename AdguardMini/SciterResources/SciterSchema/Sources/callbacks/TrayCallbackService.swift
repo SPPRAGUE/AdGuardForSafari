@@ -35,4 +35,8 @@ public class TrayCallbackService: SwiftBridge
 	@discardableResult public func onEffectiveThemeChanged (_ message: EffectiveThemeValue) -> EmptyValue {
 		return self.sciterCall(message, function: "TrayCallbackService.OnEffectiveThemeChanged")
 	}
+	/// Fires when tray should open specific page
+	@discardableResult public func onTrayPageRequested (_ message: StringValue) -> EmptyValue {
+		return self.sciterCall(message, function: "TrayCallbackService.OnTrayPageRequested")
+	}
 }

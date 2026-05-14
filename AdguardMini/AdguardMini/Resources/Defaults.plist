@@ -64,5 +64,7 @@
 	<string>__KEY_ONLY</string>
 	<key>userRulesEditorGeometry</key>
 	<string>__KEY_ONLY</string>
+	<key>dismissedHealthCheckCards</key>
+	<string>__KEY_ONLY</string>
 </dict>
 </plist>

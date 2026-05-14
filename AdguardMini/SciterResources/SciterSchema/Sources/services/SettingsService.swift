@@ -150,6 +150,14 @@ public protocol SettingsServiceProtocol
 	func updateShowSafariToolbarBadge (
 						_ message: BoolValue,
 						_ promise: @escaping (EmptyValue) -> Void) -> Void
+	/// Get dismissed Safari Protection health check cards
+	func getHealthCheckDismissedCards (
+						_ message: EmptyValue,
+						_ promise: @escaping (StringValueArray) -> Void) -> Void
+	/// Update dismissed Safari Protection health check cards
+	func updateHealthCheckDismissedCards (
+						_ message: StringValueArray,
+						_ promise: @escaping (EmptyValue) -> Void) -> Void
 }
 
 // MARK: Protobuf Bridge definition
@@ -576,6 +584,30 @@ open class SettingsService: SciterBridge
 			inputType: BoolValue.self,
 			outputType: EmptyValue.self,
 			method: cast.updateShowSafariToolbarBadge(_:_:),
+			message,
+			promise
+		)
+	}
+
+	/// Wrapper for `GetHealthCheckDismissedCards`
+	@objc func GetHealthCheckDismissedCards(_ message: Data, promise: @escaping (Data) -> Void)
+	{
+		swiftCall(
+			inputType: EmptyValue.self,
+			outputType: StringValueArray.self,
+			method: cast.getHealthCheckDismissedCards(_:_:),
+			message,
+			promise
+		)
+	}
+
+	/// Wrapper for `UpdateHealthCheckDismissedCards`
+	@objc func UpdateHealthCheckDismissedCards(_ message: Data, promise: @escaping (Data) -> Void)
+	{
+		swiftCall(
+			inputType: StringValueArray.self,
+			outputType: EmptyValue.self,
+			method: cast.updateHealthCheckDismissedCards(_:_:),
 			message,
 			promise
 		)

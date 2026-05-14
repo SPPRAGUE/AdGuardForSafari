@@ -288,6 +288,15 @@ You MUST follow the following rules for EVERY task that you perform:
 
    **Rationale**: Required by project licensing policy (GPL-3.0-or-later).
 
+4. **Card-based UI composition**: In TypeScript UI modules, card collections
+  (for example, health/status cards) SHOULD be split so each card is a
+  separate component file in the local `components/` folder. Card-specific
+  text, actions, and visual configuration SHOULD live inside that card
+  component.
+
+  **Rationale**: Keeps orchestration components small and makes card behavior
+  easier to maintain, test, and reuse.
+
 ### III. Testing Discipline
 
 1. **XCTest for Swift**: Unit tests are located in `AdguardMini/AdguardMiniTests/`.

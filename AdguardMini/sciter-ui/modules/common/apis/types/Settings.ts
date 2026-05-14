@@ -220,6 +220,7 @@ export class Settings extends pb_1.Message {
         allowTelemetry?: boolean;
         theme?: Theme;
         showSafariToolbarBadge?: boolean;
+        lastUpdateMoreSevenDays?: boolean;
     } & (({
         userRulesEditorGeometry?: WindowGeometry;
     })))) {
@@ -267,6 +268,9 @@ export class Settings extends pb_1.Message {
             }
             if ("showSafariToolbarBadge" in data && data.showSafariToolbarBadge != undefined) {
                 this.showSafariToolbarBadge = data.showSafariToolbarBadge;
+            }
+            if ("lastUpdateMoreSevenDays" in data && data.lastUpdateMoreSevenDays != undefined) {
+                this.lastUpdateMoreSevenDays = data.lastUpdateMoreSevenDays;
             }
         }
     }
@@ -357,6 +361,12 @@ export class Settings extends pb_1.Message {
     set showSafariToolbarBadge(value: boolean) {
         pb_1.Message.setField(this, 14, value);
     }
+    get lastUpdateMoreSevenDays() {
+        return pb_1.Message.getFieldWithDefault(this, 15, false) as boolean;
+    }
+    set lastUpdateMoreSevenDays(value: boolean) {
+        pb_1.Message.setField(this, 15, value);
+    }
     get _userRulesEditorGeometry() {
         const cases: {
             [index: number]: "none" | "userRulesEditorGeometry";
@@ -381,6 +391,7 @@ export class Settings extends pb_1.Message {
         theme?: Theme;
         userRulesEditorGeometry?: ReturnType<typeof WindowGeometry.prototype.toObject>;
         showSafariToolbarBadge?: boolean;
+        lastUpdateMoreSevenDays?: boolean;
     }): Settings {
         const message = new Settings({});
         if (data.launchOnStartup != null) {
@@ -425,6 +436,9 @@ export class Settings extends pb_1.Message {
         if (data.showSafariToolbarBadge != null) {
             message.showSafariToolbarBadge = data.showSafariToolbarBadge;
         }
+        if (data.lastUpdateMoreSevenDays != null) {
+            message.lastUpdateMoreSevenDays = data.lastUpdateMoreSevenDays;
+        }
         return message;
     }
     toObject() {
@@ -443,6 +457,7 @@ export class Settings extends pb_1.Message {
             theme?: Theme;
             userRulesEditorGeometry?: ReturnType<typeof WindowGeometry.prototype.toObject>;
             showSafariToolbarBadge?: boolean;
+            lastUpdateMoreSevenDays?: boolean;
         } = {};
         if (this.launchOnStartup != null) {
             data.launchOnStartup = this.launchOnStartup;
@@ -486,6 +501,9 @@ export class Settings extends pb_1.Message {
         if (this.showSafariToolbarBadge != null) {
             data.showSafariToolbarBadge = this.showSafariToolbarBadge;
         }
+        if (this.lastUpdateMoreSevenDays != null) {
+            data.lastUpdateMoreSevenDays = this.lastUpdateMoreSevenDays;
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -520,6 +538,8 @@ export class Settings extends pb_1.Message {
             writer.writeMessage(13, this.userRulesEditorGeometry, () => this.userRulesEditorGeometry.serialize(writer));
         if (this.showSafariToolbarBadge != false)
             writer.writeBool(14, this.showSafariToolbarBadge);
+        if (this.lastUpdateMoreSevenDays != false)
+            writer.writeBool(15, this.lastUpdateMoreSevenDays);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -570,6 +590,9 @@ export class Settings extends pb_1.Message {
                     break;
                 case 14:
                     message.showSafariToolbarBadge = reader.readBool();
+                    break;
+                case 15:
+                    message.lastUpdateMoreSevenDays = reader.readBool();
                     break;
                 default: reader.skipField();
             }

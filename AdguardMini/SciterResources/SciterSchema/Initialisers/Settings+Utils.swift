@@ -24,7 +24,8 @@ extension Settings {
         releaseVariant: ReleaseVariants = .standAlone,
         language: String = "",
         allowTelemetry: Bool = false,
-        showSafariToolbarBadge: Bool = false
+        showSafariToolbarBadge: Bool = false,
+        lastUpdateMoreSevenDays: Bool = false,
     ) {
         self.init()
         self.launchOnStartup = launchOnStartup
@@ -40,5 +41,6 @@ extension Settings {
         self.language = language
         self.allowTelemetry = allowTelemetry
         self.showSafariToolbarBadge = showSafariToolbarBadge
+        self.lastUpdateMoreSevenDays = lastUpdateMoreSevenDays
     }
 }

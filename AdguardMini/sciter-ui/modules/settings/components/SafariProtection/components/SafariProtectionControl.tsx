@@ -9,6 +9,7 @@ import { useSettingsStore } from 'SettingsLib/hooks';
 
 import { AdBlockingSection } from './AdBlockingSection';
 import { AnnoyanceSection } from './AnnoyanceSection';
+import { HealthCheck } from './HealthCheck';
 import { OtherSection } from './OtherSection';
 import { SafariProtectionModals } from './SafariProtectionModals';
 import { SafariProtectionTitle } from './SafariProtectionTitle';
@@ -33,6 +34,7 @@ function SafariProtectionControlComponent() {
     return (
         <>
             <SafariProtectionTitle />
+            <HealthCheck setShowConsent={setShowConsentFilterIds} />
             <AdBlockingSection />
             <TrackingSection />
             <AnnoyanceSection setShowConsent={setShowConsentFilterIds} />

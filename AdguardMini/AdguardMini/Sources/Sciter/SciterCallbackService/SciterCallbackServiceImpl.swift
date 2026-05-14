@@ -84,6 +84,8 @@ final class SciterCallbackServiceImpl: RestartableServiceBase, SciterCallbackSer
 
         self.subscribe(selector: #selector(self.onSettingsPageRequested), event: .settingsPageRequested)
 
+        self.subscribe(selector: #selector(self.onTrayPageRequested), event: .trayPageRequested)
+
         self.subscribe(selector: #selector(self.onLoginItemStateChange), event: .loginItemStateChange)
 
         self.subscribe(
@@ -213,6 +215,14 @@ final class SciterCallbackServiceImpl: RestartableServiceBase, SciterCallbackSer
         if let page: String = self.eventBus.parseNotification(notification) {
             self.runAsyncIfStarted { [weak self] in
                 self?.settingsCallbacks.onSettingsPageRequested(StringValue(page))
+            }
+        }
+    }
+
+    @objc func onTrayPageRequested(notification: Notification) {
+        if let page: String = self.eventBus.parseNotification(notification) {
+            self.runAsyncIfStarted { [weak self] in
+                self?.trayCallbacks.onTrayPageRequested(StringValue(page))
             }
         }
     }

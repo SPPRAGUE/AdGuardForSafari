@@ -5,7 +5,7 @@
 import { LogLevel } from '@adg/sciter-utils-kit';
 import { makeAutoObservable } from 'mobx';
 
-import { ExportLogsRequest, ExportSettingsRequest, ForceRestartOnHardwareAccelerationImportRequest, GetContentBlockersRulesLimitRequest, GetSafariExtensionsRequest, GetSettingsRequest, GetUserActionLastDirectoryRequest, ImportSettingsConfirmRequest, ImportSettingsRequest, OpenLoginItemsSettingsRequest, ResetSettingsRequest, ResetStatisticsRequest, UpdateAllowTelemetryRequest, UpdateAutoFiltersUpdateRequest, UpdateConsentRequest, UpdateDebugLoggingRequest, UpdateHardwareAccelerationRequest, UpdateLaunchOnStartupRequest, UpdateQuitReactionRequest, UpdateRealTimeFiltersUpdateRequest, UpdateShowInMenuBarRequest, UpdateThemeRequest, UpdateUserActionLastDirectoryRequest, UpdateShowSafariToolbarBadgeRequest } from 'Apis/requests/SettingsService';
+import { ExportLogsRequest, ExportSettingsRequest, ForceRestartOnHardwareAccelerationImportRequest, GetContentBlockersRulesLimitRequest, GetHealthCheckDismissedCardsRequest, GetSafariExtensionsRequest, GetSettingsRequest, GetUserActionLastDirectoryRequest, ImportSettingsConfirmRequest, ImportSettingsRequest, OpenLoginItemsSettingsRequest, ResetSettingsRequest, ResetStatisticsRequest, UpdateAllowTelemetryRequest, UpdateAutoFiltersUpdateRequest, UpdateConsentRequest, UpdateDebugLoggingRequest, UpdateHardwareAccelerationRequest, UpdateHealthCheckDismissedCardsRequest, UpdateLaunchOnStartupRequest, UpdateQuitReactionRequest, UpdateRealTimeFiltersUpdateRequest, UpdateShowInMenuBarRequest, UpdateThemeRequest, UpdateUserActionLastDirectoryRequest, UpdateShowSafariToolbarBadgeRequest } from 'Apis/requests/SettingsService';
 import {
     Settings as SettingsEnt,
     ReleaseVariants,
@@ -67,6 +67,11 @@ export class Settings {
     public userActionLastDirectory: string | undefined;
 
     /**
+     * Defines dismissed health check cards, contains card ids
+     */
+    public dissmissedHealthCheckCards = new Set<string>();
+
+    /**
      * Ctor
      *
      * @param rootStore
@@ -98,6 +103,26 @@ export class Settings {
     public async getSettings() {
         const resp = await window.API.Execute(new GetSettingsRequest());
         this.setSettings(resp);
+    }
+
+    /**
+     * Get list of dismissed health check card IDs
+     */
+    public async getHealthCheckDismissedCards() {
+        const resp = await window.API.Execute(new GetHealthCheckDismissedCardsRequest());
+        this.setHealthCheckCardDismissed(resp.value);
+    }
+
+    public setHealthCheckCardDismissed(cardIds: string[]) {
+        this.dissmissedHealthCheckCards = new Set(cardIds);
+    }
+
+    /**
+     * Update list of dismissed health check card IDs
+     */
+    public updateHealthCheckDismissedCards(value: string[]) {
+        this.setHealthCheckCardDismissed(value);
+        window.API.Execute(new UpdateHealthCheckDismissedCardsRequest({ value }));
     }
 
     /**

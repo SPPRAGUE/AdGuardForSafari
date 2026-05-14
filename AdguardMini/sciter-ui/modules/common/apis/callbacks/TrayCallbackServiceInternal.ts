@@ -1,7 +1,7 @@
 /* This code was generated automatically by proto-parser tool version 1 */
 import { store } from 'TrayStore';
 import { ITrayCallbackServiceInternal } from './TrayCallbackService';
-import { BoolValue, EmptyValue, FiltersStatus, SafariExtensionUpdate, LicenseOrError, EffectiveThemeValue } from '../types'
+import { BoolValue, EmptyValue, FiltersStatus, SafariExtensionUpdate, LicenseOrError, EffectiveThemeValue, StringValue } from '../types'
 import { TrayRoute } from 'TrayStore/modules/TrayRouter';
 import { TrayPage } from 'Modules/tray/store/modules';
 
@@ -63,6 +63,14 @@ export class TrayCallbackServiceInternal implements ITrayCallbackServiceInternal
     /* Fires when effective theme changed */
     async OnEffectiveThemeChanged(param: EffectiveThemeValue): Promise<EmptyValue> {
         store.trayWindowEffectiveThemeChanged.invoke(param.value);
+
+        return new EmptyValue();
+    }
+
+    async OnTrayPageRequested(param: StringValue): Promise<EmptyValue> {
+        if (Object.values(TrayRoute).includes(param.value as TrayRoute)) {
+            store.router.changePath(param.value as TrayRoute);
+        }
 
         return new EmptyValue();
     }

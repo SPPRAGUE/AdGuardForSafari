@@ -27,6 +27,7 @@ message Settings {
     Theme theme = 12;
     optional WindowGeometry user_rules_editor_geometry = 13;
     bool show_safari_toolbar_badge = 14;
+    bool last_update_more_seven_days = 15;
 }
 
 message UserConsent {

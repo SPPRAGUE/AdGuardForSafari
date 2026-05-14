@@ -24,7 +24,8 @@ extension SettingsDTO {
         userConsent: [Int],
         releaseVariant: ReleaseVariant,
         language: String,
-        allowTelemetry: Bool
+        allowTelemetry: Bool,
+        lastUpdateMoreSevenDays: Bool
     ) -> Settings {
         Settings(
             launchOnStartup:        self.launchOnStartup,
@@ -39,7 +40,8 @@ extension SettingsDTO {
             releaseVariant:         releaseVariant.toProto(),
             language:               language,
             allowTelemetry:         allowTelemetry,
-            showSafariToolbarBadge: self.showSafariToolbarBadge
+            showSafariToolbarBadge: self.showSafariToolbarBadge,
+            lastUpdateMoreSevenDays: lastUpdateMoreSevenDays
         )
     }
 }

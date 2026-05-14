@@ -24,6 +24,7 @@ protocol UserSettingsService: AnyObject {
     var allowTelemetry:          Bool { get set }
     var userRulesEditorGeometry: WindowGeometryDTO? { get set }
     var showSafariToolbarBadge:  Bool { get set }
+    var dismissedHealthCheckCards: [String] { get set }
 
     // MARK: Properties with side effects
 
@@ -60,6 +61,9 @@ final class UserSettingsServiceImpl {
 
     @UserDefault(key: .userRulesEditorGeometry, defaultValue: nil)
     private var userRulesEditorGeometryData: Data?
+
+    @UserDefault(key: .dismissedHealthCheckCards, defaultValue: [])
+    private var dismissedHealthCheckCardsData: [String]
 
     init(
         keychain: KeychainManager,
@@ -127,6 +131,11 @@ extension UserSettingsServiceImpl: UserSettingsService {
     var showSafariToolbarBadge: Bool {
         get { self.sharedSettingsStorage.showSafariToolbarBadge }
         set { self.sharedSettingsStorage.showSafariToolbarBadge = newValue }
+    }
+
+    var dismissedHealthCheckCards: [String] {
+        get { self.dismissedHealthCheckCardsData }
+        set { self.dismissedHealthCheckCardsData = newValue }
     }
 
     var userRulesEditorGeometry: WindowGeometryDTO? {

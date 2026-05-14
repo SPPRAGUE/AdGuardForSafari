@@ -11,3 +11,4 @@ export * from './useOtherEnabledFilters';
 export * from './useABTests';
 export * from './useTheme';
 export * from './useNotificationSomethingWentWrongText';
+export * from './useSafariExtensionsStatus';

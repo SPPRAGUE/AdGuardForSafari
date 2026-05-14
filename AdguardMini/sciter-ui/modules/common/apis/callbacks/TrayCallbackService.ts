@@ -1,5 +1,5 @@
 /* This code was generated automatically by proto-parser tool version 1 */
-import { BoolValue, EmptyValue, FiltersStatus, SafariExtensionUpdate, LicenseOrError, EffectiveThemeValue } from '../types'
+import { BoolValue, EmptyValue, FiltersStatus, SafariExtensionUpdate, LicenseOrError, EffectiveThemeValue, StringValue } from '../types'
 
 /* Service handles settings lists- public part for external platform calls with methods for ArrayBuffer */
 export interface ITrayCallbackService {
@@ -17,6 +17,8 @@ export interface ITrayCallbackService {
 	OnLicenseUpdate(param: ArrayBuffer): Promise<EmptyValue>;
 	/* Fires when effective theme changed */
 	OnEffectiveThemeChanged(param: ArrayBuffer): Promise<EmptyValue>;
+	/* Fires when tray should open specific page */
+	OnTrayPageRequested(param: ArrayBuffer): Promise<EmptyValue>;
 }
 
 /* Service handles settings lists- private part for operations with unmarshalled params */
@@ -35,6 +37,8 @@ export interface ITrayCallbackServiceInternal {
 	OnLicenseUpdate(param: LicenseOrError): Promise<EmptyValue>;
 	/* Fires when effective theme changed*/
 	OnEffectiveThemeChanged(param: EffectiveThemeValue): Promise<EmptyValue>;
+	/* Fires when tray should open specific page*/
+	OnTrayPageRequested(param: StringValue): Promise<EmptyValue>;
 }
 
 /* Service handles settings lists */
@@ -155,6 +159,22 @@ export class TrayCallbackService implements ITrayCallbackService {
 		}
 		log.dbg('Callback data', 'TrayCallbackService.OnEffectiveThemeChanged', arg.toObject());
 		await this.trayCallbackServiceInternal.OnEffectiveThemeChanged(arg);
+		return new EmptyValue();
+	};
+	/**
+	 * Fires when tray should open specific page
+	 * @param ArrayBuffer param
+	 * @returns EmptyValue param
+	 */
+	OnTrayPageRequested = async (param: ArrayBuffer): Promise<EmptyValue> => {
+		const bytes = new Uint8Array(param);
+		const arg = StringValue.deserializeBinary(bytes);
+
+		if (!arg) {
+			throw new Error(`Empty parameter in TrayCallbackService.OnTrayPageRequested: ${ param }`);
+		}
+		log.dbg('Callback data', 'TrayCallbackService.OnTrayPageRequested', arg.toObject());
+		await this.trayCallbackServiceInternal.OnTrayPageRequested(arg);
 		return new EmptyValue();
 	};
 }

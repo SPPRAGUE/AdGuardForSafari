@@ -104,6 +104,7 @@ export class SettingsStore {
         this.filters.getFiltersIndex();
         this.filters.getFiltersGroupedByExtension();
         this.settings.getSettings();
+        this.settings.getHealthCheckDismissedCards();
         this.settings.getSafariExtensions();
         this.settings.getUserActionLastDirectory();
         this.userRules.getUserRules();

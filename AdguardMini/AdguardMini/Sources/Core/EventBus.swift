@@ -26,6 +26,7 @@ enum Event: String {
     case appVersionStatusResolved = "AppVersionStatusResolved"
     case importStateChange        = "ImportStateChange"
     case settingsPageRequested    = "SettingsPageRequested"
+    case trayPageRequested        = "TrayPageRequested"
     case loginItemStateChange     = "LoginItemStateChange"
     case hardwareAccelerationChanged = "HardwareAccelerationChanged"
 

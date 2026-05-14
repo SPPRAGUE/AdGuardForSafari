@@ -7,8 +7,6 @@
 //  AdguardMiniTests
 //
 
-// swiftlint:disable file_length
-
 import XCTest
 
 final class SafariExtensionStateServiceTests: XCTestCase {
@@ -454,5 +452,3 @@ final class SafariExtensionStateServiceTests: XCTestCase {
         await self.checkOnEndReload(blockerType, testCase, stateService, callbackService)
     }
 }
-
-// swiftlint:enable file_length
