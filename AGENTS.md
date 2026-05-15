@@ -334,7 +334,10 @@ You MUST follow the following rules for EVERY task that you perform:
    extension; splitting across 6 extensions maximizes total capacity.
 
 3. **Concurrency (Swift)**: Use Swift Concurrency (async/await) with proper
-   lifecycle management. Avoid uncontrolled `Task { }` without cancellation.
+   lifecycle management. Avoid uncontrolled `Task { }` without cancellation
+   for long-lived or stateful work. Short-lived bridge tasks that only
+   dispatch a single call (e.g., `Task { await store.dispatch(.action) }`)
+   are acceptable without explicit cancellation tracking.
    Use `@MainActor` for UI-bound code. Do not mix `DispatchQueue.main` with
    `@MainActor` in the same component.
 
@@ -363,3 +366,10 @@ You MUST follow the following rules for EVERY task that you perform:
    NOT make it worse. Any new code that causes an extension to lose
    functionality (or fail entirely) solely because the main app is unavailable
    is incorrect and MUST be reworked.
+
+7. **Constants grouping (Swift)**: Repeated literal values within a type MUST
+   be extracted into a `private enum Constants` nested type. Each constant gets
+   a descriptive name; the raw value appears only once.
+
+   **Rationale**: Eliminates magic numbers, makes intent clear, and simplifies
+   future changes.

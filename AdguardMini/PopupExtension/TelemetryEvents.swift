@@ -25,7 +25,7 @@ enum Telemetry {
         case fixItPopupClick           = "fix_it_popup_click"
     }
 
-    enum Event {
+    enum Event: Equatable {
         case pageView(_ screen: Screen)
         case action(_ action: Action, screen: Screen)
     }

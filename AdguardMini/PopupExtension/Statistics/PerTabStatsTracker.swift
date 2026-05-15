@@ -12,7 +12,7 @@ import AML
 
 // MARK: - TabStats
 
-struct TabStats {
+struct TabStats: Equatable {
     var adsBlocked: Int = 0
     var trackersBlocked: Int = 0
     var url: String = ""
