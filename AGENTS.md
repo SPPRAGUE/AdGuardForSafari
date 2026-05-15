@@ -288,7 +288,18 @@ You MUST follow the following rules for EVERY task that you perform:
 
    **Rationale**: Required by project licensing policy (GPL-3.0-or-later).
 
-4. **Card-based UI composition**: In TypeScript UI modules, card collections
+4. **Top-level documentation**: All top-level code declarations (functions,
+  components, classes, interfaces, types, enums, and exported constants)
+  MUST include documentation comments.
+  - TypeScript: JSDoc comments
+  - Swift: documentation comments (`///`)
+  Documentation SHOULD describe purpose, inputs, outputs, and important usage
+  constraints when applicable.
+
+  **Rationale**: Keeps code understandable during maintenance and review,
+  and makes API usage clearer for all contributors.
+
+5. **Card-based UI composition**: In TypeScript UI modules, card collections
   (for example, health/status cards) SHOULD be split so each card is a
   separate component file in the local `components/` folder. Card-specific
   text, actions, and visual configuration SHOULD live inside that card
