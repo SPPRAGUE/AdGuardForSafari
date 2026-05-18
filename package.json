@@ -30,7 +30,7 @@
     "locales:pushMaster": "sciter-infra-utils locales-push",
     "theme:generate": "sciter-infra-utils generate-stylesheets ./AdguardMini/sciter-ui/modules/common/theme/default ADG",
     "watchProject": "nodemon --exec ./AdguardMini/Scripts/rebuildDebugBuild.sh",
-    "test:node": "tsc -p tsconfig.node-tests.json && node --test build/tests/AdguardMini/sciter-ui/tests/**/*.test.js"
+    "test:node": "tsc -p tsconfig.node-tests.json && TS_NODE_PROJECT=tsconfig.node-tests.json TS_NODE_BASEURL=build/tests node -r tsconfig-paths/register --test build/tests/AdguardMini/sciter-ui/tests/**/*.test.js"
   },
   "dependencies": {
     "@adg/sciter-utils-kit": "^0.7.0",
@@ -81,6 +81,7 @@
     "postcss-nested": "^6.0.1",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.4.3",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4",
     "typescript-eslint": "^8.37.0",
     "webpack": "^5.84.1",

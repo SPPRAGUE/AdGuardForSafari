@@ -7,12 +7,18 @@
         "esModuleInterop": true,
         "outDir": "build/tests",
         "rootDir": ".",
+        "baseUrl": ".",
         "resolveJsonModule": true,
         "declaration": false,
         "sourceMap": false,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "Apis/*": ["AdguardMini/sciter-ui/modules/common/apis/*"]
+        }
     },
     "include": [
-        "AdguardMini/sciter-ui/tests/**/*.ts"
+        "AdguardMini/sciter-ui/tests/**/*.ts",
+        "AdguardMini/sciter-ui/modules/common/apis/types/**/*.ts",
+        "AdguardMini/sciter-ui/modules/common/stores/SafariExtensionsStore.ts"
     ]
 }

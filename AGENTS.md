@@ -329,6 +329,15 @@ You MUST follow the following rules for EVERY task that you perform:
 
    **Rationale**: Ensures UI logic correctness.
 
+3. **Lint-staged test triggers**: When adding new TypeScript tests, the
+   `.lintstagedrc.js` file MUST be updated to include glob patterns for the
+   tested source files and the test files themselves, mapping them to
+   `yarn test:node`. This ensures tests run automatically on pre-commit when
+   relevant files are changed.
+
+   **Rationale**: Prevents regressions from slipping through code review by
+   catching failures at commit time.
+
 ### IV. Other
 
 1. **Localization**: The project supports 35 languages via TwoSky. Base locale

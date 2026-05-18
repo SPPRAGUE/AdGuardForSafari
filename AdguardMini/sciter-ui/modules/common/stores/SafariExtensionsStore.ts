@@ -13,6 +13,15 @@ import type { SafariExtensionUpdate } from 'Apis/types';
  * Provides computed properties and actions for Safari extension management.
  */
 export class SafariExtensionsStore {
+    /**
+     * Stores the last non-loading state for each extension key.
+     * Used to prevent health check card flickering during filter conversion.
+     */
+    private readonly previousStates = new Map<string, {
+        status: SafariExtensionStatus;
+        isConsideredEnabled: boolean;
+    }>();
+
     public safariExtensions = new SafariExtensions();
 
     /**
@@ -69,9 +78,56 @@ export class SafariExtensionsStore {
     }
 
     /**
+     * Returns extensions list with loading statuses replaced by their last
+     * known non-loading status. If no previous status exists (initial load),
+     * the loading status is preserved. Used by health check card logic to
+     * prevent flickering.
+     */
+    public get effectiveExtensionsList(): SafariExtension[] {
+        return this.extensionsList.map((ext) => {
+            if (ext.status !== SafariExtensionStatus.loading) {
+                return ext;
+            }
+            const cached = this.previousStates.get(ext.id);
+            if (cached === undefined) {
+                return ext;
+            }
+            return new SafariExtension({
+                id: ext.id,
+                rulesEnabled: ext.rulesEnabled,
+                rulesTotal: ext.rulesTotal,
+                status: cached.status,
+                isConsideredEnabled: cached.isConsideredEnabled,
+            });
+        });
+    }
+
+    /**
+     * Whether all extensions are effectively enabled, using cached statuses
+     * for extensions currently in loading state. Prevents hasExtensionsDisabled
+     * from flickering during filter conversion.
+     */
+    public get allExtensionsEffectivelyEnabled(): boolean {
+        return this.effectiveExtensionsList.every((ext) => ext.isConsideredEnabled);
+    }
+
+    /**
      * Set safari protection status.
+     * Updates the previous statuses cache for extensions transitioning
+     * away from loading state.
      */
     public setSafariExtensions(data: SafariExtensions): void {
+        const extensions = Object.values(data.toObject());
+
+        for (const ext of extensions) {
+            if (ext && ext.status !== SafariExtensionStatus.loading) {
+                this.previousStates.set(ext.id!, {
+                    status: ext.status!,
+                    isConsideredEnabled: ext.isConsideredEnabled!,
+                });
+            }
+        }
+
         this.safariExtensions = data;
     }
 

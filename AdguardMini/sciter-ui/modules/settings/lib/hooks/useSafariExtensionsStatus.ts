@@ -14,32 +14,23 @@ const BROKEN_EXTENSION_STATUSES = [
 
 /**
  * Returns derived Safari extension health status flags.
+ * Uses effective (non-flickering) extension statuses that preserve the last
+ * known non-loading state during filter conversion.
  */
 export const useSafariExtensionsStatus = () => {
     const { settings } = useSettingsStore();
 
     const {
-        safariExtensionsLoading,
-        safariExtensionsStore: { safariExtensions: extensions, allExtensionsEnabled },
+        safariExtensionsStore: { effectiveExtensionsList, allExtensionsEffectivelyEnabled },
     } = settings;
 
-    const extensionsList = [
-        extensions.general,
-        extensions.privacy,
-        extensions.social,
-        extensions.security,
-        extensions.other,
-        extensions.custom,
-        extensions.adguardForSafari,
-    ];
+    const hasExtensionsDisabled = !allExtensionsEffectivelyEnabled;
 
-    const hasExtensionsDisabled = !allExtensionsEnabled && !safariExtensionsLoading;
-
-    const hasExtensionsBroken = extensionsList.some(
+    const hasExtensionsBroken = effectiveExtensionsList.some(
         (extension) => BROKEN_EXTENSION_STATUSES.includes(extension?.status),
     );
 
-    const hasRulesLimitExceeded = extensionsList.some(
+    const hasRulesLimitExceeded = effectiveExtensionsList.some(
         (extension) => extension?.status === SafariExtensionStatus.limit_exceeded,
     );
 

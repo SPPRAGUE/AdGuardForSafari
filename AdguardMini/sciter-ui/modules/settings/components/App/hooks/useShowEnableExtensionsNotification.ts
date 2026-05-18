@@ -8,7 +8,7 @@ import { OpenSafariExtensionPreferencesRequest } from 'Apis/requests/SettingsSer
 import { OptionalStringValue } from 'Apis/types';
 import { getCountableEntityStatuses } from 'Modules/common/utils/utils';
 import { useSettingsStore } from 'SettingsLib/hooks';
-import { NotificationContext, NotificationsQueueIconType, NotificationsQueueType, NotificationsQueueVariant, SettingsEvent } from 'SettingsStore/modules';
+import { NotificationContext, NotificationsQueueIconType, NotificationsQueueType, NotificationsQueueVariant, RouteName, SettingsEvent } from 'SettingsStore/modules';
 
 /**
  * Shows a notification if the user has disabled one or more extensions
@@ -71,8 +71,9 @@ export function useShowEnableExtensionsNotification() {
             if (notificationUid.current && notification.get(notificationUid.current)) {
                 return;
             }
-
-            showNotification();
+            if (currentPath !== RouteName.safari_protection) {
+                showNotification();
+            }
         }
     }, [
         currentPath, // Show notification on every path
