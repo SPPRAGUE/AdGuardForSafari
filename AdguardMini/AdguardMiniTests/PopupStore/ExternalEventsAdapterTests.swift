@@ -16,6 +16,7 @@ import AML
 private enum Constants {
     static let delay: Double = 0.05
     static let appStateTimestamp: EBATimestamp = 200
+    static let pageUrl: URL = URL(string: "https://example.com")!
 }
 
 // MARK: - MockRunningAppStream
@@ -64,7 +65,6 @@ final class ExternalEventsAdapterTests: XCTestCase {
         let store = PopupStore(effectRunner: SpyEffectRunner())
         let adapter = ExternalEventsAdapter(
             store: store,
-            perTabStatsTracker: PerTabStatsTracker(),
             runningAppStream: mockStream
         )
 
@@ -87,7 +87,6 @@ final class ExternalEventsAdapterTests: XCTestCase {
         let store = PopupStore(effectRunner: SpyEffectRunner())
         let adapter = ExternalEventsAdapter(
             store: store,
-            perTabStatsTracker: PerTabStatsTracker(),
             runningAppStream: mockStream
         )
 
@@ -110,7 +109,6 @@ final class ExternalEventsAdapterTests: XCTestCase {
         let store = PopupStore(effectRunner: SpyEffectRunner())
         let adapter = ExternalEventsAdapter(
             store: store,
-            perTabStatsTracker: PerTabStatsTracker(),
             runningAppStream: mockStream
         )
 
@@ -132,7 +130,6 @@ final class ExternalEventsAdapterTests: XCTestCase {
         let store = PopupStore(effectRunner: SpyEffectRunner())
         let adapter = ExternalEventsAdapter(
             store: store,
-            perTabStatsTracker: PerTabStatsTracker(),
             runningAppStream: mockStream
         )
 
@@ -151,7 +148,6 @@ final class ExternalEventsAdapterTests: XCTestCase {
         let store = PopupStore(effectRunner: SpyEffectRunner())
         let adapter = ExternalEventsAdapter(
             store: store,
-            perTabStatsTracker: PerTabStatsTracker(),
             runningAppStream: mockStream
         )
 
@@ -160,5 +156,62 @@ final class ExternalEventsAdapterTests: XCTestCase {
 
         // Similar to logLevel — themeChanged produces .setAppTheme effect.
         // EffectRunner is a no-op spy; no state field exists for theme, so no crash expected.
+    }
+
+    // MARK: refreshTabStats -> tabContextUpdated
+
+    func testRefreshTabStatsDispatchesSingleAction() async throws {
+        let store = PopupStore(effectRunner: SpyEffectRunner())
+        let adapter = ExternalEventsAdapter(store: store)
+
+        let adsBlocked = 3
+        let trackersBlocked = 1
+        let token = Store.SafariWindowToken(rawValue: 42)
+        let stats = TabStats(
+            adsBlocked: adsBlocked,
+            trackersBlocked: trackersBlocked,
+            url: Constants.pageUrl.absoluteString
+        )
+
+        await adapter.refreshTabStats(stats: stats, token: token, pageUrl: Constants.pageUrl)
+
+        let state = await store.currentState()
+        XCTAssertEqual(state.tabStats, stats)
+        XCTAssertEqual(state.tabContext.url, Constants.pageUrl)
+        XCTAssertEqual(state.tabContext.domain, Constants.pageUrl.host ?? "")
+        XCTAssertFalse(state.tabContext.isSystemPage)
+        XCTAssertEqual(state.tabContext.windowToken, token)
+    }
+
+    func testRefreshTabStatsWithNilUrlProducesSystemPageContext() async throws {
+        let store = PopupStore(effectRunner: SpyEffectRunner())
+        let adapter = ExternalEventsAdapter(store: store)
+
+        let token = Store.SafariWindowToken(rawValue: 1)
+
+        await adapter.refreshTabStats(stats: TabStats(), token: token, pageUrl: nil)
+
+        let state = await store.currentState()
+        XCTAssertTrue(state.tabContext.isSystemPage)
+        XCTAssertTrue(state.tabContext.domain.isEmpty)
+        XCTAssertNil(state.tabContext.url)
+    }
+
+    // MARK: Hostless URL with scheme is not a system page
+
+    func testRefreshTabStatsWithFileUrlIsNotSystemPage() async throws {
+        let store = PopupStore(effectRunner: SpyEffectRunner())
+        let adapter = ExternalEventsAdapter(store: store)
+        let token = Store.SafariWindowToken(rawValue: 1)
+        let fileUrl = URL(string: "file:///Users/test/index.html")!
+
+        await adapter.refreshTabStats(stats: TabStats(), token: token, pageUrl: fileUrl)
+
+        let state = await store.currentState()
+        XCTAssertFalse(
+            state.tabContext.isSystemPage,
+            "file:// URL has a scheme — must not be treated as a system page"
+        )
+        XCTAssertEqual(state.tabContext.domain, "file://")
     }
 }

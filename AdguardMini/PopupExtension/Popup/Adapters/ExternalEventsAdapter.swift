@@ -31,25 +31,22 @@ struct LiveRunningAppStream: RunningAppStreaming {
 /// Converts each event into a `Store.Action` and dispatches
 /// it to `PopupStore`. Conforms to `ExtensionSafariApiClientDelegate`
 /// to receive XPC pushes from the main app. Also provides on-demand
-/// tab stats polling via `refreshTabStats(in:)`.
+/// tab stats dispatching via `refreshTabStats(stats:token:pageUrl:)`.
 ///
 /// Lifecycle: `start()` begins all subscriptions; `stop()` cancels
 /// them. Both are idempotent.
 final class ExternalEventsAdapter: NSObject, @unchecked Sendable {
     private let store: PopupStore
     private let runningAppStream: RunningAppStreaming
-    private let perTabStatsTracker: PerTabStatsTracker
 
     private let lock = UnfairLock()
     private var runningAppTask: Task<Void, Never>?
 
     init(
         store: PopupStore,
-        perTabStatsTracker: PerTabStatsTracker,
         runningAppStream: RunningAppStreaming = LiveRunningAppStream()
     ) {
         self.store = store
-        self.perTabStatsTracker = perTabStatsTracker
         self.runningAppStream = runningAppStream
     }
 
@@ -79,13 +76,24 @@ final class ExternalEventsAdapter: NSObject, @unchecked Sendable {
 
     // MARK: - On-demand polling
 
-    /// Polls tab stats for the active tab in `window` and dispatches
-    /// the result to the store. Called by the toolbar validation
-    /// entrypoint (`SafariExtensionHandler.validateToolbarItem`).
-    func refreshTabStats(in window: SFSafariWindow) async {
-        let stats = await self.perTabStatsTracker.getStatsForActiveTab(in: window)
-        let token = Store.SafariWindowToken(rawValue: UInt64(UInt(bitPattern: ObjectIdentifier(window))))
-        await self.store.dispatch(.tabStatsRefreshed(stats, window: token))
+    /// Dispatches tab stats and the resolved tab context to the store.
+    /// Called by the toolbar validation entrypoint
+    /// (`SafariExtensionHandler.validateToolbarItem`) after all
+    /// `SFSafariWindow`-dependent work has been completed.
+    func refreshTabStats(
+        stats: TabStats,
+        token: Store.SafariWindowToken,
+        pageUrl: URL?
+    ) async {
+        let isSystemPage = pageUrl?.host == nil && pageUrl?.scheme == nil
+        let domain = pageUrl?.host ?? pageUrl.map { "\($0.scheme ?? "")://" } ?? ""
+        let tabContext = Store.TabContext(
+            windowToken: token,
+            url: pageUrl,
+            domain: domain,
+            isSystemPage: isSystemPage
+        )
+        await self.store.dispatch(.tabContextUpdated(stats: stats, context: tabContext))
     }
 }
 

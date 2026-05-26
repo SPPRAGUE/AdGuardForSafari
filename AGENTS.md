@@ -264,6 +264,12 @@ You MUST follow the following rules for EVERY task that you perform:
    - Capitalize the first word in comments
    - Analyzer rules enabled: `unused_declaration`, `unused_import`,
      `capture_variable`, `typesafe_array_init`
+   - Every `// swiftlint:disable` command MUST be preceded by a plain
+     comment explaining why the rule is suppressed:
+     ```swift
+     // Labeled parameter makes the role of the closure explicit.
+     // swiftlint:disable:next trailing_closure
+     ```
 
    **Rationale**: Enforces consistent code style and prevents common issues.
 

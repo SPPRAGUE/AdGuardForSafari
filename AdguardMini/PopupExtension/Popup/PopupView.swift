@@ -23,12 +23,12 @@ fileprivate enum Constants {
 struct PopupView: View {
     // MARK: Private properties
 
-    @ObservedObject private var viewModel: ViewModel
+    @ObservedObject private var viewState: PopupViewState
 
     // MARK: Init
 
-    init(viewModel: ViewModel) {
-        self.viewModel = viewModel
+    init(viewState: PopupViewState) {
+        self.viewState = viewState
     }
 
     // MARK: UI
@@ -36,11 +36,11 @@ struct PopupView: View {
     var body: some View {
         VStack {
             HeaderView(
-                isBusy: self.viewModel.isBusy,
-                isPauseButtonAvailable: self.viewModel.isPauseButtonAvailable,
-                isSettingsButtonAvailable: self.viewModel.isOnboardingCompleted,
-                pauseAction: self.viewModel.pauseClicked,
-                settingsAction: self.viewModel.settingsClicked
+                isBusy: self.viewState.isBusy,
+                isPauseButtonAvailable: self.viewState.isPauseButtonAvailable,
+                isSettingsButtonAvailable: self.viewState.isOnboardingCompleted,
+                pauseAction: self.viewState.pauseClicked,
+                settingsAction: self.viewState.settingsClicked
             )
             self.mainBody
         }
@@ -49,7 +49,7 @@ struct PopupView: View {
 
     private var mainBody: some View {
         Group {
-            switch viewModel.popupLayout {
+            switch viewState.popupLayout {
             case .domain:
                 self.domainBody
             case .adguardNotLaunched:
@@ -67,47 +67,46 @@ struct PopupView: View {
     @ViewBuilder
     private var domainBody: some View {
         DomainView(
-            isProtectionEnabled: self.$viewModel.isProtectionEnabledForUrl,
+            isProtectionEnabled: Binding(
+                get: { self.viewState.isProtectionEnabledForUrl },
+                set: { self.viewState.protectionToggleChanged($0) }
+            ),
             configuration: .init(
                 state: .init(
-                    isDisabled: self.viewModel.isBusy || self.viewModel.isSystemPage,
-                    hasAttention: !self.viewModel.isAllExtensionsEnabled
+                    isDisabled: self.viewState.isBusy || self.viewState.isSystemPage,
+                    hasAttention: !self.viewState.isAllExtensionsEnabled
                 ),
-                domain: self.viewModel.domain,
-                hint: self.viewModel.isSystemPage
+                domain: self.viewState.domain,
+                hint: self.viewState.isSystemPage
                     ? nil
                     : .localized.base.item_hint_domain_protection_off,
                 adsBlockedText: self.formatStatsLine(
-                    count: self.viewModel.adsBlocked,
+                    count: self.viewState.adsBlocked,
                     format: .localized.base.item_stats_ads_blocked
                 ),
                 trackersBlockedText: self.formatStatsLine(
-                    count: self.viewModel.trackersBlocked,
+                    count: self.viewState.trackersBlocked,
                     format: .localized.base.item_stats_trackers_blocked
                 ),
                 attentionConfiguration: .init(
                     title: .localized.base.item_attention_title_extensions_off,
                     buttonText: .localized.base.item_attention_button_title_fix_it,
-                    action: self.viewModel.fixItClicked
+                    action: self.viewState.fixItClicked
                 ),
                 blockElementConfiguration: .init(
                     title: .localized.base.item_title_block_element,
-                    action: self.viewModel.blockElementClicked
+                    action: self.viewState.blockElementClicked
                 ),
                 reportAnIssueConfiguration: .init(
                     title: .localized.base.item_title_report_an_issue,
-                    action: self.viewModel.reportAnIssueClicked
+                    action: self.viewState.reportAnIssueClicked
                 )
-//              AG-49352  rateAdguardMiniConfiguration: .init(
-//                    title: .localized.base.item_title_rate_adguard_mini,
-//                    action: self.viewModel.rateAdguardMiniClicked
-//                )
             )
         )
     }
 
     private func formatStatsLine(count: Int, format: String) -> String? {
-        guard !self.viewModel.isSystemPage else { return nil }
+        guard !self.viewState.isSystemPage else { return nil }
         let formatted = NumberFormatter.localizedString(from: NSNumber(value: count), number: .decimal)
         return String.localizedStringWithFormat(format, count, formatted)
     }
@@ -116,7 +115,7 @@ struct PopupView: View {
     private var infoNotLaunchedBody: some View {
         InfoView(
             configuration: .init(
-                state: self.viewModel.popupState,
+                state: self.viewState.popupState,
                 image: SEImage.Adguard.thinkingAgnar,
                 baseContent: .init(
                     title: .localized.base.info_title_main_app_not_running,
@@ -133,7 +132,7 @@ struct PopupView: View {
                     text: .localized.base.info_error_subtitle,
                     buttonText: .localized.base.info_common_button_title_try_again
                 ),
-                action: self.viewModel.buttonClicked
+                action: self.viewState.buttonClicked
             )
         )
     }
@@ -142,7 +141,7 @@ struct PopupView: View {
     private var infoProtectionDisabledBody: some View {
         InfoView(
             configuration: .init(
-                state: self.viewModel.popupState,
+                state: self.viewState.popupState,
                 image: SEImage.Adguard.thinkingAgnar,
                 baseContent: .init(
                     title: .localized.base.info_title_protection_disabled,
@@ -159,7 +158,7 @@ struct PopupView: View {
                     text: .localized.base.info_error_subtitle,
                     buttonText: .localized.base.info_common_button_title_try_again
                 ),
-                action: self.viewModel.buttonClicked
+                action: self.viewState.buttonClicked
             )
         )
     }
@@ -168,7 +167,7 @@ struct PopupView: View {
     private var infoSomethingWentWrongBody: some View {
         InfoView(
             configuration: .init(
-                state: self.viewModel.popupState,
+                state: self.viewState.popupState,
                 image: SEImage.Adguard.thinkingAgnar,
                 baseContent: .init(
                     title: .localized.base.info_title_something_went_wrong,
@@ -185,7 +184,7 @@ struct PopupView: View {
                     text: .localized.base.info_error_subtitle,
                     buttonText: .localized.base.info_common_button_title_try_again
                 ),
-                action: self.viewModel.buttonClicked
+                action: self.viewState.buttonClicked
             )
         )
     }
@@ -194,7 +193,7 @@ struct PopupView: View {
     private var infoOnboardingWasntCompletedBody: some View {
         InfoView(
             configuration: .init(
-                state: self.viewModel.popupState,
+                state: self.viewState.popupState,
                 image: SEImage.Adguard.thumbsUpAgnar,
                 baseContent: .init(
                     title: .localized.base.info_title_set_up_ad_blocker,
@@ -211,7 +210,7 @@ struct PopupView: View {
                     text: .localized.base.info_subtitle_set_up_ad_blocker,
                     buttonText: .localized.base.info_button_title_open_main_app
                 ),
-                action: self.viewModel.buttonClicked
+                action: self.viewState.buttonClicked
             )
         )
     }

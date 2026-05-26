@@ -23,8 +23,7 @@ extension Store {
         case appStateChanged(AppStateSnapshot)
         case themeChanged(Theme)
         case logLevelChanged(LogLevel)
-        case tabStatsRefreshed(TabStats, window: SafariWindowToken)
-        case currentTabContextResolved(TabContext)
+        case tabContextUpdated(stats: TabStats, context: TabContext)
 
         // MARK: Toolbar
 
@@ -48,23 +47,24 @@ extension Store {
 
         // MARK: Effect completions
 
+        case appStateRefreshSkipped(isXpcUnavailable: Bool)
         case setProtectionStatusCompleted(Result<EBATimestamp, Store.Error>)
         case setFilteringStatusCompleted(Result<EBATimestamp, Store.Error>)
         case launchMainAppCompleted(Store.Error?)
         case restartMainAppCompleted(Store.Error?)
         case openSafariSettingsCompleted(Store.Error?)
         case openSettingsCompleted(Store.Error?)
+        case blockElementCompleted(pageFound: Bool)
         case reportSiteCompleted(Result<URL, Store.Error>)
+        case prereqsRefreshSkipped(isXpcUnavailable: Bool)
         case prereqsRefreshed(
             onboardingCompleted: Bool,
-            allExtensionsEnabled: Bool
+            allExtensionsEnabled: Bool,
+            tabUrl: String,
+            isFilteringEnabled: Bool
         )
-
         // MARK: Lifecycle
 
-        /// `openedAt` is supplied by the adapter — the reducer is
-        /// pure and does not call `Date()` itself.
         case popupOpened(openedAt: Date)
-        case popupDismissed
     }
 }

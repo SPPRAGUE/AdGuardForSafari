@@ -10,11 +10,15 @@
 import Foundation
 import AML
 
-/// Pure reducer for the popup. All popup business logic lives here —
-/// no I/O, no `Date()`/`UUID()` calls, no hidden globals (clocks and
-/// identifiers are passed in via state or action payloads). Replaces
-/// `PopupView.ViewModel` (~580 LOC) and `PopupStatePreparerImpl`; wired
-/// into the runtime via `PopupStore`.
+private enum Constants {
+    static let rateUrl = URL(
+        string: "https://link.adtidy.org/forward.html?action=appstore&from=options_screen&app=mac-mini"
+    )!
+}
+
+/// Pure reducer for the popup. All business logic lives here — no I/O,
+/// no `Date()`/`UUID()` calls, no hidden globals (clocks and identifiers
+/// are passed in via state or action payloads).
 enum PopupReducer {
     // Flat dispatch table; cyclomatic complexity is structural (each branch delegates).
     // swiftlint:disable:next cyclomatic_complexity
@@ -32,14 +36,8 @@ enum PopupReducer {
             return (state, [.setAppTheme(theme)])
         case let .logLevelChanged(level):
             return (state, [.setLogLevel(level)])
-        case let .tabStatsRefreshed(stats, _):
-            var next = state
-            next.tabStats = stats
-            return (next, [])
-        case let .currentTabContextResolved(context):
-            var next = state
-            next.tabContext = context
-            return (next, [])
+        case let .tabContextUpdated(stats, context):
+            return Self.handleTabContextUpdated(state: state, stats: stats, context: context)
 
         // MARK: Toolbar
         case .toolbarValidationRequested:
@@ -67,6 +65,8 @@ enum PopupReducer {
             return Self.handleInfoButtonTapped(state: state)
 
         // MARK: Effect completions
+        case let .appStateRefreshSkipped(isXpcUnavailable):
+            return Self.handleAppStateRefreshSkipped(state: state, isXpcUnavailable: isXpcUnavailable)
         case let .setProtectionStatusCompleted(result):
             return Self.handleSetProtectionStatusCompleted(state: state, result: result)
         case let .setFilteringStatusCompleted(result):
@@ -76,26 +76,26 @@ enum PopupReducer {
         case let .restartMainAppCompleted(error):
             return Self.handleVoidCompletion(state: state, error: error, errorMap: .restartFailed)
         case let .openSafariSettingsCompleted(error):
-            return Self.handleVoidCompletion(state: state, error: error, errorMap: .openSafariSettingsFailed)
+            return Self.handleOpenSafariSettingsCompleted(state: state, error: error)
         case let .openSettingsCompleted(error):
-            return Self.handleVoidCompletion(state: state, error: error, errorMap: .openSettingsFailed)
+            return Self.handleOpenSettingsCompleted(state: state, error: error)
+        case let .blockElementCompleted(pageFound):
+            return Self.handleBlockElementCompleted(state: state, pageFound: pageFound)
         case let .reportSiteCompleted(result):
             return Self.handleReportSiteCompleted(state: state, result: result)
-        case let .prereqsRefreshed(onboardingCompleted, allExtensionsEnabled):
+        case let .prereqsRefreshSkipped(isXpcUnavailable):
+            return Self.handlePrereqsRefreshSkipped(state: state, isXpcUnavailable: isXpcUnavailable)
+        case let .prereqsRefreshed(onboardingCompleted, allExtensionsEnabled, tabUrl, isFilteringEnabled):
             return Self.handlePrereqsRefreshed(
                 state: state,
                 onboardingCompleted: onboardingCompleted,
-                allExtensionsEnabled: allExtensionsEnabled
+                allExtensionsEnabled: allExtensionsEnabled,
+                tabUrl: tabUrl,
+                isFilteringEnabled: isFilteringEnabled
             )
-
         // MARK: Lifecycle
-        case let .popupOpened(openedAt):
-            return Self.handlePopupOpened(state: state, openedAt: openedAt)
-        case .popupDismissed:
-            var next = state
-            next.popupSession = .closed
-            next.lastError = nil
-            return (next, [])
+        case .popupOpened:
+            return Self.handlePopupOpened(state: state)
         }
     }
 }
@@ -112,7 +112,8 @@ private extension PopupReducer {
             mainAppRunning: state.mainAppRunning,
             onboardingStatus: state.onboardingStatus,
             protectionEnabled: state.protectionEnabled,
-            lastError: state.lastError
+            lastError: state.lastError,
+            xpcAvailable: state.xpcAvailable
         )
     }
 
@@ -122,12 +123,25 @@ private extension PopupReducer {
         case .domain: screen = mainOrExtensionsOff(state)
         case .protectionIsDisabled: screen = .protectionDisabled
         case .somethingWentWrong: screen = .failedEnableProtection
-        case .adguardNotLaunched, .onboardingWasntCompleted: screen = nil
+        case .adguardNotLaunched, .xpcUnavailable, .onboardingWasntCompleted: screen = nil
         }
         return screen.map { [.sendTelemetry(.pageView($0))] } ?? []
     }
 
     // MARK: - External events
+
+    static func handleTabContextUpdated(
+        state: Store.State,
+        stats: TabStats,
+        context: Store.TabContext
+    ) -> (Store.State, [Store.Effect]) {
+        var next = state
+        next.tabStats = stats
+        next.tabContext = context
+        let urlString = context.url?.absoluteString ?? ""
+        next.protectionEnabledForCurrentUrl = urlString.isEmpty || !next.pausedUrls.contains(urlString)
+        return (next, [])
+    }
 
     static func handleMainAppRunningChanged(
         state: Store.State, running: Bool
@@ -136,31 +150,42 @@ private extension PopupReducer {
         var next = state
         next.mainAppRunning = running
         if running {
-            next.lastResolvedTabUrl = nil
             next.onboardingStatus = .unknown
-            return (next, [.refreshPrereqs(markStale: true)])
+            next.lastError = nil
+            next.xpcAvailable = true
+            return (next, RefreshPolicy.onMainAppStarted(state: next))
         }
-        return (next, [])
+        return (next, RefreshPolicy.onMainAppStopped())
     }
 
     static func handleAppStateChanged(
         state: Store.State, snapshot: Store.AppStateSnapshot
     ) -> (Store.State, [Store.Effect]) {
-        guard snapshot.lastCheckTime > state.lastAppStateTimestamp else {
-            return (state, [])
-        }
         var next = state
-        next.lastAppStateTimestamp = snapshot.lastCheckTime
-        next.protectionEnabled = snapshot.isProtectionEnabled
-        next.lastResolvedTabUrl = nil
-
+        next.xpcAvailable = true
         var effects: [Store.Effect] = []
+
+        // Apply theme and logLevel unconditionally — they are idempotent.
         if let level = LogLevel(rawValue: Int(snapshot.logLevel)) {
             effects.append(.setLogLevel(level))
         }
         if let theme = Theme(rawValue: Int(snapshot.theme)) {
             effects.append(.setAppTheme(theme))
         }
+
+        guard snapshot.lastCheckTime > state.lastAppStateTimestamp else {
+            return (next, effects)
+        }
+
+        next.lastAppStateTimestamp = snapshot.lastCheckTime
+        let protectionChanged = state.protectionEnabled != snapshot.isProtectionEnabled
+        let hadError = state.lastError != nil
+        next.protectionEnabled = snapshot.isProtectionEnabled
+        next.lastError = nil
+        if protectionChanged || hadError {
+            effects.append(.requestToolbarUpdate)
+        }
+
         return (next, effects)
     }
 
@@ -169,12 +194,7 @@ private extension PopupReducer {
     static func handleToolbarValidationRequested(
         state: Store.State
     ) -> (Store.State, [Store.Effect]) {
-        let url = state.tabStats.url
-        // Empty URL means a secure / system page with no recorded blocks; refreshing would loop.
-        if url.isEmpty { return (state, []) }
-        // Cache is fresh for this URL — nothing to refresh.
-        if state.lastResolvedTabUrl == url { return (state, []) }
-        return (state, [.refreshAppState, .refreshPrereqs(markStale: false)])
+        (state, RefreshPolicy.onToolbarValidation(state: state))
     }
 
     // MARK: - User actions
@@ -188,7 +208,6 @@ private extension PopupReducer {
         }
         var next = state
         next.inFlight = enable ? .enabling : .disabling
-        next.lastResolvedTabUrl = nil
         if enable {
             next.pausedUrls.remove(url)
             next.protectionEnabledForCurrentUrl = true
@@ -198,18 +217,16 @@ private extension PopupReducer {
             next.tabStats.adsBlocked = 0
             next.tabStats.trackersBlocked = 0
         }
-        let effects: [Store.Effect] = [
+        return (next, [
             .setFilteringStatusForUrl(url, enable: enable),
             .sendTelemetry(.action(.protectionPopupClick, screen: mainOrExtensionsOff(state)))
-        ]
-        return (next, effects)
+        ] + RefreshPolicy.onUrlProtectionToggled())
     }
 
     static func handlePauseTapped(state: Store.State) -> (Store.State, [Store.Effect]) {
         guard state.inFlight == nil else { return (state, []) }
         var next = state
         next.inFlight = .disabling
-        next.lastResolvedTabUrl = nil
         return (next, [
             .setProtectionStatus(enable: false),
             .sendTelemetry(.action(.pauseProtectionPopupClick, screen: mainOrExtensionsOff(state)))
@@ -227,10 +244,9 @@ private extension PopupReducer {
     }
 
     static func handleBlockElementTapped(state: Store.State) -> (Store.State, [Store.Effect]) {
-        // Instant action — no XPC, no inFlight gate (parity with legacy).
+        // Telemetry tracks the tap. Dismiss is deferred until the page-found completion.
         (state, [
             .dispatchPageScriptMessage(name: "blockElementPing"),
-            .dismissPopover,
             .sendTelemetry(.action(.blockElementPopupClick, screen: mainOrExtensionsOff(state)))
         ])
     }
@@ -249,15 +265,10 @@ private extension PopupReducer {
     }
 
     static func handleRateTapped(state: Store.State) -> (Store.State, [Store.Effect]) {
-        // Instant action; sequencing of `dismissPopover` before
-        // `openUrlInNewTab` preserved from legacy for parity.
-        // swiftlint:disable:next force_unwrapping
-        let rateUrl = URL(
-            string: "https://link.adtidy.org/forward.html?action=appstore&from=options_screen&app=mac-mini"
-        )!
-        return (state, [
+        // Instant action; `dismissPopover` fires before `openUrlWithSystemHandler`.
+        (state, [
             .dismissPopover,
-            .openUrlInNewTab(rateUrl),
+            .openUrlWithSystemHandler(Constants.rateUrl),
             .sendTelemetry(.action(.rateMiniPopupClick, screen: mainOrExtensionsOff(state)))
         ])
     }
@@ -284,6 +295,10 @@ private extension PopupReducer {
             var next = state
             next.inFlight = .launching
             return (next, [.launchMainApp])
+        case .xpcUnavailable:
+            var next = state
+            next.inFlight = .launching
+            return (next, [.launchMainApp])
         case .protectionIsDisabled:
             var next = state
             next.inFlight = .enabling
@@ -295,6 +310,7 @@ private extension PopupReducer {
         case .onboardingWasntCompleted:
             var next = state
             next.inFlight = .openingSettings
+            // Dismiss is deferred to `handleOpenSettingsCompleted` so the user can see an error state if opening settings fails.
             return (next, [
                 .openSettings,
                 .sendTelemetry(.action(.settingPopupClick, screen: mainOrExtensionsOff(state)))
@@ -310,13 +326,13 @@ private extension PopupReducer {
         var next = state
         next.inFlight = nil
         switch result {
-        case .success:
+        case let .success(timestamp):
             next.lastError = nil
             // Explicit refresh keeps the UI in sync if the app state push is delayed.
-            return (next, [.refreshAppState])
+            return (next, RefreshPolicy.onUserActionCompleted(timestamp: timestamp))
         case let .failure(error):
             next.lastError = error
-            return (next, [])
+            return (next, [.sendTelemetry(.pageView(.failedEnableProtection))])
         }
     }
 
@@ -326,9 +342,9 @@ private extension PopupReducer {
         var next = state
         next.inFlight = nil
         switch result {
-        case .success:
+        case let .success(timestamp):
             next.lastError = nil
-            return (next, [.requestToolbarUpdate])
+            return (next, RefreshPolicy.onUserActionCompleted(timestamp: timestamp))
         case let .failure(error):
             next.lastError = error
             return (next, [])
@@ -358,39 +374,120 @@ private extension PopupReducer {
         switch result {
         case let .success(url):
             next.lastError = nil
-            return (next, [.openUrlInNewTab(url), .dismissPopover])
+            return (next, [
+                .openUrlInNewTab(url),
+                .dismissPopover
+            ])
         case let .failure(error):
             next.lastError = error
             return (next, [])
         }
     }
 
+    static func handleOpenSafariSettingsCompleted(
+        state: Store.State, error: Store.Error?
+    ) -> (Store.State, [Store.Effect]) {
+        var next = state
+        next.inFlight = nil
+        if error != nil {
+            next.lastError = .openSafariSettingsFailed
+            return (next, [])
+        }
+        next.lastError = nil
+        return (next, [.dismissPopover])
+    }
+
+    static func handleOpenSettingsCompleted(
+        state: Store.State, error: Store.Error?
+    ) -> (Store.State, [Store.Effect]) {
+        var next = state
+        next.inFlight = nil
+        if error != nil {
+            next.lastError = .openSettingsFailed
+            return (next, [])
+        }
+        next.lastError = nil
+        return (next, [.dismissPopover])
+    }
+
+    static func handleBlockElementCompleted(
+        state: Store.State, pageFound: Bool
+    ) -> (Store.State, [Store.Effect]) {
+        guard pageFound else { return (state, []) }
+        return (state, [.dismissPopover])
+    }
+
     static func handlePrereqsRefreshed(
         state: Store.State,
         onboardingCompleted: Bool,
-        allExtensionsEnabled: Bool
+        allExtensionsEnabled: Bool,
+        tabUrl: String,
+        isFilteringEnabled: Bool
     ) -> (Store.State, [Store.Effect]) {
         var next = state
+        next.xpcAvailable = true
         next.onboardingStatus = onboardingCompleted ? .completed : .notCompleted
         next.allExtensionsEnabled = allExtensionsEnabled
-        if let url = state.tabContext.url?.absoluteString, !url.isEmpty {
-            next.lastResolvedTabUrl = url
+        // Sync per-URL filtering state from the main app.
+        // Falls back to tabStats.url when tabContext.url is nil.
+        // Reason: validateToolbarItem can fire before page.properties().url resolves.
+        var filteringChanged = false
+        if !tabUrl.isEmpty {
+            let wasPaused = next.pausedUrls.contains(tabUrl)
+            if !isFilteringEnabled {
+                if !wasPaused {
+                    next.pausedUrls.insert(tabUrl)
+                    filteringChanged = true
+                    let activeUrl = next.tabContext.url?.absoluteString ?? next.tabStats.url
+                    if activeUrl == tabUrl {
+                        next.protectionEnabledForCurrentUrl = false
+                    }
+                }
+            } else if wasPaused {
+                // Server confirms filtering is enabled — clear the stale entry.
+                // The popup will correctly show the site as filtered.
+                next.pausedUrls.remove(tabUrl)
+                filteringChanged = true
+                let activeUrl = next.tabContext.url?.absoluteString ?? next.tabStats.url
+                if activeUrl == tabUrl {
+                    next.protectionEnabledForCurrentUrl = true
+                }
+            }
         }
+        let layoutChanged = currentLayout(next) != currentLayout(state)
+        let needsToolbarUpdate = next.onboardingStatus != state.onboardingStatus
+            || filteringChanged
+            || layoutChanged
+        let effects: [Store.Effect] = needsToolbarUpdate ? [.requestToolbarUpdate] : []
+        return (next, effects)
+    }
+
+    static func handleAppStateRefreshSkipped(
+        state: Store.State,
+        isXpcUnavailable: Bool
+    ) -> (Store.State, [Store.Effect]) {
+        guard isXpcUnavailable else { return (state, []) }
+        var next = state
+        next.xpcAvailable = false
+        return (next, [])
+    }
+
+    static func handlePrereqsRefreshSkipped(
+        state: Store.State,
+        isXpcUnavailable: Bool
+    ) -> (Store.State, [Store.Effect]) {
+        guard isXpcUnavailable else { return (state, []) }
+        var next = state
+        next.xpcAvailable = false
         return (next, [])
     }
 
     // MARK: - Lifecycle
 
     static func handlePopupOpened(
-        state: Store.State, openedAt: Date
+        state: Store.State
     ) -> (Store.State, [Store.Effect]) {
-        switch state.popupSession {
-        case .open:
-            return (state, [])
-        case .closed:
-            var next = state
-            next.popupSession = .open(openedAt: openedAt)
-            return (next, [.notifyWindowOpened] + pageViewEffects(state: state))
-        }
+        let effects: [Store.Effect] = [.notifyWindowOpened] + self.pageViewEffects(state: state)
+        return (state, effects)
     }
 }

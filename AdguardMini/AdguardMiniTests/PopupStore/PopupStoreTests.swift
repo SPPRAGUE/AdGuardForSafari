@@ -69,14 +69,13 @@ final class PopupStoreTests: XCTestCase {
         protectionEnabled: Bool = true,
         protectionEnabledForCurrentUrl: Bool = true,
         allExtensionsEnabled: Bool = true,
+        xpcAvailable: Bool = true,
         tabStats: TabStats = TabStats(),
         tabContext: Store.TabContext = .empty,
         pausedUrls: Set<String> = [],
-        lastResolvedTabUrl: String? = nil,
         inFlight: Store.InFlightAction? = nil,
         lastError: Store.Error? = nil,
-        lastAppStateTimestamp: EBATimestamp = .zero,
-        popupSession: Store.Session = .closed
+        lastAppStateTimestamp: EBATimestamp = .zero
     ) -> Store.State {
         Store.State(
             mainAppRunning: mainAppRunning,
@@ -84,14 +83,13 @@ final class PopupStoreTests: XCTestCase {
             protectionEnabled: protectionEnabled,
             protectionEnabledForCurrentUrl: protectionEnabledForCurrentUrl,
             allExtensionsEnabled: allExtensionsEnabled,
+            xpcAvailable: xpcAvailable,
             tabStats: tabStats,
             tabContext: tabContext,
             pausedUrls: pausedUrls,
-            lastResolvedTabUrl: lastResolvedTabUrl,
             inFlight: inFlight,
             lastError: lastError,
-            lastAppStateTimestamp: lastAppStateTimestamp,
-            popupSession: popupSession
+            lastAppStateTimestamp: lastAppStateTimestamp
         )
     }
 

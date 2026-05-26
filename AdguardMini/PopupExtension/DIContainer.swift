@@ -23,7 +23,6 @@ final class DIContainer {
 
     // MARK: Public properties
 
-    var toolbarHandler: ToolbarHandler { self.popupViewModel }
     let safariController: PopupViewController
     let advancedBlockerHandler: AdvancedBlockerHandler
 
@@ -33,13 +32,19 @@ final class DIContainer {
     let blockingStatsReporter: BlockingStatsReporter
     let perTabStatsTracker: PerTabStatsTracker = PerTabStatsTracker()
 
+    /// Actor-isolated UDF store — singleton for the extension lifetime.
+    let popupStore: PopupStore
+
+    /// Adapter bridging external events (NSWorkspace, XPC, tab stats)
+    /// into `Store.Action` dispatches. Also conforms to
+    /// `ExtensionSafariApiClientDelegate`.
+    let externalEventsAdapter: ExternalEventsAdapter
+
     // MARK: Private properties
 
     private let safariApp: SafariApp = SafariAppImpl()
-    private let validationStatePreparer: PopupStatePreparer
-
-    private let popupViewModel: PopupView.ViewModel
-    private let mainView: PopupView
+    private let effectRunner: EffectRunner
+    private let popupViewState: PopupViewState
 
     private let filtersStorage: FiltersStorage = {
         let fileManager = AMFileManagerImpl()
@@ -62,26 +67,37 @@ final class DIContainer {
             sharedSettingsStorage: self.sharedSettingsStorage
         )
 
-        self.validationStatePreparer = PopupStatePreparerImpl(
-            safariApi: self.safariApiInteractor,
-            safariApp: self.safariApp
-        )
+        // Build the UDF component graph. `PopupViewController` is captured
+        // Lazily so `EffectRunner` can reference it before it is created.
+        var controllerRef: PopupViewController?
 
-        self.popupViewModel = PopupView.ViewModel(
+        self.effectRunner = EffectRunner(
             safariApi: self.safariApiInteractor,
-            advancedBlocker: self.advancedBlockerHandler,
             mainAppDiscovery: self.mainAppDiscovery,
             safariApp: self.safariApp,
-            validationStatePreparer: self.validationStatePreparer,
-            perTabStatsTracker: self.perTabStatsTracker,
-            sharedSettingsStorage: self.sharedSettingsStorage
+            // Labeled parameter makes the role of the closure explicit.
+            // swiftlint:disable:next trailing_closure
+            dismissPopover: { @MainActor in
+                controllerRef?.dismissPopover()
+            }
         )
-        safariApi.delegate = self.popupViewModel
-        self.mainView = PopupView(viewModel: self.popupViewModel)
 
-        self.safariController = PopupViewController(mainView: self.mainView, viewModel: self.popupViewModel)
+        self.popupStore = PopupStore(effectRunner: self.effectRunner)
 
-        self.popupViewModel.popupViewControllerDelegate = self.safariController
+        self.externalEventsAdapter = ExternalEventsAdapter(
+            store: self.popupStore
+        )
+        safariApi.delegate = self.externalEventsAdapter
+
+        self.popupViewState = PopupViewState(store: self.popupStore)
+        let mainView = PopupView(viewState: self.popupViewState)
+        self.safariController = PopupViewController(
+            mainView: mainView,
+            viewState: self.popupViewState
+        )
+        controllerRef = self.safariController
+
+        self.externalEventsAdapter.start()
 
         let statsStore: StatisticsStore = {
             do {

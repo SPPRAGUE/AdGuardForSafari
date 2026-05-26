@@ -27,17 +27,19 @@ enum ToolbarRendererLogic {
         showBadge: Bool
     ) -> RenderResult {
         let ready = state.mainAppRunning
-            && state.onboardingStatus == .completed
+            && state.xpcAvailable
+            && state.onboardingStatus != .notCompleted
             && state.protectionEnabled
 
-        let cachedUrl = state.tabContext.url?.absoluteString ?? ""
-        let urlMatches = !tabStats.url.isEmpty && tabStats.url == cachedUrl
-        let isProtectedForUrl = !urlMatches || state.protectionEnabledForCurrentUrl
+        // Derive protection state from `pausedUrls` using the live `tabStats.url`,
+        // `tabContext.url` is stale after a tab switch until `tabContextUpdated` fires.
+        // Avoids incorrectly showing "on" for a paused site during the lag.
+        let isProtectedForUrl = tabStats.url.isEmpty
+            || !state.pausedUrls.contains(tabStats.url)
 
         let isOn = ready && isProtectedForUrl
-        let isPaused = state.pausedUrls.contains(tabStats.url)
 
-        let badgeText = isOn && !isPaused && showBadge
+        let badgeText = isOn && showBadge
             ? tabStats.badgeText
             : ""
 

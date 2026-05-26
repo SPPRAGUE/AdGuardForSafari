@@ -12,15 +12,23 @@ import SwiftUI
 
 import AML
 
+// MARK: - PopupViewControllerDelegate
+
+protocol PopupViewControllerDelegate: AnyObject {
+    func dismissPopover()
+}
+
+// MARK: - PopupViewController
+
 class PopupViewController: SFSafariExtensionViewController, PopupViewControllerDelegate {
     private let mainView: PopupView
-    private let viewModel: PopupView.ViewModel
+    private let viewState: PopupViewState
 
     // MARK: Init
 
-    init(mainView: PopupView, viewModel: PopupView.ViewModel) {
+    init(mainView: PopupView, viewState: PopupViewState) {
         self.mainView = mainView
-        self.viewModel = viewModel
+        self.viewState = viewState
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -38,6 +46,6 @@ class PopupViewController: SFSafariExtensionViewController, PopupViewControllerD
 
     override func viewDidAppear() {
         super.viewDidAppear()
-        self.viewModel.sendPageViewForCurrentLayout()
+        self.viewState.sendPageViewForCurrentLayout()
     }
 }

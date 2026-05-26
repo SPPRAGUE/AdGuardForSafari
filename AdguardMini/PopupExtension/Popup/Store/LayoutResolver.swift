@@ -10,17 +10,19 @@
 import Foundation
 
 /// Pure function deriving the popup layout from a small set of state flags.
-/// Replaces the `CombineLatest4` pipeline in the legacy `PopupView.ViewModel`.
 ///
 /// Precedence (highest first):
 ///   1. Main app must be running.
-///   2. Onboarding status must not be `.unknown` (avoids a one-frame flash
-///      to `.domain`/`.onboardingWasntCompleted` on cold start while the XPC
-///      reply is in flight).
-///   3. Onboarding must be completed.
+///   2. XPC transport must be available.
+///   3. Onboarding must not have failed (`.notCompleted`).
 ///   4. Global protection must be enabled.
 ///   5. No recorded error in `lastError`.
 ///   6. Otherwise: `.domain`.
+///
+/// When `onboardingStatus == .unknown` and the main app is running, the popup
+/// renders `.domain` optimistically while the first XPC reply is in flight.
+/// This prevents showing `.adguardNotLaunched` during brief XPC initialisation
+/// on cold start. The layout will update as soon as `prereqsRefreshed` arrives.
 ///
 /// `lastError` only flips a would-be `.domain` layout to `.somethingWentWrong`.
 /// For non-`.domain` layouts the error is surfaced via `popupState = .error`
@@ -30,13 +32,15 @@ enum LayoutResolver {
         mainAppRunning: Bool,
         onboardingStatus: Store.OnboardingStatus,
         protectionEnabled: Bool,
-        lastError: Store.Error?
+        lastError: Store.Error?,
+        xpcAvailable: Bool = true
     ) -> Store.PopupLayout {
         guard mainAppRunning else { return .adguardNotLaunched }
+        guard xpcAvailable else { return .xpcUnavailable }
         switch onboardingStatus {
-        case .unknown: return .adguardNotLaunched
-        case .notCompleted: return .onboardingWasntCompleted
+        case .unknown: return .domain
         case .completed: break
+        case .notCompleted: return .onboardingWasntCompleted
         }
         guard protectionEnabled else { return .protectionIsDisabled }
         if lastError != nil { return .somethingWentWrong }

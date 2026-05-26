@@ -27,14 +27,13 @@ final class ToolbarRendererTests: XCTestCase {
         protectionEnabled: Bool = true,
         protectionEnabledForCurrentUrl: Bool = true,
         allExtensionsEnabled: Bool = true,
+        xpcAvailable: Bool = true,
         tabStats: TabStats = TabStats(),
         tabContext: Store.TabContext = .empty,
         pausedUrls: Set<String> = [],
-        lastResolvedTabUrl: String? = nil,
         inFlight: Store.InFlightAction? = nil,
         lastError: Store.Error? = nil,
-        lastAppStateTimestamp: EBATimestamp = .zero,
-        popupSession: Store.Session = .closed
+        lastAppStateTimestamp: EBATimestamp = .zero
     ) -> Store.State {
         Store.State(
             mainAppRunning: mainAppRunning,
@@ -42,14 +41,13 @@ final class ToolbarRendererTests: XCTestCase {
             protectionEnabled: protectionEnabled,
             protectionEnabledForCurrentUrl: protectionEnabledForCurrentUrl,
             allExtensionsEnabled: allExtensionsEnabled,
+            xpcAvailable: xpcAvailable,
             tabStats: tabStats,
             tabContext: tabContext,
             pausedUrls: pausedUrls,
-            lastResolvedTabUrl: lastResolvedTabUrl,
             inFlight: inFlight,
             lastError: lastError,
-            lastAppStateTimestamp: lastAppStateTimestamp,
-            popupSession: popupSession
+            lastAppStateTimestamp: lastAppStateTimestamp
         )
     }
 
@@ -109,15 +107,15 @@ final class ToolbarRendererTests: XCTestCase {
         XCTAssertEqual(badge, "")
     }
 
-    // MARK: Onboarding unknown -> empty badge
+    // MARK: Onboarding unknown -> badge shown (optimistic, same as .completed)
 
-    func testOnboardingUnknownReturnsEmptyBadge() {
+    func testOnboardingUnknownShowsBadgeOptimistically() {
         let sut = self.state(onboardingStatus: .unknown)
         let stats = TabStats(adsBlocked: 3, trackersBlocked: 1, url: Constants.exampleUrl.absoluteString)
         let badge = ToolbarRendererLogic.computeBadge(
             state: sut, tabStats: stats, showBadge: true
         )
-        XCTAssertEqual(badge, "")
+        XCTAssertEqual(badge, "4")
     }
 
     // MARK: Paused URL -> empty badge
@@ -150,24 +148,58 @@ final class ToolbarRendererTests: XCTestCase {
         XCTAssertEqual(badge, "")
     }
 
-    // MARK: URL mismatch -> protection assumed on -> badge shown
+    // MARK: URL mismatch, tab URL not in pausedUrls -> badge shown
 
-    func testUrlMismatchAssumesProtectionOn() {
-        let url = Constants.otherUrl
+    func testUrlMismatchWithUnpausedTabUrlShowsBadge() {
+        // `state.tabContext.url` is "other.com" (stale, from a previous tab);
+        // `tabStats.url` is "example.com" (current tab, NOT in pausedUrls).
+        // Protection must be considered on → badge is shown.
+        let staleContextUrl = Constants.otherUrl
         let sut = self.state(
-            protectionEnabledForCurrentUrl: false,
             tabContext: Store.TabContext(
                 windowToken: Constants.windowToken,
-                url: url,
-                domain: url.host!,
+                url: staleContextUrl,
+                domain: staleContextUrl.host!,
                 isSystemPage: false
             )
+            // `exampleUrl` NOT in `pausedUrls` (default: empty set)
         )
         let stats = TabStats(adsBlocked: 3, trackersBlocked: 1, url: Constants.exampleUrl.absoluteString)
         let badge = ToolbarRendererLogic.computeBadge(
             state: sut, tabStats: stats, showBadge: true
         )
         XCTAssertEqual(badge, "4")
+    }
+
+    // MARK: URL mismatch, tab URL IS paused -> icon off, empty badge (regression)
+
+    func testUrlMismatchWithPausedTabUrl_IsOnFalse() {
+        // Regression: when switching back to a tab whose URL is in `pausedUrls`,
+        // `state.tabContext.url` may still be stale (not yet updated via `tabContextUpdated`).
+        // The toolbar icon must show "off" regardless.
+        let staleContextUrl = Constants.otherUrl
+        let sut = self.state(
+            tabContext: Store.TabContext(
+                windowToken: Constants.windowToken,
+                url: staleContextUrl,
+                domain: staleContextUrl.host!,
+                isSystemPage: false
+            ),
+            pausedUrls: [Constants.exampleUrl.absoluteString]
+        )
+        let stats = TabStats(
+            adsBlocked: 5,
+            trackersBlocked: 2,
+            url: Constants.exampleUrl.absoluteString
+        )
+        let result = ToolbarRendererLogic.compute(
+            state: sut, tabStats: stats, showBadge: true
+        )
+        XCTAssertFalse(
+            result.isOn,
+            "Icon must be off when tab URL is paused, even if context URL hasn't been updated yet"
+        )
+        XCTAssertEqual(result.badgeText, "")
     }
 
     // MARK: Empty tabStats.url -> url mismatch -> empty badge
@@ -213,7 +245,8 @@ final class ToolbarRendererTests: XCTestCase {
                 url: url,
                 domain: url.host!,
                 isSystemPage: false
-            )
+            ),
+            pausedUrls: [url.absoluteString]
         )
         let stats = TabStats(adsBlocked: 5, trackersBlocked: 2, url: url.absoluteString)
         let badge = ToolbarRendererLogic.computeBadge(
@@ -248,5 +281,62 @@ final class ToolbarRendererTests: XCTestCase {
             state: sut, tabStats: stats, showBadge: true
         )
         XCTAssertFalse(result.isOn)
+    }
+
+    // MARK: First-launch stale → fresh state re-render
+
+    /// Covers the two-phase render in SafariExtensionHandler.validateToolbarItem:
+    /// the first render uses a stale snapshot (XPC not yet answered) and the
+    /// second render — executed after the async XPC refresh — uses the fresh state.
+    /// Both renders call ToolbarRendererLogic.compute; only the second produces isOn = true.
+    func testStaleStateThenFreshStateIsOnFlipsToTrue() {
+        let url = Constants.exampleUrl
+        let stats = TabStats(
+            adsBlocked: 3,
+            trackersBlocked: 1,
+            url: url.absoluteString
+        )
+        let tabContext = Store.TabContext(
+            windowToken: Constants.windowToken,
+            url: url,
+            domain: url.host!,
+            isSystemPage: false
+        )
+
+        // Stale: XPC has not responded yet; protectionEnabled defaults to false.
+        // The icon is off because protection is disabled, not because of .unknown
+        // Onboarding status (.unknown is now treated optimistically).
+        let staleState = self.state(
+            onboardingStatus: .unknown,
+            protectionEnabled: false,
+            tabContext: tabContext
+        )
+        let staleResult = ToolbarRendererLogic.compute(
+            state: staleState, tabStats: stats, showBadge: true
+        )
+        XCTAssertFalse(staleResult.isOn, "Icon must be off when protectionEnabled is false")
+
+        // Fresh: XPC answered; all components of 'ready' are now true.
+        let freshState = self.state(
+            onboardingStatus: .completed,
+            protectionEnabled: true,
+            tabContext: tabContext
+        )
+        let freshResult = ToolbarRendererLogic.compute(
+            state: freshState, tabStats: stats, showBadge: true
+        )
+        XCTAssertTrue(freshResult.isOn, "Icon must be on after XPC refresh")
+    }
+
+    // MARK: XPC unavailable -> toolbar OFF, empty badge
+
+    func testXpcUnavailableReturnsToolbarOff() {
+        let sut = self.state(xpcAvailable: false)
+        let stats = TabStats(adsBlocked: 10, trackersBlocked: 5, url: Constants.exampleUrl.absoluteString)
+        let result = ToolbarRendererLogic.compute(
+            state: sut, tabStats: stats, showBadge: true
+        )
+        XCTAssertFalse(result.isOn, "Toolbar must be OFF when XPC is unavailable")
+        XCTAssertEqual(result.badgeText, "", "Badge must be empty when XPC is unavailable")
     }
 }

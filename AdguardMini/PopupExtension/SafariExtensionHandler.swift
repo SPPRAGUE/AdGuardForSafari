@@ -83,7 +83,9 @@ enum IncomingExtensionMessage: String {
 final class SafariExtensionHandler: SFSafariExtensionHandler {
     private let viewController: SFSafariExtensionViewController
     private let safariApi: SafariApiInteractor
-    private let toolbarHandler: ToolbarHandler
+    private let popupStore: PopupStore
+    private let externalEventsAdapter: ExternalEventsAdapter
+    private let sharedSettingsStorage: SharedSettingsStorage
     private let advancedBlockerHandler: AdvancedBlockerHandler
     private let appDiscovery: MainAppDiscovery
     private let statsReporter: BlockingStatsReporter
@@ -97,7 +99,9 @@ final class SafariExtensionHandler: SFSafariExtensionHandler {
 
         self.viewController = container.safariController
         self.safariApi = container.safariApiInteractor
-        self.toolbarHandler = container.toolbarHandler
+        self.popupStore = container.popupStore
+        self.externalEventsAdapter = container.externalEventsAdapter
+        self.sharedSettingsStorage = container.sharedSettingsStorage
         self.advancedBlockerHandler = container.advancedBlockerHandler
         self.appDiscovery = container.mainAppDiscovery
         self.statsReporter = container.blockingStatsReporter
@@ -192,9 +196,50 @@ final class SafariExtensionHandler: SFSafariExtensionHandler {
         }
     }
 
-    override func validateToolbarItem(in window: SFSafariWindow,
-                                      validationHandler: @escaping ((Bool, String) -> Void)) {
-        self.toolbarHandler.validateToolbarItem(in: window, validationHandler: validationHandler)
+    override func validateToolbarItem(
+        in window: SFSafariWindow,
+        validationHandler: @escaping ((Bool, String) -> Void)
+    ) {
+        Task { @MainActor in
+            guard let toolbarItem = await window.toolbarItem() else {
+                validationHandler(false, "")
+                return
+            }
+
+            let tabStats = await self.perTabStatsTracker
+                .getStatsForActiveTab(in: window)
+
+            let state = self.popupStore.snapshot()
+            let badgeText = ToolbarRenderer.render(
+                state: state,
+                tabStats: tabStats,
+                showBadge: self.sharedSettingsStorage
+                    .showSafariToolbarBadge,
+                into: toolbarItem
+            )
+            validationHandler(true, badgeText)
+
+            let token = Store.SafariWindowToken(
+                rawValue: UInt(bitPattern: ObjectIdentifier(window))
+            )
+
+            // Only update tab context and dispatch XPC prereqs for the active window.
+            // Background-window updates would overwrite the popup domain.
+            // This causes flicker when the counter fires in another window.
+            let activeWindow = await SFSafariApplication.activeWindow()
+            guard activeWindow == window else { return }
+
+            let pageUrl = await window.activeTab()?.activePage()?.properties()?.url
+            await self.externalEventsAdapter.refreshTabStats(
+                stats: tabStats,
+                token: token,
+                pageUrl: pageUrl
+            )
+
+            await self.popupStore.dispatch(
+                .toolbarValidationRequested(window: token)
+            )
+        }
     }
 
     override func popoverViewController() -> SFSafariExtensionViewController {

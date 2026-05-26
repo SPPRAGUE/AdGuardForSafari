@@ -13,20 +13,13 @@ import AGSEDesignSystem
 
 /// Thin `@MainActor` adapter between `PopupStore` and SwiftUI.
 ///
-/// Subscribes to the store via `subscribe()` in a single long-lived `Task`,
-/// updates `@Published` fields 1:1 with the legacy
-/// `PopupView.ViewModel` public API. Bidirectional `Binding<Bool>`
-/// for the protection switch is converted into
-/// `store.dispatch(.protectionForUrlToggled(...))`.
-///
-/// No `.sink`/`.map`/`CombineLatest` — `@Published` is used solely
-/// as an implementation detail of SwiftUI binding.
-///
-/// No separate tests — this is a thin adapter; behavior is covered
-/// indirectly through `PopupStoreTests` and `PopupReducerTests`.
+/// Subscribes to the store via `subscribe()` in a single long-lived
+/// `Task`, projects `Store.State` into `@Published` fields consumed
+/// by `PopupView`. The protection switch write path dispatches
+/// `.protectionForUrlToggled(...)` back to the store.
 @MainActor
 final class PopupViewState: ObservableObject {
-    // MARK: - Published properties (1:1 with legacy ViewModel)
+    // MARK: - Published properties
 
     @Published private(set) var domain: String = ""
     @Published private(set) var isSystemPage: Bool = true
@@ -46,9 +39,8 @@ final class PopupViewState: ObservableObject {
     private let store: PopupStore
     private var observationTask: Task<Void, Never>?
 
-    /// Guard to prevent the `isProtectionEnabledForUrl` didSet from
-    /// dispatching an action when the value is being set by the
-    /// state stream (mirroring the legacy `isInValidation` flag).
+    /// Guard to prevent `isProtectionEnabledForUrl` didSet from
+    /// dispatching when the value is set by the state stream.
     private var isUpdatingFromStore = false
 
     // MARK: - Init
@@ -108,6 +100,11 @@ final class PopupViewState: ObservableObject {
     private func startObserving() {
         self.observationTask = Task { [weak self] in
             guard let self else { return }
+
+            // Emit initial state immediately so the UI is populated before the first stream element arrives.
+            let initialState = await self.store.currentState()
+            self.applyState(initialState)
+
             for await state in await self.store.subscribe() {
                 guard !Task.isCancelled else { return }
                 self.applyState(state)
@@ -140,11 +137,12 @@ final class PopupViewState: ObservableObject {
             mainAppRunning: state.mainAppRunning,
             onboardingStatus: state.onboardingStatus,
             protectionEnabled: state.protectionEnabled,
-            lastError: state.lastError
+            lastError: state.lastError,
+            xpcAvailable: state.xpcAvailable
         )
         switch storeLayout {
         case .domain: return .domain
-        case .adguardNotLaunched: return .adguardNotLaunched
+        case .adguardNotLaunched, .xpcUnavailable: return .adguardNotLaunched
         case .protectionIsDisabled: return .protectionIsDisabled
         case .somethingWentWrong: return .somethingWentWrong
         case .onboardingWasntCompleted: return .onboardingWasntCompleted
@@ -152,8 +150,8 @@ final class PopupViewState: ObservableObject {
     }
 
     private func mapPopupState(_ state: Store.State) -> InfoView.Configuration.State {
-        // Loading takes priority — matches legacy behavior.
-        // Action-in-flight means loading was set before any error occurred.
+        // Loading takes priority: an in-flight action means the request is still running.
+        // Errors are only set on completion, so they cannot coexist with inFlight.
         if state.inFlight != nil {
             return .loading
         }

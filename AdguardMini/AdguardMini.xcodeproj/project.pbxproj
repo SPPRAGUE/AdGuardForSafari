@@ -650,6 +650,7 @@
 				Store/LayoutResolver.swift,
 				Store/PopupReducer.swift,
 				Store/PopupStore.swift,
+				Store/RefreshPolicy.swift,
 				Store/State.swift,
 				Store/Store.swift,
 			);

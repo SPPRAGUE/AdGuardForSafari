@@ -9,6 +9,7 @@
 
 import Foundation
 import SafariServices
+import AppKit
 import AML
 
 // MARK: - CancellationCategory
@@ -41,6 +42,7 @@ private extension Store.Effect {
         case .openSettings:             .settings
         case .reportSite:               .report
         case .openUrlInNewTab,
+             .openUrlWithSystemHandler,
              .requestToolbarUpdate,
              .dispatchPageScriptMessage,
              .sendTelemetry,
@@ -87,8 +89,9 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
         case let .dispatchPageScriptMessage(name):
             if let page = await self.safariApp.getActivePage() {
                 page.dispatchMessageToScript(withName: name)
+                return .blockElementCompleted(pageFound: true)
             }
-            return nil
+            return .blockElementCompleted(pageFound: false)
 
         case let .sendTelemetry(event):
             await self.sendTelemetry(event)
@@ -149,27 +152,21 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
         // If we were cancelled during execution, suppress the action.
         guard !Task.isCancelled else { return nil }
 
-        // Clean up task tracking.
-        if let category = effect.cancellationCategory {
-            locked(self.lock) {
-                // Only remove if it's still the same task slot (not replaced).
-                self.runningTasks[category] = nil
-            }
-        }
-
         return result
     }
 
+    // Dispatch table; cyclomatic complexity is structural (each branch is a single dispatch).
+    // swiftlint:disable:next cyclomatic_complexity
     private func execute(_ effect: Store.Effect) async -> Store.Action? {
         switch effect {
         case let .setProtectionStatus(enable):
             return await self.executeSetProtectionStatus(enable)
         case let .setFilteringStatusForUrl(url, enable):
             return await self.executeSetFilteringStatus(url: url, enable: enable)
-        case .refreshAppState:
-            return await self.executeRefreshAppState()
-        case .refreshPrereqs:
-            return await self.executeRefreshPrereqs()
+        case let .refreshAppState(after):
+            return await self.executeRefreshAppState(after: after)
+        case let .refreshPrereqs(_, tabUrl):
+            return await self.executeRefreshPrereqs(tabUrl: tabUrl)
         case .launchMainApp:
             self.mainAppDiscovery.runMainApplication()
             return .launchMainAppCompleted(nil)
@@ -181,6 +178,9 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
             return await self.executeOpenSettings()
         case let .reportSite(url):
             return await self.executeReportSite(url: url)
+        case let .openUrlWithSystemHandler(url):
+            NSWorkspace.shared.open(url)
+            return nil
         case .openUrlInNewTab, .requestToolbarUpdate,
              .dispatchPageScriptMessage, .sendTelemetry,
              .setLogLevel, .setAppTheme, .dismissPopover,
@@ -213,9 +213,14 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
         }
     }
 
-    private func executeRefreshAppState() async -> Store.Action? {
+    private func executeRefreshAppState(after: EBATimestamp?) async -> Store.Action? {
         do {
-            let appState = try await self.safariApi.appState()
+            let appState: EBAAppState
+            if let after {
+                appState = try await self.safariApi.appState(after: after)
+            } else {
+                appState = try await self.safariApi.appState()
+            }
             return .appStateChanged(Store.AppStateSnapshot(
                 isProtectionEnabled: appState.isProtectionEnabled,
                 lastCheckTime: appState.lastCheckTime,
@@ -223,20 +228,33 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
                 theme: appState.theme
             ))
         } catch {
-            return nil
+            let isXpcUnavailable = (error as? ExtensionSafariApiClientErrorCode) == .linkTimeout
+            return .appStateRefreshSkipped(isXpcUnavailable: isXpcUnavailable)
         }
     }
 
-    private func executeRefreshPrereqs() async -> Store.Action? {
+    private func executeRefreshPrereqs(tabUrl: String) async -> Store.Action? {
         do {
-            async let onboarding = self.safariApi.isOnboardingCompleted()
-            async let extensions = self.safariApi.isAllExtensionsEnabled()
+            let onboardingCompleted = try await self.safariApi.isOnboardingCompleted()
+            let allExtensionsEnabled = try await self.safariApi.isAllExtensionsEnabled()
+
+            let isFilteringEnabled: Bool
+            if tabUrl.isEmpty {
+                isFilteringEnabled = true
+            } else {
+                isFilteringEnabled = try await self.safariApi
+                    .getCurrentFilteringState(withUrl: tabUrl).isFilteringEnabled
+            }
+
             return .prereqsRefreshed(
-                onboardingCompleted: try await onboarding,
-                allExtensionsEnabled: try await extensions
+                onboardingCompleted: onboardingCompleted,
+                allExtensionsEnabled: allExtensionsEnabled,
+                tabUrl: tabUrl,
+                isFilteringEnabled: isFilteringEnabled
             )
         } catch {
-            return nil
+            let isXpcUnavailable = (error as? ExtensionSafariApiClientErrorCode) == .linkTimeout
+            return .prereqsRefreshSkipped(isXpcUnavailable: isXpcUnavailable)
         }
     }
 

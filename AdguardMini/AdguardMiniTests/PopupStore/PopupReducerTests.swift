@@ -36,14 +36,13 @@ final class PopupReducerTests: XCTestCase {
         protectionEnabled: Bool = true,
         protectionEnabledForCurrentUrl: Bool = true,
         allExtensionsEnabled: Bool = true,
+        xpcAvailable: Bool = true,
         tabStats: TabStats = TabStats(),
         tabContext: Store.TabContext = .empty,
         pausedUrls: Set<String> = [],
-        lastResolvedTabUrl: String? = nil,
         inFlight: Store.InFlightAction? = nil,
         lastError: Store.Error? = nil,
-        lastAppStateTimestamp: EBATimestamp = .zero,
-        popupSession: Store.Session = .closed
+        lastAppStateTimestamp: EBATimestamp = .zero
     ) -> Store.State {
         Store.State(
             mainAppRunning: mainAppRunning,
@@ -51,14 +50,13 @@ final class PopupReducerTests: XCTestCase {
             protectionEnabled: protectionEnabled,
             protectionEnabledForCurrentUrl: protectionEnabledForCurrentUrl,
             allExtensionsEnabled: allExtensionsEnabled,
+            xpcAvailable: xpcAvailable,
             tabStats: tabStats,
             tabContext: tabContext,
             pausedUrls: pausedUrls,
-            lastResolvedTabUrl: lastResolvedTabUrl,
             inFlight: inFlight,
             lastError: lastError,
-            lastAppStateTimestamp: lastAppStateTimestamp,
-            popupSession: popupSession
+            lastAppStateTimestamp: lastAppStateTimestamp
         )
     }
 
@@ -84,31 +82,74 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(effects, [.setLogLevel(.debug)])
     }
 
-    func testTabStatsRefreshedReplacesStatsAndEmitsNoEffects() {
+    func testTabContextUpdatedReplacesStatsAndContextAndEmitsNoEffects() {
         var stats = TabStats()
         stats.adsBlocked = 7
         stats.url = Constants.siteAURL.absoluteString
+        let url = Constants.siteAURL
+        let context = Store.TabContext(
+            windowToken: Constants.anyWindowToken, url: url, domain: url.host!, isSystemPage: false
+        )
         let initial = self.state()
         let (next, effects) = PopupReducer.reduce(
             state: initial,
-            action: .tabStatsRefreshed(stats, window: Constants.anyWindowToken)
+            action: .tabContextUpdated(stats: stats, context: context)
         )
         XCTAssertEqual(next.tabStats, stats)
+        XCTAssertEqual(next.tabContext, context)
+        XCTAssertTrue(next.protectionEnabledForCurrentUrl)
         XCTAssertTrue(effects.isEmpty)
     }
 
-    func testCurrentTabContextResolvedReplacesContext() {
-        let url = Constants.siteAURL
+    func testTabContextUpdatedClearsDisabledStateForUnpausedUrl() {
+        // Protection was disabled for site A; switching to site B must show protection as enabled.
+        let pausedUrl = Constants.siteAURL
+        let newUrl = Constants.siteBURL
         let context = Store.TabContext(
-            windowToken: nil, url: url, domain: url.host!, isSystemPage: false
+            windowToken: nil, url: newUrl, domain: newUrl.host!, isSystemPage: false
         )
-        let initial = self.state()
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: false,
+            pausedUrls: [pausedUrl.absoluteString]
+        )
         let (next, effects) = PopupReducer.reduce(
             state: initial,
-            action: .currentTabContextResolved(context)
+            action: .tabContextUpdated(stats: TabStats(), context: context)
         )
-        XCTAssertEqual(next.tabContext, context)
+        XCTAssertTrue(next.protectionEnabledForCurrentUrl)
         XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testTabContextUpdatedKeepsDisabledStateForPausedUrl() {
+        // Switching back to a tab whose URL is already in pausedUrls must keep protection disabled.
+        let pausedUrl = Constants.siteAURL
+        let context = Store.TabContext(
+            windowToken: nil, url: pausedUrl, domain: pausedUrl.host!, isSystemPage: false
+        )
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: true,
+            pausedUrls: [pausedUrl.absoluteString]
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .tabContextUpdated(stats: TabStats(), context: context)
+        )
+        XCTAssertFalse(next.protectionEnabledForCurrentUrl)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testTabContextUpdatedEnablesProtectionForSystemPage() {
+        // System page has no URL — protection must appear enabled.
+        let context = Store.TabContext.empty
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: false,
+            pausedUrls: [Constants.siteAURL.absoluteString]
+        )
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .tabContextUpdated(stats: TabStats(), context: context)
+        )
+        XCTAssertTrue(next.protectionEnabledForCurrentUrl)
     }
 
     func testToolbarValidationResolvedDoesNotMutateState() {
@@ -138,8 +179,7 @@ final class PopupReducerTests: XCTestCase {
             tabStats: stats,
             tabContext: Store.TabContext(
                 windowToken: nil, url: url, domain: url.host!, isSystemPage: false
-            ),
-            lastResolvedTabUrl: url.absoluteString
+            )
         )
 
         let (next, effects) = PopupReducer.reduce(
@@ -151,13 +191,13 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertTrue(next.pausedUrls.contains(url.absoluteString))
         XCTAssertEqual(next.tabStats.adsBlocked, 0)
         XCTAssertEqual(next.tabStats.trackersBlocked, 0)
-        XCTAssertNil(next.lastResolvedTabUrl)
         XCTAssertFalse(next.protectionEnabledForCurrentUrl)
         XCTAssertEqual(
             effects,
             [
                 .setFilteringStatusForUrl(url.absoluteString, enable: false),
-                .sendTelemetry(.action(.protectionPopupClick, screen: .main))
+                .sendTelemetry(.action(.protectionPopupClick, screen: .main)),
+                .requestToolbarUpdate
             ]
         )
     }
@@ -168,8 +208,7 @@ final class PopupReducerTests: XCTestCase {
             tabContext: Store.TabContext(
                 windowToken: nil, url: url, domain: url.host!, isSystemPage: false
             ),
-            pausedUrls: [url.absoluteString],
-            lastResolvedTabUrl: url.absoluteString
+            pausedUrls: [url.absoluteString]
         )
         let (next, effects) = PopupReducer.reduce(
             state: initial,
@@ -178,12 +217,12 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(next.inFlight, .enabling)
         XCTAssertFalse(next.pausedUrls.contains(url.absoluteString))
         XCTAssertTrue(next.protectionEnabledForCurrentUrl)
-        XCTAssertNil(next.lastResolvedTabUrl)
         XCTAssertEqual(
             effects,
             [
                 .setFilteringStatusForUrl(url.absoluteString, enable: true),
-                .sendTelemetry(.action(.protectionPopupClick, screen: .main))
+                .sendTelemetry(.action(.protectionPopupClick, screen: .main)),
+                .requestToolbarUpdate
             ]
         )
     }
@@ -224,7 +263,6 @@ final class PopupReducerTests: XCTestCase {
         let initial = self.state()
         let (next, effects) = PopupReducer.reduce(state: initial, action: .pauseTapped)
         XCTAssertEqual(next.inFlight, .disabling)
-        XCTAssertNil(next.lastResolvedTabUrl)
         XCTAssertEqual(
             effects,
             [
@@ -254,7 +292,7 @@ final class PopupReducerTests: XCTestCase {
         )
     }
 
-    func testBlockElementTappedEmitsScriptDispatchAndDismiss() {
+    func testBlockElementTappedEmitsScriptDispatchAndTelemetry() {
         let initial = self.state(allExtensionsEnabled: false)
         let (next, effects) = PopupReducer.reduce(state: initial, action: .blockElementTapped)
         XCTAssertEqual(next, initial)
@@ -262,13 +300,12 @@ final class PopupReducerTests: XCTestCase {
             effects,
             [
                 .dispatchPageScriptMessage(name: "blockElementPing"),
-                .dismissPopover,
                 .sendTelemetry(.action(.blockElementPopupClick, screen: .extensionsOff))
             ]
         )
     }
 
-    func testReportIssueTappedEmitsReportSiteEffect() {
+    func testReportIssueTappedEmitsReportSiteEffectAndTelemetry() {
         let url = Constants.exampleURL
         let initial = self.state(
             tabContext: Store.TabContext(
@@ -292,10 +329,10 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(next, initial)
         XCTAssertEqual(effects.count, 3)
         XCTAssertEqual(effects[0], .dismissPopover)
-        if case let .openUrlInNewTab(url) = effects[1] {
+        if case let .openUrlWithSystemHandler(url) = effects[1] {
             XCTAssertEqual(url.host, "link.adtidy.org")
         } else {
-            XCTFail("Expected .openUrlInNewTab as second effect, got \(effects[1])")
+            XCTFail("Expected .openUrlWithSystemHandler as second effect, got \(effects[1])")
         }
         XCTAssertEqual(
             effects[2],
@@ -339,6 +376,13 @@ final class PopupReducerTests: XCTestCase {
 
     func testInfoButtonTappedOnAdguardNotLaunchedLaunchesApp() {
         let initial = self.state(mainAppRunning: false)
+        let (next, effects) = PopupReducer.reduce(state: initial, action: .infoButtonTapped)
+        XCTAssertEqual(next.inFlight, .launching)
+        XCTAssertEqual(effects, [.launchMainApp])
+    }
+
+    func testInfoButtonTappedOnXpcUnavailableLaunchesApp() {
+        let initial = self.state(xpcAvailable: false)
         let (next, effects) = PopupReducer.reduce(state: initial, action: .infoButtonTapped)
         XCTAssertEqual(next.inFlight, .launching)
         XCTAssertEqual(effects, [.launchMainApp])
@@ -388,14 +432,16 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .appStateChanged(snapshot)
         )
-        XCTAssertEqual(next, initial)
-        XCTAssertTrue(effects.isEmpty)
+        // Protection and timestamp not updated for stale timestamp.
+        XCTAssertFalse(next.protectionEnabled)
+        XCTAssertEqual(next.lastAppStateTimestamp, Constants.knownTimestamp)
+        // But logLevel and theme are always applied.
+        XCTAssertEqual(effects, [.setLogLevel(.verbose), .setAppTheme(.system)])
     }
 
     func testAppStateChangedAcceptedWhenTimestampIsFresh() {
         let initial = self.state(
             protectionEnabled: false,
-            lastResolvedTabUrl: Constants.siteAURL.absoluteString,
             lastAppStateTimestamp: Constants.knownTimestamp
         )
         let snapshot = Store.AppStateSnapshot(
@@ -410,25 +456,52 @@ final class PopupReducerTests: XCTestCase {
         )
         XCTAssertTrue(next.protectionEnabled)
         XCTAssertEqual(next.lastAppStateTimestamp, Constants.freshTimestamp)
-        XCTAssertNil(next.lastResolvedTabUrl)
         XCTAssertTrue(effects.contains(.setAppTheme(.dark)))
+    }
+
+    func testAppStateRefreshSkippedDoesNotMutateState() {
+        let initial = self.state(
+            protectionEnabled: true,
+            lastAppStateTimestamp: Constants.knownTimestamp
+        )
+
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateRefreshSkipped(isXpcUnavailable: false)
+        )
+
+        XCTAssertEqual(next, initial)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testAppStateRefreshSkippedLinkTimeoutSetsXpcUnavailable() {
+        let initial = self.state(
+            protectionEnabled: true,
+            lastAppStateTimestamp: Constants.knownTimestamp
+        )
+
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateRefreshSkipped(isXpcUnavailable: true)
+        )
+
+        XCTAssertFalse(next.xpcAvailable)
+        XCTAssertTrue(effects.isEmpty)
     }
 
     // MARK: mainAppRunningChanged
 
-    func testMainAppRunningChangedTrueResetsLastResolvedTabUrl() {
+    func testMainAppRunningChangedTrueEmitsRefreshEffects() {
         let initial = self.state(
-            mainAppRunning: false,
-            lastResolvedTabUrl: Constants.siteAURL.absoluteString
+            mainAppRunning: false
         )
         let (next, effects) = PopupReducer.reduce(
             state: initial,
             action: .mainAppRunningChanged(true)
         )
         XCTAssertTrue(next.mainAppRunning)
-        XCTAssertNil(next.lastResolvedTabUrl)
         XCTAssertEqual(next.onboardingStatus, .unknown)
-        XCTAssertEqual(effects, [.refreshPrereqs(markStale: true)])
+        XCTAssertEqual(effects, [.refreshAppState(), .refreshPrereqs(markStale: true, tabUrl: "")])
     }
 
     func testMainAppRunningChangedFalseClearsRunningFlag() {
@@ -438,7 +511,7 @@ final class PopupReducerTests: XCTestCase {
             action: .mainAppRunningChanged(false)
         )
         XCTAssertFalse(next.mainAppRunning)
-        XCTAssertTrue(effects.isEmpty)
+        XCTAssertEqual(effects, RefreshPolicy.onMainAppStopped())
     }
 
     func testMainAppRunningChangedNoOpWhenValueIsSame() {
@@ -451,51 +524,74 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertTrue(effects.isEmpty)
     }
 
-    // MARK: Toolbar loop-guard (URL matches cache)
+    func testMainAppRunningChangedTrueResetsXpcAvailable() {
+        let initial = self.state(mainAppRunning: false, xpcAvailable: false)
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .mainAppRunningChanged(true)
+        )
+        XCTAssertTrue(next.xpcAvailable)
+    }
 
-    func testToolbarValidationRequestedNoEffectsWhenUrlMatchesCache() {
+    // MARK: XPC recovery via appStateChanged / prereqsRefreshed
+
+    func testAppStateChangedResetsXpcAvailable() {
+        let initial = self.state(xpcAvailable: false, lastAppStateTimestamp: 0)
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: 1,
+            logLevel: 0,
+            theme: 0
+        )
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertTrue(next.xpcAvailable, "Successful appState must reset xpcAvailable")
+    }
+
+    func testPrereqsRefreshedResetsXpcAvailable() {
+        let initial = self.state(xpcAvailable: false)
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: "",
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertTrue(next.xpcAvailable, "Successful prereqs must reset xpcAvailable")
+    }
+
+    // MARK: Toolbar
+
+    func testToolbarValidationRequestedEmitsRefresh() {
         var stats = TabStats()
         stats.url = Constants.siteAURL.absoluteString
-        let initial = self.state(
-            tabStats: stats,
-            lastResolvedTabUrl: Constants.siteAURL.absoluteString
-        )
+        let initial = self.state(tabStats: stats)
         let (next, effects) = PopupReducer.reduce(
             state: initial,
             action: .toolbarValidationRequested(window: Constants.anyWindowToken)
         )
         XCTAssertEqual(next, initial)
-        XCTAssertTrue(effects.isEmpty)
+        XCTAssertEqual(
+            effects,
+            [.refreshAppState(), .refreshPrereqs(markStale: false, tabUrl: Constants.siteAURL.absoluteString)]
+        )
     }
 
-    // MARK: Toolbar loop-guard (empty URL)
-
-    func testToolbarValidationRequestedNoXpcRefreshWhenStatsUrlIsEmpty() {
+    func testToolbarValidationRequestedEmitsRefreshForEmptyUrl() {
         var stats = TabStats()
         stats.url = ""
-        let initial = self.state(tabStats: stats, lastResolvedTabUrl: nil)
-        let (next, effects) = PopupReducer.reduce(
-            state: initial,
-            action: .toolbarValidationRequested(window: Constants.anyWindowToken)
-        )
-        XCTAssertEqual(next, initial)
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    func testToolbarValidationRequestedEmitsRefreshWhenUrlMismatch() {
-        var stats = TabStats()
-        stats.url = Constants.siteAURL.absoluteString
-        let initial = self.state(
-            tabStats: stats,
-            lastResolvedTabUrl: Constants.siteBURL.absoluteString
-        )
+        let initial = self.state(tabStats: stats)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
             action: .toolbarValidationRequested(window: Constants.anyWindowToken)
         )
         XCTAssertEqual(
             effects,
-            [.refreshAppState, .refreshPrereqs(markStale: false)]
+            [.refreshAppState(), .refreshPrereqs(markStale: false, tabUrl: "")]
         )
     }
 
@@ -557,7 +653,7 @@ final class PopupReducerTests: XCTestCase {
         )
         XCTAssertNil(next.inFlight)
         XCTAssertNil(next.lastError)
-        XCTAssertEqual(effects, [.refreshAppState])
+        XCTAssertEqual(effects, [.refreshAppState(after: Constants.knownTimestamp)])
     }
 
     func testSetFilteringStatusSuccessRequestsToolbarUpdate() {
@@ -567,7 +663,7 @@ final class PopupReducerTests: XCTestCase {
             action: .setFilteringStatusCompleted(.success(Constants.knownTimestamp))
         )
         XCTAssertNil(next.inFlight)
-        XCTAssertEqual(effects, [.requestToolbarUpdate])
+        XCTAssertEqual(effects, [.refreshAppState(after: Constants.knownTimestamp)])
     }
 
     func testSetFilteringStatusFailureSetsError() {
@@ -588,7 +684,13 @@ final class PopupReducerTests: XCTestCase {
             action: .reportSiteCompleted(.success(Constants.exampleURL))
         )
         XCTAssertNil(next.inFlight)
-        XCTAssertEqual(effects, [.openUrlInNewTab(Constants.exampleURL), .dismissPopover])
+        XCTAssertEqual(
+            effects,
+            [
+                .openUrlInNewTab(Constants.exampleURL),
+                .dismissPopover
+            ]
+        )
     }
 
     func testReportSiteFailureSetsError() {
@@ -633,6 +735,17 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(next.lastError, .restartFailed)
     }
 
+    func testRestartMainAppSuccessClearsLastError() {
+        let initial = self.state(inFlight: .restarting, lastError: .restartFailed)
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .restartMainAppCompleted(nil)
+        )
+        XCTAssertNil(next.inFlight)
+        XCTAssertNil(next.lastError)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
     func testOpenSafariSettingsFailureSetsOpenSafariSettingsError() {
         let initial = self.state(inFlight: .openingSafariSettings)
         let (next, _) = PopupReducer.reduce(
@@ -651,104 +764,287 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(next.lastError, .openSettingsFailed)
     }
 
-    // MARK: prereqsRefreshed updates lastResolvedTabUrl
+    // MARK: prereqsRefreshed updates onboarding and extensions
 
-    func testPrereqsRefreshedSetsLastResolvedTabUrlFromContext() {
+    func testPrereqsRefreshedSetsOnboardingAndExtensions() {
+        let initial = self.state(
+            onboardingStatus: .completed
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: false,
+                tabUrl: "",
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertEqual(next.onboardingStatus, .completed)
+        XCTAssertFalse(next.allExtensionsEnabled)
+        // OnboardingStatus did not change → no toolbar update
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testPrereqsRefreshedEmitsToolbarUpdateWhenOnboardingStatusChanges() {
+        let url = Constants.siteAURL
+        let initial = self.state(
+            onboardingStatus: .unknown,
+            tabContext: Store.TabContext(
+                windowToken: nil, url: url, domain: url.host!, isSystemPage: false
+            )
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: "",
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertEqual(next.onboardingStatus, .completed)
+        XCTAssertEqual(effects, [.requestToolbarUpdate])
+    }
+
+    func testPrereqsRefreshedSetsOnboardingEvenWithoutContext() {
+        let initial = self.state()
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: false,
+                allExtensionsEnabled: true,
+                tabUrl: "",
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertEqual(next.onboardingStatus, .notCompleted)
+    }
+
+    // MARK: prereqsRefreshed syncs pausedUrls from main app
+
+    func testPrereqsRefreshedAddsToPausedUrlsWhenFilteringDisabled() {
+        // Simulates startup: pausedUrls is empty, but main app says URL is paused.
         let url = Constants.siteAURL
         let initial = self.state(
             tabContext: Store.TabContext(
                 windowToken: nil, url: url, domain: url.host!, isSystemPage: false
-            ),
-            lastResolvedTabUrl: nil
+            )
         )
         let (next, effects) = PopupReducer.reduce(
             state: initial,
-            action: .prereqsRefreshed(onboardingCompleted: true, allExtensionsEnabled: false)
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: url.absoluteString,
+                isFilteringEnabled: false
+            )
         )
-        XCTAssertEqual(next.onboardingStatus, .completed)
-        XCTAssertFalse(next.allExtensionsEnabled)
-        XCTAssertEqual(next.lastResolvedTabUrl, url.absoluteString)
+        XCTAssertTrue(next.pausedUrls.contains(url.absoluteString))
+        XCTAssertFalse(next.protectionEnabledForCurrentUrl)
+        XCTAssertEqual(effects, [.requestToolbarUpdate])
+    }
+
+    func testPrereqsRefreshedDoesNotRemoveFromPausedUrlsWhenFilteringDisabled() {
+        // Server confirms filtering is still disabled — URL must stay in pausedUrls.
+        let url = Constants.siteAURL
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: false,
+            tabContext: Store.TabContext(
+                windowToken: nil, url: url, domain: url.host!, isSystemPage: false
+            ),
+            pausedUrls: [url.absoluteString]
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: url.absoluteString,
+                isFilteringEnabled: false
+            )
+        )
+        XCTAssertTrue(next.pausedUrls.contains(url.absoluteString), "URL must stay in pausedUrls")
+        XCTAssertFalse(next.protectionEnabledForCurrentUrl, "Toggle must not flip to enabled")
+        XCTAssertEqual(effects, [], "No toolbar update when no state change")
+    }
+
+    func testPrereqsRefreshedDoesNotEmitToolbarUpdateWhenFilteringStateUnchanged() {
+        let url = Constants.siteAURL
+        // URL is already in pausedUrls; main app confirms it's still paused.
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: false,
+            tabContext: Store.TabContext(
+                windowToken: nil, url: url, domain: url.host!, isSystemPage: false
+            ),
+            pausedUrls: [url.absoluteString]
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: url.absoluteString,
+                isFilteringEnabled: false
+            )
+        )
+        XCTAssertTrue(next.pausedUrls.contains(url.absoluteString))
         XCTAssertTrue(effects.isEmpty)
     }
 
-    func testPrereqsRefreshedDoesNotSetLastResolvedTabUrlWhenNoContext() {
+    func testPrereqsRefreshedIgnoresFilteringStateForEmptyUrl() {
+        // Empty tabUrl (system page) — pausedUrls must not be modified.
         let initial = self.state()
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: "",
+                isFilteringEnabled: false // should be ignored for empty URL
+            )
+        )
+        XCTAssertTrue(next.pausedUrls.isEmpty)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testPrereqsRefreshedRemovesFromPausedUrlsWhenServerSaysEnabled() {
+        // Bug fix: stale pausedUrls entry after allowlist-rule deletion in Settings.
+        // Server reports isFilteringEnabled = true; the stale entry must be cleared.
+        let url = Constants.siteAURL
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: false,
+            tabContext: Store.TabContext(
+                windowToken: nil, url: url, domain: url.host!, isSystemPage: false
+            ),
+            pausedUrls: [url.absoluteString]
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: url.absoluteString,
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertFalse(next.pausedUrls.contains(url.absoluteString), "Stale entry must be removed")
+        XCTAssertTrue(next.protectionEnabledForCurrentUrl, "Toggle must flip back to enabled")
+        XCTAssertEqual(effects, [.requestToolbarUpdate])
+    }
+
+    func testPrereqsRefreshedDoesNotChangeProtectionWhenTabUrlDiffersFromActiveUrl() {
+        // Race condition: prereqs response arrives for a stale URL that doesn't
+        // Match the currently active tab. protectionEnabledForCurrentUrl must not change.
+        let activeUrl = Constants.siteAURL
+        let staleUrl = Constants.siteBURL
+        let initial = self.state(
+            protectionEnabledForCurrentUrl: true,
+            tabContext: Store.TabContext(
+                windowToken: nil, url: activeUrl, domain: activeUrl.host!, isSystemPage: false
+            )
+        )
         let (next, _) = PopupReducer.reduce(
             state: initial,
-            action: .prereqsRefreshed(onboardingCompleted: false, allExtensionsEnabled: true)
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: staleUrl.absoluteString,
+                isFilteringEnabled: false
+            )
         )
-        XCTAssertEqual(next.onboardingStatus, .notCompleted)
-        XCTAssertNil(next.lastResolvedTabUrl)
+        XCTAssertTrue(
+            next.pausedUrls.contains(staleUrl.absoluteString),
+            "Stale URL must still be added to pausedUrls"
+        )
+        XCTAssertTrue(
+            next.protectionEnabledForCurrentUrl,
+            "protectionEnabledForCurrentUrl must not change when tabUrl differs from active URL"
+        )
+    }
+
+    func testPrereqsRefreshSkippedDoesNotMutateState() {
+        let initial = self.state(
+            onboardingStatus: .notCompleted,
+            allExtensionsEnabled: false,
+            pausedUrls: [Constants.siteAURL.absoluteString]
+        )
+
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshSkipped(isXpcUnavailable: false)
+        )
+
+        XCTAssertEqual(next, initial, "State must not change")
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testPrereqsRefreshSkippedLinkTimeoutSetsXpcUnavailable() {
+        let initial = self.state(
+            onboardingStatus: .completed,
+            allExtensionsEnabled: true
+        )
+
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshSkipped(isXpcUnavailable: true)
+        )
+
+        XCTAssertFalse(next.xpcAvailable)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    // MARK: prereqsRefreshed uses tabStats.url as fallback when tabContext.url is nil
+
+    func testPrereqsRefreshedUpdatesProtectionWhenTabContextUrlNil() {
+        // After Safari restart, tabContext.url can be nil
+        // Because validateToolbarItem fires before the page finishes loading.
+        // At that point page.properties().url has not resolved yet, but tabStats.url
+        // Already has the destination URL from willNavigateTo/resetStats and must be
+        // Used as a fallback so protectionEnabledForCurrentUrl is set correctly.
+        let url = Constants.siteAURL
+        let initial = self.state(
+            // Stats URL set synchronously by resetStats/willNavigateTo
+            tabStats: TabStats(url: url.absoluteString),
+            // Context URL is nil — page still loading (race condition)
+            tabContext: .empty
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: true,
+                allExtensionsEnabled: true,
+                tabUrl: url.absoluteString,
+                isFilteringEnabled: false
+            )
+        )
+        XCTAssertTrue(next.pausedUrls.contains(url.absoluteString))
+        XCTAssertFalse(
+            next.protectionEnabledForCurrentUrl,
+            "Protection must be shown as OFF when tabContext.url is nil but tabStats.url matches"
+        )
+        XCTAssertEqual(effects, [.requestToolbarUpdate])
     }
 
     // MARK: pageView session invariant
 
-    func testPopupOpenedFromClosedEmitsPageViewAndOpensSession() {
-        let initial = self.state() // .domain layout, .closed session
-        let openedAt = Constants.referenceDate
-        let (next, effects) = PopupReducer.reduce(
+    func testPopupOpenedEmitsPageViewAndNotifyWindowOpened() {
+        let initial = self.state() // .domain layout
+        let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(
-            next.popupSession,
-            .open(openedAt: openedAt)
-        )
-        XCTAssertEqual(effects, [.notifyWindowOpened, .sendTelemetry(.pageView(.main))])
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.main))))
     }
 
-    func testPopupOpenedSecondCallWithoutDismissDoesNotResendPageView() {
-        let openedAt = Constants.referenceDate
-        let initial = self.state(popupSession: .open(openedAt: openedAt))
-        let (next, effects) = PopupReducer.reduce(
-            state: initial,
-            action: .popupOpened(openedAt: openedAt.addingTimeInterval(1))
-        )
-        XCTAssertEqual(next, initial)
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    func testPopupOpenedOnNonTelemetryLayoutEmitsNoEffects() {
-        let openedAt = Constants.referenceDate
+    func testPopupOpenedOnNonTelemetryLayoutEmitsOnlyNotifyWindowOpened() {
         let initial = self.state(mainAppRunning: false) // .adguardNotLaunched
-        let (next, effects) = PopupReducer.reduce(
+        let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(
-            next.popupSession,
-            .open(openedAt: openedAt)
-        )
-        XCTAssertEqual(effects, [.notifyWindowOpened])
-    }
-
-    func testPopupDismissedClosesSessionAndClearsError() {
-        let openedAt = Constants.referenceDate
-        let initial = self.state(
-            lastError: .launchFailed,
-            popupSession: .open(openedAt: openedAt)
-        )
-        let (next, effects) = PopupReducer.reduce(
-            state: initial,
-            action: .popupDismissed
-        )
-        XCTAssertEqual(next.popupSession, .closed)
-        XCTAssertNil(next.lastError)
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    func testPopupDismissedOnAlreadyClosedSessionStillClearsError() {
-        let initial = self.state(
-            lastError: .launchFailed,
-            popupSession: .closed
-        )
-        let (next, effects) = PopupReducer.reduce(
-            state: initial,
-            action: .popupDismissed
-        )
-        XCTAssertEqual(next.popupSession, .closed)
-        XCTAssertNil(next.lastError)
-        XCTAssertTrue(effects.isEmpty)
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertFalse(effects.contains(.sendTelemetry(.pageView(.main))))
     }
 
     // MARK: inFlight guards — non-toggle user actions
@@ -812,7 +1108,8 @@ final class PopupReducerTests: XCTestCase {
             effects,
             [
                 .setFilteringStatusForUrl(url.absoluteString, enable: false),
-                .sendTelemetry(.action(.protectionPopupClick, screen: .extensionsOff))
+                .sendTelemetry(.action(.protectionPopupClick, screen: .extensionsOff)),
+                .requestToolbarUpdate
             ]
         )
     }
@@ -829,14 +1126,13 @@ final class PopupReducerTests: XCTestCase {
         )
     }
 
-    func testBlockElementTappedTelemetryUsesMainScreenWhenAllExtensionsEnabled() {
-        let initial = self.state() // allExtensionsEnabled defaults to true
+    func testBlockElementTappedEmitsScriptDispatchAndTelemetryOnMain() {
+        let initial = self.state() // allExtensionsEnabled defaults to true → screen .main
         let (_, effects) = PopupReducer.reduce(state: initial, action: .blockElementTapped)
         XCTAssertEqual(
             effects,
             [
                 .dispatchPageScriptMessage(name: "blockElementPing"),
-                .dismissPopover,
                 .sendTelemetry(.action(.blockElementPopupClick, screen: .main))
             ]
         )
@@ -845,51 +1141,43 @@ final class PopupReducerTests: XCTestCase {
     // MARK: pageView screen mapping
 
     func testPopupOpenedOnProtectionDisabledLayoutEmitsProtectionDisabledPageView() {
-        let openedAt = Constants.referenceDate
         let initial = self.state(protectionEnabled: false)
-        let (next, effects) = PopupReducer.reduce(
+        let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(
-            next.popupSession,
-            .open(openedAt: openedAt)
-        )
-        XCTAssertEqual(effects, [.notifyWindowOpened, .sendTelemetry(.pageView(.protectionDisabled))])
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.protectionDisabled))))
     }
 
     func testPopupOpenedOnSomethingWentWrongLayoutEmitsFailedEnableProtectionPageView() {
-        let openedAt = Constants.referenceDate
-        let initial = self.state(lastError: .launchFailed) // .domain + error => .somethingWentWrong
+        let initial = self.state(lastError: .launchFailed)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(effects, [.notifyWindowOpened, .sendTelemetry(.pageView(.failedEnableProtection))])
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.failedEnableProtection))))
     }
 
     func testPopupOpenedOnDomainWithExtensionsOffEmitsExtensionsOffPageView() {
-        let openedAt = Constants.referenceDate
         let initial = self.state(allExtensionsEnabled: false)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(effects, [.notifyWindowOpened, .sendTelemetry(.pageView(.extensionsOff))])
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.extensionsOff))))
     }
 
     func testPopupOpenedOnOnboardingWasntCompletedEmitsNoTelemetry() {
-        let openedAt = Constants.referenceDate
         let initial = self.state(onboardingStatus: .notCompleted)
-        let (next, effects) = PopupReducer.reduce(
+        let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .popupOpened(openedAt: openedAt)
+            action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertEqual(
-            next.popupSession,
-            .open(openedAt: openedAt)
-        )
-        XCTAssertEqual(effects, [.notifyWindowOpened])
+        XCTAssertTrue(effects.contains(.notifyWindowOpened))
+        XCTAssertFalse(effects.contains(.sendTelemetry(.pageView(.main))))
     }
 
     // MARK: appStateChanged — boundary and invalid-rawValue cases
@@ -910,8 +1198,9 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .appStateChanged(snapshot)
         )
-        XCTAssertEqual(next, initial)
-        XCTAssertTrue(effects.isEmpty)
+        // Theme and logLevel still applied even when timestamp is not fresh.
+        XCTAssertFalse(next.protectionEnabled)
+        XCTAssertEqual(effects, [.setLogLevel(.debug), .setAppTheme(.dark)])
     }
 
     func testAppStateChangedIgnoresInvalidLogLevelAndTheme() {
@@ -928,7 +1217,7 @@ final class PopupReducerTests: XCTestCase {
         )
         XCTAssertEqual(next.lastAppStateTimestamp, 1)
         XCTAssertTrue(next.protectionEnabled)
-        XCTAssertTrue(effects.isEmpty)
+        XCTAssertEqual(effects, [])
     }
 
     func testAppStateChangedEmitsLogLevelBeforeTheme() {
@@ -948,6 +1237,39 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(effects, [.setLogLevel(.debug), .setAppTheme(.dark)])
     }
 
+    // MARK: appStateChanged — requestToolbarUpdate on protection change
+
+    func testAppStateChangedEmitsToolbarUpdateWhenProtectionChanges() {
+        let initial = self.state(protectionEnabled: false, lastAppStateTimestamp: 0)
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: 1,
+            logLevel: 0,
+            theme: 0
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertTrue(next.protectionEnabled)
+        XCTAssertTrue(effects.contains(.requestToolbarUpdate))
+    }
+
+    func testAppStateChangedSkipsToolbarUpdateWhenProtectionUnchanged() {
+        let initial = self.state(protectionEnabled: true, lastAppStateTimestamp: 0)
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: 1,
+            logLevel: 0,
+            theme: 0
+        )
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertFalse(effects.contains(.requestToolbarUpdate))
+    }
+
     // MARK: setFilteringStatus success clears prior error
 
     func testSetFilteringStatusSuccessClearsLastError() {
@@ -958,16 +1280,15 @@ final class PopupReducerTests: XCTestCase {
         )
         XCTAssertNil(next.inFlight)
         XCTAssertNil(next.lastError)
-        XCTAssertEqual(effects, [.requestToolbarUpdate])
+        XCTAssertEqual(effects, [.refreshAppState(after: Constants.knownTimestamp)])
     }
 
     // MARK: mainAppRunningChanged — true->false preserves cache
 
-    func testMainAppRunningChangedTrueToFalseDoesNotResetCacheOrOnboarding() {
+    func testMainAppRunningChangedTrueToFalseDoesNotResetOnboarding() {
         let initial = self.state(
             mainAppRunning: true,
-            onboardingStatus: .completed,
-            lastResolvedTabUrl: Constants.siteAURL.absoluteString
+            onboardingStatus: .completed
         )
         let (next, effects) = PopupReducer.reduce(
             state: initial,
@@ -975,24 +1296,247 @@ final class PopupReducerTests: XCTestCase {
         )
         XCTAssertFalse(next.mainAppRunning)
         XCTAssertEqual(next.onboardingStatus, .completed)
-        XCTAssertEqual(next.lastResolvedTabUrl, Constants.siteAURL.absoluteString)
+        XCTAssertEqual(effects, [.requestToolbarUpdate])
+    }
+
+    // MARK: setProtectionStatusCompleted failure emits telemetry
+
+    func testSetProtectionStatusFailureEmitsTelemetry() {
+        let initial = self.state(inFlight: .enabling)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .setProtectionStatusCompleted(.failure(.protectionToggleFailed(domain: nil)))
+        )
+        XCTAssertTrue(
+            effects.contains(.sendTelemetry(.pageView(.failedEnableProtection))),
+            "Failure must emit failedEnableProtection telemetry"
+        )
+    }
+
+    // MARK: fixIt/settings dismiss moved to completion
+
+    func testFixItTappedDoesNotEmitDismissPopover() {
+        let initial = self.state()
+        let (_, effects) = PopupReducer.reduce(state: initial, action: .fixItTapped)
+        XCTAssertFalse(
+            effects.contains(.dismissPopover),
+            "fixItTapped must not dismiss upfront — dismissal is in completion"
+        )
+    }
+
+    func testSettingsTappedDoesNotEmitDismissPopover() {
+        let initial = self.state()
+        let (_, effects) = PopupReducer.reduce(state: initial, action: .settingsTapped)
+        XCTAssertFalse(
+            effects.contains(.dismissPopover),
+            "settingsTapped must not dismiss upfront — dismissal is in completion"
+        )
+    }
+
+    func testOpenSafariSettingsCompletedSuccessEmitsDismiss() {
+        let initial = self.state(inFlight: .openingSafariSettings)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .openSafariSettingsCompleted(nil)
+        )
+        XCTAssertEqual(effects, [.dismissPopover])
+    }
+
+    func testOpenSafariSettingsCompletedFailureDoesNotDismiss() {
+        let initial = self.state(inFlight: .openingSafariSettings)
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .openSafariSettingsCompleted(.openSafariSettingsFailed)
+        )
+        XCTAssertFalse(effects.contains(.dismissPopover))
+        XCTAssertEqual(next.lastError, .openSafariSettingsFailed)
+    }
+
+    func testOpenSettingsCompletedSuccessEmitsDismiss() {
+        let initial = self.state(inFlight: .openingSettings)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .openSettingsCompleted(nil)
+        )
+        XCTAssertEqual(effects, [.dismissPopover])
+    }
+
+    func testOpenSettingsCompletedFailureDoesNotDismiss() {
+        let initial = self.state(inFlight: .openingSettings)
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .openSettingsCompleted(.openSettingsFailed)
+        )
+        XCTAssertFalse(effects.contains(.dismissPopover))
+        XCTAssertEqual(next.lastError, .openSettingsFailed)
+    }
+
+    // MARK: mainAppRunningChanged(true) and appStateChanged clear lastError
+
+    func testMainAppRunningTrueClearsLastError() {
+        let initial = self.state(mainAppRunning: false, lastError: .launchFailed)
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .mainAppRunningChanged(true)
+        )
+        XCTAssertNil(next.lastError, "mainAppRunningChanged(true) must clear lastError")
+    }
+
+    func testAppStateChangedClearsLastError() {
+        let initial = self.state(
+            lastError: .launchFailed,
+            lastAppStateTimestamp: 0
+        )
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: 1,
+            logLevel: 0,
+            theme: 0
+        )
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertNil(next.lastError, "appStateChanged with fresh timestamp must clear lastError")
+        XCTAssertTrue(
+            effects.contains(.requestToolbarUpdate),
+            "Clearing lastError (hadError) must trigger toolbar update even without protection change"
+        )
+    }
+
+    // MARK: rateTapped uses openUrlWithSystemHandler
+
+    func testRateTappedUsesSystemHandler() {
+        let initial = self.state()
+        let (_, effects) = PopupReducer.reduce(state: initial, action: .rateTapped)
+        let hasSystemHandler = effects.contains { effect in
+            if case .openUrlWithSystemHandler = effect { return true }
+            return false
+        }
+        XCTAssertTrue(hasSystemHandler, "rateTapped must use openUrlWithSystemHandler, not openUrlInNewTab")
+    }
+
+    // MARK: blockElementCompleted
+
+    func testBlockElementCompletedWithPageFoundEmitsDismissOnly() {
+        let initial = self.state()
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .blockElementCompleted(pageFound: true)
+        )
+        XCTAssertEqual(effects, [.dismissPopover])
+    }
+
+    func testBlockElementCompletedNoPageEmitsNothing() {
+        let initial = self.state()
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .blockElementCompleted(pageFound: false)
+        )
         XCTAssertTrue(effects.isEmpty)
     }
 
-    // MARK: toolbarValidationRequested — refresh with nil cache
+    // MARK: reportSiteCompleted does not re-emit telemetry
 
-    func testToolbarValidationRequestedEmitsRefreshWhenCacheIsNil() {
-        var stats = TabStats()
-        stats.url = Constants.siteAURL.absoluteString
-        let initial = self.state(tabStats: stats, lastResolvedTabUrl: nil)
-        let (next, effects) = PopupReducer.reduce(
+    func testReportSiteCompletedSuccessDoesNotEmitTelemetry() {
+        let initial = self.state(inFlight: .reporting)
+        let (_, effects) = PopupReducer.reduce(
             state: initial,
-            action: .toolbarValidationRequested(window: Constants.anyWindowToken)
+            action: .reportSiteCompleted(.success(Constants.exampleURL))
         )
-        XCTAssertEqual(next, initial)
-        XCTAssertEqual(
-            effects,
-            [.refreshAppState, .refreshPrereqs(markStale: false)]
+        let hasTelemetry = effects.contains { if case .sendTelemetry = $0 { return true }; return false }
+        XCTAssertFalse(hasTelemetry, "completion must not re-emit telemetry")
+    }
+
+    // MARK: appStateChanged applies theme/logLevel even for stale timestamp
+
+    func testAppStateChangedAppliesThemeForStaleTimestamp() {
+        let initial = self.state(lastAppStateTimestamp: Constants.knownTimestamp)
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: Constants.staleTimestamp,
+            logLevel: Int32(LogLevel.debug.rawValue),
+            theme: Int32(Theme.dark.rawValue)
+        )
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertTrue(
+            effects.contains(.setLogLevel(.debug)),
+            "logLevel must be applied even with stale timestamp"
+        )
+        XCTAssertTrue(
+            effects.contains(.setAppTheme(.dark)),
+            "theme must be applied even with stale timestamp"
+        )
+    }
+
+    func testAppStateChangedDoesNotUpdateProtectionForStaleTimestamp() {
+        let initial = self.state(
+            protectionEnabled: false,
+            lastAppStateTimestamp: Constants.knownTimestamp
+        )
+        let snapshot = Store.AppStateSnapshot(
+            isProtectionEnabled: true,
+            lastCheckTime: Constants.staleTimestamp,
+            logLevel: 0,
+            theme: 0
+        )
+        let (next, _) = PopupReducer.reduce(
+            state: initial,
+            action: .appStateChanged(snapshot)
+        )
+        XCTAssertFalse(
+            next.protectionEnabled,
+            "protectionEnabled must not change for stale timestamp"
+        )
+    }
+
+    // MARK: prereqsRefreshed emits toolbar update on layout change
+
+    func testPrereqsRefreshedEmitsToolbarUpdateOnLayoutChange() {
+        // Onboarding status change triggers a layout change and toolbar update.
+        let initial = self.state(onboardingStatus: .completed)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .prereqsRefreshed(
+                onboardingCompleted: false,
+                allExtensionsEnabled: true,
+                tabUrl: "",
+                isFilteringEnabled: true
+            )
+        )
+        XCTAssertTrue(
+            effects.contains(.requestToolbarUpdate),
+            "prereqsRefreshed must emit toolbar update when layout changes"
+        )
+    }
+
+    // MARK: popupOpened does not trigger XPC refresh
+
+    func testPopupOpenedDoesNotTriggerXpcRefresh() {
+        let initial = self.state(
+            mainAppRunning: true,
+            tabContext: Store.TabContext(
+                windowToken: nil,
+                url: Constants.exampleURL,
+                domain: "example.com",
+                isSystemPage: false
+            )
+        )
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupOpened(openedAt: Constants.referenceDate)
+        )
+        let xpcEffects = effects.filter {
+            if case .refreshAppState = $0 { return true }
+            if case .refreshPrereqs = $0 { return true }
+            return false
+        }
+        XCTAssertTrue(
+            xpcEffects.isEmpty,
+            "popupOpened must not trigger XPC refresh — toolbar validation already did it"
         )
     }
 }

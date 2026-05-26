@@ -21,6 +21,7 @@ enum Store {
     enum PopupLayout: Equatable {
         case domain
         case adguardNotLaunched
+        case xpcUnavailable
         case protectionIsDisabled
         case somethingWentWrong
         case onboardingWasntCompleted
@@ -28,11 +29,9 @@ enum Store {
 
     // MARK: OnboardingStatus
 
-    /// Tri-state replacement for the legacy pair of
-    /// `onboardingCompleted: Bool` + `onboardingStateFresh: Bool`.
-    /// `.unknown` = first XPC reply from main app has not arrived yet;
-    /// the resolver treats it as "not launched" to avoid a one-frame flash
-    /// of `.onboardingWasntCompleted` on cold start.
+    /// `.unknown` = first XPC reply has not arrived yet; the resolver
+    /// treats it optimistically as `.domain` to avoid a one-frame flash of
+    /// `.onboardingWasntCompleted` on cold start.
     enum OnboardingStatus: Equatable {
         case unknown
         case completed
@@ -45,17 +44,7 @@ enum Store {
     /// the window. The mapping `SFSafariWindow → SafariWindowToken` lives in
     /// `ExternalEventsAdapter`.
     struct SafariWindowToken: Hashable {
-        let rawValue: UInt64
-    }
-
-    // MARK: Session
-
-    /// Sum type instead of separate fields with co-dependent validity:
-    /// `.closed` carries no payload; `.open` carries everything that only
-    /// makes sense while the popup is on screen.
-    enum Session: Equatable {
-        case closed
-        case open(openedAt: Date)
+        let rawValue: UInt
     }
 
     // MARK: InFlightAction

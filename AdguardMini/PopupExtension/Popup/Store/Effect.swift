@@ -17,14 +17,15 @@ extension Store {
     enum Effect: Equatable {
         case setProtectionStatus(enable: Bool)
         case setFilteringStatusForUrl(String, enable: Bool)
-        case refreshAppState
-        case refreshPrereqs(markStale: Bool)
+        case refreshAppState(after: EBATimestamp? = nil)
+        case refreshPrereqs(markStale: Bool, tabUrl: String)
         case launchMainApp
         case restartMainApp
         case openSafariSettings
         case openSettings
         case reportSite(url: String)
         case openUrlInNewTab(URL)
+        case openUrlWithSystemHandler(URL)
         case requestToolbarUpdate
         case dispatchPageScriptMessage(name: String)
         case sendTelemetry(Telemetry.Event)

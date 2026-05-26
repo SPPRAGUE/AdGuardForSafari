@@ -16,7 +16,7 @@ import AGSEDesignSystem
 /// no XPC.
 ///
 /// After rendering, the caller dispatches
-/// `Action.toolbarValidationRequested(window:)` into the store;
+/// `Action.toolbarValidationRequested(window:requestedAt:)` into the store;
 /// the reducer decides whether a background XPC refresh is needed.
 enum ToolbarRenderer {
     /// Render toolbar item and return the badge text for Safari's
