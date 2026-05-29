@@ -56,6 +56,7 @@ final class SafariApiProvider: NSObject {
     private let telemetry: Telemetry.Service
     private let eventBus: EventBus
     private let keychain: KeychainManager
+    private let healthCheckAttentionProvider: HealthCheckAttentionProvider
 
     #if MAS
     private let appStoreRateUs: AppStoreRateUs?
@@ -74,6 +75,7 @@ final class SafariApiProvider: NSObject {
         telemetry: Telemetry.Service,
         keychain: KeychainManager,
         eventBus: EventBus,
+        healthCheckAttentionProvider: HealthCheckAttentionProvider,
         appStoreRateUs: AppStoreRateUs?
     ) {
         self.proxyStorage = proxyStorage
@@ -86,6 +88,7 @@ final class SafariApiProvider: NSObject {
         self.telemetry = telemetry
         self.keychain = keychain
         self.eventBus = eventBus
+        self.healthCheckAttentionProvider = healthCheckAttentionProvider
 
         #if MAS
         self.appStoreRateUs = appStoreRateUs
@@ -211,9 +214,9 @@ extension SafariApiProvider: MainAppApi {
         }
     }
 
-    func isAllExtensionsEnabled(reply: @escaping (Bool, Error?) -> Void) {
+    func hasHealthCheckAttention(reply: @escaping (Bool, Error?) -> Void) {
         Task {
-            let result = await self.safariExtensionStatusManager.isAllExtensionsEnabled
+            let result = await self.healthCheckAttentionProvider.hasAttention()
             reply(result, nil)
         }
     }

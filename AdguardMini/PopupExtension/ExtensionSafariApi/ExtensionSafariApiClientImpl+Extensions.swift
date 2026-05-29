@@ -42,10 +42,10 @@ extension ExtensionSafariApiClientImpl: MainAppApi {
         }
     }
 
-    func isAllExtensionsEnabled(reply: @escaping (Bool, Error?) -> Void) {
+    func hasHealthCheckAttention(reply: @escaping (Bool, Error?) -> Void) {
         LogDebugTrace()
         self.withSafariApi(else: { reply(false, ExtensionSafariApiClientErrorCode.linkTimeout) }) {
-            $0.isAllExtensionsEnabled(reply: reply)
+            $0.hasHealthCheckAttention(reply: reply)
         }
     }
 

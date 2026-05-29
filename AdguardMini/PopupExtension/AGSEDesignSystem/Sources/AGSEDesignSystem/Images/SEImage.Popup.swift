@@ -23,6 +23,7 @@ extension SEImage {
         static let webBrowsingSecurity = Image(Asset.webBrowsingSecurity)
         static let pause = Image(Asset.pause)
         static let attention = Image(Asset.attention)
+        static let arrowRight = Image(Asset.arrowRight)
     }
 }
 
@@ -38,6 +39,7 @@ extension SEImage {
         SEImage.Popup.webBrowsingSecurity
         SEImage.Popup.pause
         SEImage.Popup.attention
+        SEImage.Popup.arrowRight
     }
     .padding(16)
 }

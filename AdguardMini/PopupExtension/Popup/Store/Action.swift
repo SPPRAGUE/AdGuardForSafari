@@ -59,12 +59,14 @@ extension Store {
         case prereqsRefreshSkipped(isXpcUnavailable: Bool)
         case prereqsRefreshed(
             onboardingCompleted: Bool,
-            allExtensionsEnabled: Bool,
             tabUrl: String,
             isFilteringEnabled: Bool
         )
+        case healthCheckRefreshed(hasAttention: Bool)
+        case popupReady(hasHealthCheckAttention: Bool)
         // MARK: Lifecycle
 
+        case popupWillShow
         case popupOpened(openedAt: Date)
     }
 }

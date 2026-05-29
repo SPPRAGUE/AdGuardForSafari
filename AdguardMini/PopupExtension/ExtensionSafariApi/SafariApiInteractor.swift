@@ -24,7 +24,7 @@ protocol SafariApiInteractor {
     func appState() async throws -> EBAAppState
     func getCurrentFilteringState(withUrl url: String) async throws -> EBACurrentFilteringState
     func getExtraState(withUrl url: String) async throws -> Bool
-    func isAllExtensionsEnabled() async throws -> Bool
+    func hasHealthCheckAttention() async throws -> Bool
     func isOnboardingCompleted() async throws -> Bool
 
     func setProtectionStatus(_ enabled: Bool) async throws -> EBATimestamp
@@ -75,9 +75,9 @@ final class SafariApiInteractorImpl: SafariApiInteractor {
         }
     }
 
-    func isAllExtensionsEnabled() async throws -> Bool {
+    func hasHealthCheckAttention() async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
-            self.safariApi.isAllExtensionsEnabled(reply: continuation.callback)
+            self.safariApi.hasHealthCheckAttention(reply: continuation.callback)
         }
     }
 

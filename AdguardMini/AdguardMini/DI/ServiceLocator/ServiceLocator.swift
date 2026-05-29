@@ -288,6 +288,7 @@ private final class ServiceLocator {
             telemetry: self.telemetryService,
             keychain: self.coreDIContainer.keychain,
             eventBus: self.eventBus,
+            healthCheckAttentionProvider: self.healthCheckAttentionProvider,
             appStoreRateUs: {
                 #if MAS
                 return self.appStoreRateUs
@@ -346,6 +347,16 @@ private final class ServiceLocator {
 
     private lazy var safariExtensionStatusManager: SafariExtensionStatusManager = {
         SafariExtensionStatusManagerImpl()
+    }()
+
+    private lazy var healthCheckAttentionProvider: HealthCheckAttentionProvider = {
+        HealthCheckAttentionProviderImpl(
+            safariExtensionStatusManager: self.safariExtensionStatusManager,
+            safariExtensionStateService: self.safariExtensionStateService,
+            loginItemManager: self.coreDIContainer.loginItemManager,
+            userSettingsService: self.userSettingsService,
+            filtersSupervisor: self.filtersSupervisor
+        )
     }()
 
     private lazy var sciterCallbackService: SciterCallbackService = {

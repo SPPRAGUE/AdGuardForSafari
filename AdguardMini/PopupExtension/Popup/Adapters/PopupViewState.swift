@@ -23,7 +23,7 @@ final class PopupViewState: ObservableObject {
 
     @Published private(set) var domain: String = ""
     @Published private(set) var isSystemPage: Bool = true
-    @Published private(set) var isAllExtensionsEnabled: Bool = true
+    @Published private(set) var hasHealthCheckAttention: Bool = false
     @Published private(set) var isOnboardingCompleted: Bool = false
     @Published private(set) var popupLayout: PopupView.Layout = .domain
     @Published private(set) var popupState: InfoView.Configuration.State = .base
@@ -84,7 +84,11 @@ final class PopupViewState: ObservableObject {
         self.dispatch(.pauseTapped)
     }
 
-    func sendPageViewForCurrentLayout() {
+    func popupWillShow() {
+        self.dispatch(.popupWillShow)
+    }
+
+    func popupDidAppear() {
         self.dispatch(.popupOpened(openedAt: Date()))
     }
 
@@ -117,7 +121,7 @@ final class PopupViewState: ObservableObject {
             ? .localized.base.item_title_secure_page
             : state.tabContext.domain
         self.isSystemPage = state.tabContext.isSystemPage
-        self.isAllExtensionsEnabled = state.allExtensionsEnabled
+        self.hasHealthCheckAttention = state.hasHealthCheckAttention
 
         self.isOnboardingCompleted = state.onboardingStatus == .completed
 

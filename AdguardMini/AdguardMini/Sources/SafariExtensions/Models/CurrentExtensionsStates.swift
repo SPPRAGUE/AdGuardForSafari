@@ -18,4 +18,12 @@ struct CurrentExtensionsStates {
     let other: CurrentExtensionState
     let custom: CurrentExtensionState
     let advanced: CurrentExtensionState
+
+    /// All extension statuses as a flat array for iteration.
+    var allStatuses: [SafariExtension.Status] {
+        [
+            general.status, privacy.status, social.status, security.status,
+            other.status, custom.status, advanced.status
+        ]
+    }
 }

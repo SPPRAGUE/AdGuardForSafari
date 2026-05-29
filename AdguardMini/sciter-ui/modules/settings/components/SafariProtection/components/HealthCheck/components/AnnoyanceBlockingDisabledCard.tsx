@@ -8,6 +8,7 @@ import { Text } from 'Modules/common/components';
 import { useNotificationSomethingWentWrongText, useSettingsStore } from 'SettingsLib/hooks';
 
 import { HealthCheckCard } from './HealthCheckCard';
+import { HealthCheckDismissId } from './HealthCheckDismissId';
 
 /**
  * Props for the AnnoyanceBlockingDisabledCard component.
@@ -73,7 +74,10 @@ function AnnoyanceBlockingDisabledCardComponent({ setShowConsent }: AnnoyanceBlo
                 </Text>
             )}
             title={translate('safari.protection.health.annoyance')}
-            onClose={() => settings.updateHealthCheckDismissedCards([...dissmissedHealthCheckCards, 'annoyanceBlockingDisabled'])}
+            onClose={() => settings.updateHealthCheckDismissedCards([
+                ...dissmissedHealthCheckCards,
+                HealthCheckDismissId.AnnoyanceBlockingDisabled,
+            ])}
         />
     );
 }

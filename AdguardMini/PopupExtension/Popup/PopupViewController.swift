@@ -44,8 +44,13 @@ class PopupViewController: SFSafariExtensionViewController, PopupViewControllerD
         self.view = NSHostingView(rootView: self.mainView)
     }
 
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        self.viewState.popupWillShow()
+    }
+
     override func viewDidAppear() {
         super.viewDidAppear()
-        self.viewState.sendPageViewForCurrentLayout()
+        self.viewState.popupDidAppear()
     }
 }

@@ -22,7 +22,7 @@ extension Store {
         case launchMainApp
         case restartMainApp
         case openSafariSettings
-        case openSettings
+        case openSettings(page: String? = nil)
         case reportSite(url: String)
         case openUrlInNewTab(URL)
         case openUrlWithSystemHandler(URL)
@@ -33,5 +33,7 @@ extension Store {
         case setAppTheme(Theme)
         case dismissPopover
         case notifyWindowOpened
+        case refreshHealthCheck
+        case preparePopup
     }
 }

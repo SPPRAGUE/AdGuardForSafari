@@ -7,7 +7,7 @@
 //  AdguardMini
 //
 
-enum LoginItemManagerRegisterStatus {
+enum LoginItemManagerRegisterStatus: Equatable {
     case notRegistered
     case enabled
     case requiresApproval

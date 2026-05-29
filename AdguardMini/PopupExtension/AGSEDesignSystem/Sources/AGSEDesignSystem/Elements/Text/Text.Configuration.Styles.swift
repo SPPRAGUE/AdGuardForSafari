@@ -36,7 +36,9 @@ extension Text.Configuration {
         .init(
             font: Typography.Style.t2CondensedRegular.font,
             color: color,
-            isMultiline: isMultiline
+            isMultiline: isMultiline,
+            alignment: .leading,
+            multilineTextAlignment: .leading
         )
     }
 

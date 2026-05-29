@@ -44,16 +44,14 @@ extension DomainView {
         }
     }
 
-    // MARK: - ButtonConfiguration
+    // MARK: - AttentionConfiguration
 
     public struct AttentionConfiguration {
         public let title: String
-        public let buttonText: String
         public var action: () -> Void
 
-        public init(title: String, buttonText: String, action: @escaping () -> Void) {
+        public init(title: String, action: @escaping () -> Void) {
             self.title = title
-            self.buttonText = buttonText
             self.action = action
         }
     }

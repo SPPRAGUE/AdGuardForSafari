@@ -11,7 +11,7 @@ import Foundation
 
 enum InternalUrlSchemeActionUrl {
     case restart
-    case openSettings
+    case openSettings(page: String? = nil)
     case subscribeFilter
 }
 
@@ -19,11 +19,21 @@ extension InternalUrlSchemeActionUrl {
     enum SubscribeFilterParam {
         static let url: String = "url"
     }
+
+    enum OpenSettingsPageParam {
+        static let page: String = "page"
+    }
 }
 
 extension InternalUrlSchemeActionUrl {
-    private static func makeURL(endpoint: String) -> URL {
-        URL(string: "\(Self.scheme):\(endpoint)")!
+    private static func makeURL(endpoint: String, queryItems: [URLQueryItem] = []) -> URL {
+        var components = URLComponents()
+        components.scheme = Self.scheme
+        components.path = endpoint
+        if !queryItems.isEmpty {
+            components.queryItems = queryItems
+        }
+        return components.url!
     }
     static let scheme = BuildConfig.AG_INTERNAL_URL_SCHEME
 
@@ -31,8 +41,11 @@ extension InternalUrlSchemeActionUrl {
         switch self {
         case .restart:
             Self.makeURL(endpoint: "restart")
-        case .openSettings:
-            Self.makeURL(endpoint: "open_settings")
+        case let .openSettings(page):
+            Self.makeURL(
+                endpoint: "open_settings",
+                queryItems: page.map { [URLQueryItem(name: OpenSettingsPageParam.page, value: $0)] } ?? []
+            )
         case .subscribeFilter:
             Self.makeURL(endpoint: "subscribe_filter")
         }

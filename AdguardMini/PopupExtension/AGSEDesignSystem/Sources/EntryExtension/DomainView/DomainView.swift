@@ -50,9 +50,15 @@ public struct DomainView: View {
 
     @ViewBuilder
     private var attention: some View {
-        PopupAttentionCell(
+        PopupCellButton(
+            isEnabled: true,
             title: self.configuration.attentionConfiguration.title,
-            buttonText: self.configuration.attentionConfiguration.buttonText,
+            leftIcon: SEImage.Popup.attention,
+            rightIcon: SEImage.Popup.arrowRight,
+            leftIconColor: Palette.Icon.attentionIcon,
+            rightIconColor: Palette.Icon.grayIcon,
+            titleColor: Palette.Text.attention,
+            isMultilineTitle: true,
             action: self.configuration.attentionConfiguration.action
         )
     }
@@ -155,7 +161,7 @@ private enum PreviewBuilder {
         adsBlockedText: String? = "2 ads blocked",
         trackersBlockedText: String? = "5 trackers blocked",
         attentionTitle: String = Self.attentionTitle,
-        attentionButtonTitle: String = Self.attentionButtonTitle,
+        attentionButtonTitle: String = Self.attentionTitle,
         blockElementTitle: String = Self.blockElementTitle,
         reportAnIssueTitle: String = Self.reportAnIssueTitle,
 //        rateAdguardMiniConfiguration: String = Self.rateAdguardMiniConfiguration
@@ -179,10 +185,9 @@ private enum PreviewBuilder {
                     adsBlockedText: isProtectionEnabled ? adsBlockedText : nil,
                     trackersBlockedText: isProtectionEnabled ? trackersBlockedText : nil,
                     attentionConfiguration: .init(
-                        title: attentionTitle,
-                        buttonText: attentionButtonTitle
+                        title: attentionTitle
                     ) {
-                        print("\(attentionButtonTitle) clicked")
+                        print("\(attentionTitle) clicked")
                     },
                     blockElementConfiguration: .init(
                         title: blockElementTitle
@@ -208,8 +213,7 @@ private enum PreviewBuilder {
 
     static let defaultDomain = "fonts.google.com"
     static let defaultHint = "Protection is off for this website as it may interfere with its operation"
-    static let attentionTitle = "Some extensions are off"
-    static let attentionButtonTitle = "Some extensions are off"
+    static let attentionTitle = "Still seeing ads? Learn how to fix this"
     static let blockElementTitle = "Block element"
     static let reportAnIssueTitle = "Report an issue"
     static let oneAdBlocked = "1 ad blocked"

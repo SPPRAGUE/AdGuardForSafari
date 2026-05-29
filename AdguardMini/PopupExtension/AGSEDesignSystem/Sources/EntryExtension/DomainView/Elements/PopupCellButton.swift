@@ -34,8 +34,12 @@ struct PopupCellButton: View {
 
     var title: String
     var leftIcon: Image
+    var rightIcon: Image?
 
     var leftIconColor: StatefulColor
+    var rightIconColor: StatefulColor?
+    var titleColor: StatefulColor = Palette.Text.mainText
+    var isMultilineTitle: Bool = false
     var backgroundColor: StatefulColor = Constants.backgroundColor
 
     var action: () -> Void = {}
@@ -58,9 +62,13 @@ struct PopupCellButton: View {
                 configuration: .primary(
                     content: .init(
                         title: self.title,
-                        leftIcon: self.leftIcon
+                        leftIcon: self.leftIcon,
+                        rightIcon: self.rightIcon
                     ),
                     leftIconColor: self.leftIconColor,
+                    rightIconColor: self.rightIconColor,
+                    titleColor: self.titleColor,
+                    isMultilineTitle: self.isMultilineTitle,
                     isEnabled: self.isEnabled
                 )
             )
@@ -71,41 +79,63 @@ struct PopupCellButton: View {
 
 // MARK: - PopupCellButton_Previews
 
-struct PopupCellButton_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 8) {
-            PopupCellButton(
-                isEnabled: true,
-                title: "Block element",
-                leftIcon: SEImage.Popup.target,
-                leftIconColor: Palette.Icon.errorIcon,
-                backgroundColor: Constants.backgroundColor
-            )
+#Preview {
+    VStack(spacing: 8) {
+        PopupCellButton(
+            isEnabled: true,
+            title: "Block element",
+            leftIcon: SEImage.Popup.target,
+            leftIconColor: Palette.Icon.errorIcon,
+            backgroundColor: Constants.backgroundColor
+        )
 
-            PopupCellButton(
-                isEnabled: false,
-                title: "Block element",
-                leftIcon: SEImage.Popup.target,
-                leftIconColor: Palette.Icon.errorIcon,
-                backgroundColor: Constants.backgroundColor
-            )
+        PopupCellButton(
+            isEnabled: false,
+            title: "Block element",
+            leftIcon: SEImage.Popup.target,
+            leftIconColor: Palette.Icon.errorIcon,
+            backgroundColor: Constants.backgroundColor
+        )
 
-            PopupCellButton(
-                isEnabled: true,
-                title: "Report an issue",
-                leftIcon: SEImage.Popup.dislike,
-                leftIconColor: Palette.Icon.productTertiaryIcon,
-                backgroundColor: Constants.backgroundColor
-            )
+        PopupCellButton(
+            isEnabled: true,
+            title: "Report an issue",
+            leftIcon: SEImage.Popup.dislike,
+            leftIconColor: Palette.Icon.productTertiaryIcon,
+            backgroundColor: Constants.backgroundColor
+        )
 
-            PopupCellButton(
-                isEnabled: false,
-                title: "Report an issue",
-                leftIcon: SEImage.Popup.dislike,
-                leftIconColor: Palette.Icon.productTertiaryIcon,
-                backgroundColor: Constants.backgroundColor
-            )
-        }
-        .frame(width: 320)
+        PopupCellButton(
+            isEnabled: false,
+            title: "Report an issue",
+            leftIcon: SEImage.Popup.dislike,
+            leftIconColor: Palette.Icon.productTertiaryIcon,
+            backgroundColor: Constants.backgroundColor
+        )
+
+        PopupCellButton(
+            isEnabled: true,
+            title: "Still seeing ads? Learn how to fix this",
+            leftIcon: SEImage.Popup.attention,
+            rightIcon: SEImage.Popup.arrowRight,
+            leftIconColor: Palette.Icon.attentionIcon,
+            rightIconColor: Palette.Icon.grayIcon,
+            titleColor: Palette.Text.attention,
+            isMultilineTitle: true,
+            backgroundColor: Constants.backgroundColor
+        )
+
+        PopupCellButton(
+            isEnabled: false,
+            title: "Still seeing ads? Learn how to fix this",
+            leftIcon: SEImage.Popup.attention,
+            rightIcon: SEImage.Popup.arrowRight,
+            leftIconColor: Palette.Icon.attentionIcon,
+            rightIconColor: Palette.Icon.grayIcon,
+            titleColor: Palette.Text.attention,
+            isMultilineTitle: true,
+            backgroundColor: Constants.backgroundColor
+        )
     }
+    .frame(width: 320)
 }

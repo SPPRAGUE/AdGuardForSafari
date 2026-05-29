@@ -39,5 +39,12 @@ extension Palette {
             pressedColor: Palette.strokeIconsProductTertiaryIconDefault,
             hoveredColor: Palette.strokeIconsProductTertiaryIconDefault
         )
+
+        static let grayIcon = StatefulColor(
+            enabledColor: Palette.strokeIconsGrayIconsDefault,
+            disabledColor: Palette.strokeIconsGrayIconsDisabled,
+            pressedColor: Palette.strokeIconsGrayIconsDefault,
+            hoveredColor: Palette.strokeIconsGrayIconsDefault
+        )
     }
 }

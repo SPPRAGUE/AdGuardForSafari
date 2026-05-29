@@ -8,6 +8,7 @@ import { Text } from 'Modules/common/components';
 import { useNotificationSomethingWentWrongText, useSettingsStore } from 'SettingsLib/hooks';
 
 import { HealthCheckCard } from './HealthCheckCard';
+import { HealthCheckDismissId } from './HealthCheckDismissId';
 
 /**
  * Displays a health check card when ad blocking is disabled.
@@ -40,7 +41,10 @@ function AdBlockingDisabledCardComponent() {
                 </Text>
             )}
             title={translate('safari.protection.health.ad.blocking')}
-            onClose={() => settings.updateHealthCheckDismissedCards([...dissmissedHealthCheckCards, 'adBlockingDisabled'])}
+            onClose={() => settings.updateHealthCheckDismissedCards([
+                ...dissmissedHealthCheckCards,
+                HealthCheckDismissId.AdBlockingDisabled,
+            ])}
         />
     );
 }

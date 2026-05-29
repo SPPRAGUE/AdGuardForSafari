@@ -17,7 +17,7 @@ extension Store {
         var onboardingStatus: OnboardingStatus
         var protectionEnabled: Bool
         var protectionEnabledForCurrentUrl: Bool
-        var allExtensionsEnabled: Bool
+        var hasHealthCheckAttention: Bool
         var xpcAvailable: Bool
 
         var tabStats: TabStats
@@ -35,7 +35,7 @@ extension Store {
             onboardingStatus: .unknown,
             protectionEnabled: false,
             protectionEnabledForCurrentUrl: true,
-            allExtensionsEnabled: true,
+            hasHealthCheckAttention: false,
             xpcAvailable: true,
             tabStats: TabStats(),
             tabContext: .empty,

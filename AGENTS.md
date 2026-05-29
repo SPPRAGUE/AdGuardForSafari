@@ -150,18 +150,27 @@ adguard-mini/
 
 ### Platform (Swift/Xcode)
 
-- Build via Xcode: open `AdguardMini/AdguardMini.xcodeproj` and build (Sciter
-  UI is built automatically as an Xcode target dependency)
+- **Preferred (Xcode MCP)**: Use `BuildProject` with
+  `tabIdentifier` from `XcodeListWindows`. Requires the Xcode project to be
+  open.
+- **Fallback (terminal)**: `bin/fastlane build` or
+  `xcodebuild -project AdguardMini/AdguardMini.xcodeproj -scheme AdguardMini build`
+- Sciter UI is built automatically as an Xcode target dependency.
 
 ### Testing
 
-- Run XCTest suite from Xcode (target: `AdguardMiniTests`)
-- `bin/fastlane test` - Run tests via Fastlane
+- **Preferred (Xcode MCP)**: Use `RunSomeTests` / `RunAllTests` with
+  `tabIdentifier` from `XcodeListWindows`. Note: the active scheme's test plan
+  must include `AdguardMiniTests`; if `GetTestList` returns 0 tests, fall back
+  to the terminal method.
+- **Fallback (terminal)**: `bin/fastlane test`
 
 ### Linting
 
-- Swift: SwiftLint (config at `AdguardMini/.swiftlint.yml`)
-- TypeScript: ESLint (config at `AdguardMini/sciter-ui/scripts/lint/prod.mjs`)
+- Swift: `swiftlint lint --config .swiftlint.yml --working-directory AdguardMini`
+  (config: `AdguardMini/.swiftlint.yml`)
+- TypeScript: `yarn lint`
+  (config: `AdguardMini/sciter-ui/scripts/lint/prod.mjs`)
 - Pre-commit hook via Husky runs `lint-staged` on TypeScript files
 
 ### Localization
@@ -196,6 +205,16 @@ You MUST follow the following rules for EVERY task that you perform:
 
 - You MUST run `yarn lint` and verify no new ESLint errors are introduced in
   changed TypeScript files.
+
+- You MUST run `swiftlint lint --config .swiftlint.yml --working-directory AdguardMini`
+  and verify no new SwiftLint warnings or errors are introduced in changed
+  Swift files.
+
+- You MUST build the project (see "Platform" section) and verify it compiles
+  without new errors after making Swift changes.
+
+- You MUST run tests (see "Testing" section) and verify no test failures
+  after making Swift changes.
 
 - When making changes to the project structure, ensure the Project Structure
   section in `AGENTS.md` is updated and remains valid.
@@ -261,7 +280,19 @@ You MUST follow the following rules for EVERY task that you perform:
    - Use SPDX license headers, not legacy `Created by` / `Copyright` headers
    - `inclusive_language` is an error
    - No redundant boolean conditions (`== true`, `== false`)
-   - Capitalize the first word in comments
+   - Capitalize the first word in comments. In multi-line `//` comments,
+     each continuation line is checked independently — restructure lines so
+     that every `//` line begins with a capitalized word (or a code reference
+     in backticks):
+     ```swift
+     // Good: restructure so each `//` line starts with a capital letter.
+     // `SMCopyAllJobDictionaries` is the only way to query login item status.
+     // It is deprecated, but there is no alternative on macOS < 13.
+
+     // Bad: second line starts with a lowercase word.
+     // `SMCopyAllJobDictionaries` is deprecated but is the only way
+     // to query login item status on macOS < 13 without side effects.
+     ```
    - Analyzer rules enabled: `unused_declaration`, `unused_import`,
      `capture_variable`, `typesafe_array_init`
    - Every `// swiftlint:disable` command MUST be preceded by a plain

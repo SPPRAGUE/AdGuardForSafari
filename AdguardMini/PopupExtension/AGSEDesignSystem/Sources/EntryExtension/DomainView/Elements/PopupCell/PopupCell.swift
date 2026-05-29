@@ -36,7 +36,7 @@ struct PopupCell: View {
         let content = self.configuration.content
         let appearance = self.configuration.appearance
 
-        HStack(spacing: Space.compact) {
+        HStack(alignment: .top, spacing: Space.compact) {
             content.leftIcon
                 .foregroundColor(
                     self.configuration.isEnabled
@@ -54,6 +54,15 @@ struct PopupCell: View {
                 .accessibility(hint: Text(content.subtitleLines.joined(separator: "\n")))
                 .accessibility(hidden: self.titleAccessibilityHidden)
             Spacer()
+            if let rightIcon = content.rightIcon, let rightIconColor = appearance.rightIconColor {
+                rightIcon
+                    .foregroundColor(
+                        self.configuration.isEnabled
+                        ? rightIconColor.enabledColor
+                        : rightIconColor.disabledColor
+                    )
+                    .accessibility(hidden: true)
+            }
         }
     }
 
@@ -73,27 +82,40 @@ struct PopupCell: View {
     }
 }
 
-struct PopupCell_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            PopupCell(
-                configuration: .init(
-                    content: .init(
-                        title: "fonts.google.com",
-                        subtitleLines: ["Protection is off for this website as it may interfere with its operation"],
-                        leftIcon: SEImage.Popup.webBrowsingSecurity
+#Preview {
+    VStack {
+        PopupCell(
+            configuration: .init(
+                content: .init(
+                    title: "fonts.google.com",
+                    subtitleLines: ["Protection is off for this website as it may interfere with its operation"],
+                    leftIcon: SEImage.Popup.webBrowsingSecurity
+                ),
+                appearance: .init(
+                    titleConfiguration: .domain(),
+                    subtitleConfiguration: .subtitle(
+                        alignment: .leading,
+                        multilineTextAlignment: .leading
                     ),
-                    appearance: .init(
-                        titleConfiguration: .domain(),
-                        subtitleConfiguration: .subtitle(
-                            alignment: .leading,
-                            multilineTextAlignment: .leading
-                        ),
-                        leftIconColor: Palette.Icon.productIcon
-                    )
+                    leftIconColor: Palette.Icon.productIcon
                 )
             )
-        }
-        .frame(width: 320)
+        )
+
+        PopupCell(
+            configuration: .primary(
+                content: .init(
+                    title: "Still seeing ads? Learn how to fix this",
+                    leftIcon: SEImage.Popup.attention,
+                    rightIcon: SEImage.Popup.arrowRight
+                ),
+                leftIconColor: Palette.Icon.attentionIcon,
+                rightIconColor: Palette.Icon.grayIcon,
+                titleColor: Palette.Text.attention,
+                isMultilineTitle: true,
+                isEnabled: true
+            )
+        )
     }
+    .frame(width: 320)
 }

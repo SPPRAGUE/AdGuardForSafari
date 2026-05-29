@@ -14,17 +14,24 @@ extension PopupCell.Configuration {
     static func primary(
         content: Content,
         leftIconColor: StatefulColor,
+        rightIconColor: StatefulColor? = nil,
+        titleColor: StatefulColor = Palette.Text.mainText,
+        isMultilineTitle: Bool = false,
         isEnabled: Bool
     ) -> Self {
         .init(
             content: content,
             appearance: .init(
-                titleConfiguration: .popupCell(),
+                titleConfiguration: .popupCell(
+                    color: titleColor,
+                    isMultiline: isMultilineTitle
+                ),
                 subtitleConfiguration: .subtitle(
                     alignment: .leading,
                     multilineTextAlignment: .leading
                 ),
-                leftIconColor: leftIconColor
+                leftIconColor: leftIconColor,
+                rightIconColor: rightIconColor
             ),
             isEnabled: isEnabled
         )

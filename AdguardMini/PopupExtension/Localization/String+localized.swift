@@ -23,15 +23,10 @@ extension String.localized
         /** Domain view - Domain Item hint "Website protection disabled" */
         static public let item_hint_domain_protection_off : String = { .localized.string ("item_hint_domain_protection_off", in: "Localizable") }()
 
-        /** `"Some extensions are off"` */
+        /** `"Still seeing ads? Learn how to fix this"` */
         /** */
-        /** Domain view - Item title "Some extensions are off" */
-        static public let item_attention_title_extensions_off : String = { .localized.string ("item_attention_title_extensions_off", in: "Localizable") }()
-
-        /** `"Fix it"` */
-        /** */
-        /** Domain view - Item button title "Fix it" */
-        static public let item_attention_button_title_fix_it : String = { .localized.string ("item_attention_button_title_fix_it", in: "Localizable") }()
+        /** Domain view - Item title "Still seeing ads? Learn how to fix this" */
+        static public let item_attention_title_health_check_trouble : String = { .localized.string ("item_attention_title_health_check_trouble", in: "Localizable") }()
 
         /** `"Block element"` */
         /** */

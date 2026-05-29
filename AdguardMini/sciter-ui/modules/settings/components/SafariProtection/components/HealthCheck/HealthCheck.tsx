@@ -14,6 +14,7 @@ import {
     BackgroundDisabledCard,
     ExtensionsBrokenCard,
     ExtensionsDisabledCard,
+    HealthCheckDismissId,
     NoUpdatesCard,
     RulesLimitExceededCard,
 } from './components';
@@ -78,15 +79,16 @@ function HealthCheckComponent({ setShowConsent }: HealthCheckProps) {
         hasRulesLimitExceeded && (
             <RulesLimitExceededCard key="rulesLimitExceeded" />
         ),
-        lastUpdateMoreSevenDays && !dissmissedHealthCheckCards.has('noUpdates') && (
-            <NoUpdatesCard key="noUpdates" />
+        lastUpdateMoreSevenDays && !dissmissedHealthCheckCards.has(HealthCheckDismissId.NoUpdates) && (
+            <NoUpdatesCard key={HealthCheckDismissId.NoUpdates} />
         ),
-        hasAdBlockingDisabled && !dissmissedHealthCheckCards.has('adBlockingDisabled') && (
-            <AdBlockingDisabledCard key="adBlockingDisabled" />
+        hasAdBlockingDisabled && !dissmissedHealthCheckCards.has(HealthCheckDismissId.AdBlockingDisabled) && (
+            <AdBlockingDisabledCard key={HealthCheckDismissId.AdBlockingDisabled} />
         ),
-        hasAnnoyanceBlockingDisabled && !dissmissedHealthCheckCards.has('annoyanceBlockingDisabled') && (
+        hasAnnoyanceBlockingDisabled
+        && !dissmissedHealthCheckCards.has(HealthCheckDismissId.AnnoyanceBlockingDisabled) && (
             <AnnoyanceBlockingDisabledCard
-                key="annoyanceBlockingDisabled"
+                key={HealthCheckDismissId.AnnoyanceBlockingDisabled}
                 setShowConsent={setShowConsent}
             />
         ),

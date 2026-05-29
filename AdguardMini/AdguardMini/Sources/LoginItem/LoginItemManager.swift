@@ -15,6 +15,7 @@ import AML
 // MARK: - LoginItemManager
 
 protocol LoginItemManager {
+    func checkHelperStatus() -> LoginItemManagerRegisterStatus
     func checkAndRegisterHelper() -> LoginItemManagerRegisterStatus
 }
 
@@ -24,6 +25,13 @@ final class LoginItemManagerImpl: LoginItemManager {
     @available(macOS 13.0, *)
     private var helperLoginItem: SMAppService {
         SMAppService.loginItem(identifier: BuildConfig.AG_HELPER_ID)
+    }
+
+    func checkHelperStatus() -> LoginItemManagerRegisterStatus {
+        guard #available(macOS 13.0, *) else {
+            return self.legacyCheckHelperStatus()
+        }
+        return self.helperLoginItem.status.registerStatus
     }
 
     func checkAndRegisterHelper() -> LoginItemManagerRegisterStatus {
@@ -50,13 +58,13 @@ final class LoginItemManagerImpl: LoginItemManager {
             LogDebug("Helper requires approval")
         case .enabled:
             LogDebug("Helper status: enabled")
-            status = self.modernRegisterHelperItem(reregister: true)
+            status = self.modernRegisterHelperItem()
         }
         return status
     }
 
     @available(macOS 13.0, *)
-    private func modernRegisterHelperItem(reregister: Bool = false) -> LoginItemManagerRegisterStatus {
+    private func modernRegisterHelperItem() -> LoginItemManagerRegisterStatus {
         do {
             do {
                 try self.helperLoginItem.unregister()
@@ -72,7 +80,18 @@ final class LoginItemManagerImpl: LoginItemManager {
 
     // MARK: Legacy section
 
-    @available(macOS, deprecated: 13.0, message: "Please use SMAppService instead")
+    @available(macOS, obsoleted: 13.0, message: "Please use SMAppService instead")
+    private func legacyCheckHelperStatus() -> LoginItemManagerRegisterStatus {
+        // `SMCopyAllJobDictionaries` is the only way to query login item status.
+        // It is deprecated, but there is no alternative on macOS < 13.
+        guard let jobs = SMCopyAllJobDictionaries(kSMDomainUserLaunchd)?.takeRetainedValue() as? [[String: Any]] else {
+            return .notRegistered
+        }
+        let isEnabled = jobs.contains { ($0["Label"] as? String) == BuildConfig.AG_HELPER_ID }
+        return isEnabled ? .enabled : .notRegistered
+    }
+
+    @available(macOS, obsoleted: 13.0, message: "Please use SMAppService instead")
     private func legacyCheckAndRegisterHelper() -> Bool {
         SMLoginItemSetEnabled(BuildConfig.AG_HELPER_ID as CFString, false)
         return SMLoginItemSetEnabled(BuildConfig.AG_HELPER_ID as CFString, true)

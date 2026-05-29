@@ -22,7 +22,7 @@ protocol MainAppDiscovery {
     func checkMainAppIsRunning() -> Bool
     func runMainApplication()
     func restartMainApplication() async throws
-    func openSettings() async throws
+    func openSettings(page: String?) async throws
     func subscribeCustomFilter(_ url: String) async throws
 }
 
@@ -48,9 +48,9 @@ final class MainAppDiscoveryImpl: MainAppDiscovery {
         try await self.openUrl(actionRestartUrl)
     }
 
-    func openSettings() async throws {
-        let actionOpenSettingsUrl = InternalUrlSchemeActionUrl.openSettings.url
-        try await self.openUrl(actionOpenSettingsUrl)
+    func openSettings(page: String?) async throws {
+        let actionUrl = InternalUrlSchemeActionUrl.openSettings(page: page).url
+        try await self.openUrl(actionUrl)
     }
 
     func subscribeCustomFilter(_ url: String) async throws {

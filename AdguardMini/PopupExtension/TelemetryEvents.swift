@@ -11,7 +11,7 @@ enum Telemetry {
     enum Screen: String {
         case main = "safari_popup_main"
         case protectionDisabled = "safari_popup_protection_disabled"
-        case extensionsOff = "safari_popup_extensions_off"
+        case healthCheckAttention = "safari_popup_health_check_attention"
         case failedEnableProtection = "safari_popup_failed_enable_protection"
     }
 

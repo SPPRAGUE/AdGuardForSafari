@@ -4,11 +4,8 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Website protection disabled";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Some extensions are off";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Fix it";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Still seeing ads? Learn how to fix this";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Block element";

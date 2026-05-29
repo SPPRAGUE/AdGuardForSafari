@@ -74,7 +74,7 @@ struct PopupView: View {
             configuration: .init(
                 state: .init(
                     isDisabled: self.viewState.isBusy || self.viewState.isSystemPage,
-                    hasAttention: !self.viewState.isAllExtensionsEnabled
+                    hasAttention: self.viewState.hasHealthCheckAttention
                 ),
                 domain: self.viewState.domain,
                 hint: self.viewState.isSystemPage
@@ -89,8 +89,7 @@ struct PopupView: View {
                     format: .localized.base.item_stats_trackers_blocked
                 ),
                 attentionConfiguration: .init(
-                    title: .localized.base.item_attention_title_extensions_off,
-                    buttonText: .localized.base.item_attention_button_title_fix_it,
+                    title: .localized.base.item_attention_title_health_check_trouble,
                     action: self.viewState.fixItClicked
                 ),
                 blockElementConfiguration: .init(

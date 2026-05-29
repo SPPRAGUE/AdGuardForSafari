@@ -27,6 +27,8 @@ private enum CancellationCategory: Hashable {
     case safariSettings
     case settings
     case report
+    case healthCheck
+    case preparePopup
 }
 
 private extension Store.Effect {
@@ -41,6 +43,8 @@ private extension Store.Effect {
         case .openSafariSettings:       .safariSettings
         case .openSettings:             .settings
         case .reportSite:               .report
+        case .refreshHealthCheck:       .healthCheck
+        case .preparePopup:             .preparePopup
         case .openUrlInNewTab,
              .openUrlWithSystemHandler,
              .requestToolbarUpdate,
@@ -174,10 +178,14 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
             return await self.executeRestartMainApp()
         case .openSafariSettings:
             return await self.executeOpenSafariSettings()
-        case .openSettings:
-            return await self.executeOpenSettings()
+        case let .openSettings(page):
+            return await self.executeOpenSettings(page: page)
         case let .reportSite(url):
             return await self.executeReportSite(url: url)
+        case .refreshHealthCheck:
+            return await self.executeRefreshHealthCheck()
+        case .preparePopup:
+            return await self.executePreparePopup()
         case let .openUrlWithSystemHandler(url):
             NSWorkspace.shared.open(url)
             return nil
@@ -236,7 +244,6 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
     private func executeRefreshPrereqs(tabUrl: String) async -> Store.Action? {
         do {
             let onboardingCompleted = try await self.safariApi.isOnboardingCompleted()
-            let allExtensionsEnabled = try await self.safariApi.isAllExtensionsEnabled()
 
             let isFilteringEnabled: Bool
             if tabUrl.isEmpty {
@@ -248,7 +255,6 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
 
             return .prereqsRefreshed(
                 onboardingCompleted: onboardingCompleted,
-                allExtensionsEnabled: allExtensionsEnabled,
                 tabUrl: tabUrl,
                 isFilteringEnabled: isFilteringEnabled
             )
@@ -256,6 +262,22 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
             let isXpcUnavailable = (error as? ExtensionSafariApiClientErrorCode) == .linkTimeout
             return .prereqsRefreshSkipped(isXpcUnavailable: isXpcUnavailable)
         }
+    }
+
+    private func executeRefreshHealthCheck() async -> Store.Action? {
+        do {
+            let hasAttention = try await self.safariApi.hasHealthCheckAttention()
+            return .healthCheckRefreshed(hasAttention: hasAttention)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Fetches health-check status and returns `.popupReady`,
+    /// guaranteeing an action even on XPC failure (defaults to `false`).
+    private func executePreparePopup() async -> Store.Action? {
+        let hasAttention = (try? await self.safariApi.hasHealthCheckAttention()) ?? false
+        return .popupReady(hasHealthCheckAttention: hasAttention)
     }
 
     private func executeRestartMainApp() async -> Store.Action {
@@ -276,9 +298,9 @@ final class EffectRunner: EffectRunning, @unchecked Sendable {
         }
     }
 
-    private func executeOpenSettings() async -> Store.Action {
+    private func executeOpenSettings(page: String?) async -> Store.Action {
         do {
-            try await self.mainAppDiscovery.openSettings()
+            try await self.mainAppDiscovery.openSettings(page: page)
             return .openSettingsCompleted(nil)
         } catch {
             return .openSettingsCompleted(.openSettingsFailed)

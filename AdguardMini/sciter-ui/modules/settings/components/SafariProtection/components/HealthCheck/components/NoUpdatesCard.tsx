@@ -9,6 +9,7 @@ import { Text } from 'Modules/common/components';
 import { useSettingsStore } from 'SettingsLib/hooks';
 
 import { HealthCheckCard } from './HealthCheckCard';
+import { HealthCheckDismissId } from './HealthCheckDismissId';
 
 /**
  * Displays a health check card when filter rules haven't been updated for more than 7 days.
@@ -37,7 +38,10 @@ function NoUpdatesCardComponent() {
                 </Text>
             )}
             title={translate('safari.protection.health.updates')}
-            onClose={() => settings.updateHealthCheckDismissedCards([...dissmissedHealthCheckCards, 'noUpdates'])}
+            onClose={() => settings.updateHealthCheckDismissedCards([
+                ...dissmissedHealthCheckCards,
+                HealthCheckDismissId.NoUpdates,
+            ])}
         />
     );
 }

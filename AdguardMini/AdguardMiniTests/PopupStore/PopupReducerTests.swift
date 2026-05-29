@@ -35,7 +35,7 @@ final class PopupReducerTests: XCTestCase {
         onboardingStatus: Store.OnboardingStatus = .completed,
         protectionEnabled: Bool = true,
         protectionEnabledForCurrentUrl: Bool = true,
-        allExtensionsEnabled: Bool = true,
+        hasHealthCheckAttention: Bool = false,
         xpcAvailable: Bool = true,
         tabStats: TabStats = TabStats(),
         tabContext: Store.TabContext = .empty,
@@ -49,7 +49,7 @@ final class PopupReducerTests: XCTestCase {
             onboardingStatus: onboardingStatus,
             protectionEnabled: protectionEnabled,
             protectionEnabledForCurrentUrl: protectionEnabledForCurrentUrl,
-            allExtensionsEnabled: allExtensionsEnabled,
+            hasHealthCheckAttention: hasHealthCheckAttention,
             xpcAvailable: xpcAvailable,
             tabStats: tabStats,
             tabContext: tabContext,
@@ -282,25 +282,25 @@ final class PopupReducerTests: XCTestCase {
     func testFixItTappedEmitsOpenSafariSettings() {
         let initial = self.state()
         let (next, effects) = PopupReducer.reduce(state: initial, action: .fixItTapped)
-        XCTAssertEqual(next.inFlight, .openingSafariSettings)
+        XCTAssertEqual(next.inFlight, .openingSettings)
         XCTAssertEqual(
             effects,
             [
-                .openSafariSettings,
+                .openSettings(page: "safari_protection"),
                 .sendTelemetry(.action(.fixItPopupClick, screen: .main))
             ]
         )
     }
 
     func testBlockElementTappedEmitsScriptDispatchAndTelemetry() {
-        let initial = self.state(allExtensionsEnabled: false)
+        let initial = self.state(hasHealthCheckAttention: true)
         let (next, effects) = PopupReducer.reduce(state: initial, action: .blockElementTapped)
         XCTAssertEqual(next, initial)
         XCTAssertEqual(
             effects,
             [
                 .dispatchPageScriptMessage(name: "blockElementPing"),
-                .sendTelemetry(.action(.blockElementPopupClick, screen: .extensionsOff))
+                .sendTelemetry(.action(.blockElementPopupClick, screen: .healthCheckAttention))
             ]
         )
     }
@@ -347,7 +347,7 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .openSettings,
+                .openSettings(),
                 .sendTelemetry(.action(.settingPopupClick, screen: .protectionDisabled))
             ]
         )
@@ -359,7 +359,7 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .openSettings,
+                .openSettings(),
                 .sendTelemetry(.action(.settingPopupClick, screen: .main))
             ]
         )
@@ -409,7 +409,7 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .openSettings,
+                .openSettings(),
                 .sendTelemetry(.action(.settingPopupClick, screen: .main))
             ]
         )
@@ -556,7 +556,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: "",
                 isFilteringEnabled: true
             )
@@ -774,13 +773,11 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: false,
                 tabUrl: "",
                 isFilteringEnabled: true
             )
         )
         XCTAssertEqual(next.onboardingStatus, .completed)
-        XCTAssertFalse(next.allExtensionsEnabled)
         // OnboardingStatus did not change → no toolbar update
         XCTAssertTrue(effects.isEmpty)
     }
@@ -797,7 +794,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: "",
                 isFilteringEnabled: true
             )
@@ -812,7 +808,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: false,
-                allExtensionsEnabled: true,
                 tabUrl: "",
                 isFilteringEnabled: true
             )
@@ -834,7 +829,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: url.absoluteString,
                 isFilteringEnabled: false
             )
@@ -858,7 +852,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: url.absoluteString,
                 isFilteringEnabled: false
             )
@@ -882,7 +875,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: url.absoluteString,
                 isFilteringEnabled: false
             )
@@ -898,7 +890,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: "",
                 isFilteringEnabled: false // should be ignored for empty URL
             )
@@ -922,7 +913,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: url.absoluteString,
                 isFilteringEnabled: true
             )
@@ -947,7 +937,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: staleUrl.absoluteString,
                 isFilteringEnabled: false
             )
@@ -965,7 +954,7 @@ final class PopupReducerTests: XCTestCase {
     func testPrereqsRefreshSkippedDoesNotMutateState() {
         let initial = self.state(
             onboardingStatus: .notCompleted,
-            allExtensionsEnabled: false,
+            hasHealthCheckAttention: true,
             pausedUrls: [Constants.siteAURL.absoluteString]
         )
 
@@ -981,7 +970,7 @@ final class PopupReducerTests: XCTestCase {
     func testPrereqsRefreshSkippedLinkTimeoutSetsXpcUnavailable() {
         let initial = self.state(
             onboardingStatus: .completed,
-            allExtensionsEnabled: true
+            hasHealthCheckAttention: false
         )
 
         let (next, effects) = PopupReducer.reduce(
@@ -1012,7 +1001,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: true,
-                allExtensionsEnabled: true,
                 tabUrl: url.absoluteString,
                 isFilteringEnabled: false
             )
@@ -1027,14 +1015,13 @@ final class PopupReducerTests: XCTestCase {
 
     // MARK: pageView session invariant
 
-    func testPopupOpenedEmitsPageViewAndNotifyWindowOpened() {
+    func testPopupOpenedEmitsOnlyNotifyWindowOpened() {
         let initial = self.state() // .domain layout
         let (_, effects) = PopupReducer.reduce(
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.main))))
+        XCTAssertEqual(effects, [.notifyWindowOpened])
     }
 
     func testPopupOpenedOnNonTelemetryLayoutEmitsOnlyNotifyWindowOpened() {
@@ -1043,14 +1030,13 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertFalse(effects.contains(.sendTelemetry(.pageView(.main))))
+        XCTAssertEqual(effects, [.notifyWindowOpened])
     }
 
     // MARK: inFlight guards — non-toggle user actions
 
     func testFixItTappedIgnoredWhileInFlight() {
-        let initial = self.state(inFlight: .openingSafariSettings)
+        let initial = self.state(inFlight: .openingSettings)
         let (next, effects) = PopupReducer.reduce(state: initial, action: .fixItTapped)
         XCTAssertEqual(next, initial)
         XCTAssertTrue(effects.isEmpty)
@@ -1090,12 +1076,12 @@ final class PopupReducerTests: XCTestCase {
         XCTAssertTrue(effects.isEmpty)
     }
 
-    // MARK: Telemetry screen — `.extensionsOff` branch of `mainOrExtensionsOff`
+    // MARK: Telemetry screen — `.healthCheckAttention` branch of `mainOrHealthCheckAttention`
 
-    func testProtectionForUrlToggledTelemetryUsesExtensionsOffWhenAllExtensionsDisabled() {
+    func testProtectionForUrlToggledTelemetryUsesHealthCheckAttentionScreen() {
         let url = Constants.exampleURL
         let initial = self.state(
-            allExtensionsEnabled: false,
+            hasHealthCheckAttention: true,
             tabContext: Store.TabContext(
                 windowToken: nil, url: url, domain: url.host!, isSystemPage: false
             )
@@ -1108,26 +1094,26 @@ final class PopupReducerTests: XCTestCase {
             effects,
             [
                 .setFilteringStatusForUrl(url.absoluteString, enable: false),
-                .sendTelemetry(.action(.protectionPopupClick, screen: .extensionsOff)),
+                .sendTelemetry(.action(.protectionPopupClick, screen: .healthCheckAttention)),
                 .requestToolbarUpdate
             ]
         )
     }
 
-    func testPauseTappedTelemetryUsesExtensionsOffScreen() {
-        let initial = self.state(allExtensionsEnabled: false)
+    func testPauseTappedTelemetryUsesHealthCheckAttentionScreen() {
+        let initial = self.state(hasHealthCheckAttention: true)
         let (_, effects) = PopupReducer.reduce(state: initial, action: .pauseTapped)
         XCTAssertEqual(
             effects,
             [
                 .setProtectionStatus(enable: false),
-                .sendTelemetry(.action(.pauseProtectionPopupClick, screen: .extensionsOff))
+                .sendTelemetry(.action(.pauseProtectionPopupClick, screen: .healthCheckAttention))
             ]
         )
     }
 
     func testBlockElementTappedEmitsScriptDispatchAndTelemetryOnMain() {
-        let initial = self.state() // allExtensionsEnabled defaults to true → screen .main
+        let initial = self.state() // hasHealthCheckAttention defaults to false → screen .main
         let (_, effects) = PopupReducer.reduce(state: initial, action: .blockElementTapped)
         XCTAssertEqual(
             effects,
@@ -1140,44 +1126,80 @@ final class PopupReducerTests: XCTestCase {
 
     // MARK: pageView screen mapping
 
-    func testPopupOpenedOnProtectionDisabledLayoutEmitsProtectionDisabledPageView() {
+    func testPopupOpenedOnProtectionDisabledLayoutEmitsOnlyNotifyWindowOpened() {
         let initial = self.state(protectionEnabled: false)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.protectionDisabled))))
+        XCTAssertEqual(effects, [.notifyWindowOpened])
     }
 
-    func testPopupOpenedOnSomethingWentWrongLayoutEmitsFailedEnableProtectionPageView() {
+    func testPopupOpenedOnSomethingWentWrongLayoutEmitsOnlyNotifyWindowOpened() {
         let initial = self.state(lastError: .launchFailed)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.failedEnableProtection))))
+        XCTAssertEqual(effects, [.notifyWindowOpened])
     }
 
-    func testPopupOpenedOnDomainWithExtensionsOffEmitsExtensionsOffPageView() {
-        let initial = self.state(allExtensionsEnabled: false)
-        let (_, effects) = PopupReducer.reduce(
-            state: initial,
-            action: .popupOpened(openedAt: Constants.referenceDate)
-        )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertTrue(effects.contains(.sendTelemetry(.pageView(.extensionsOff))))
-    }
-
-    func testPopupOpenedOnOnboardingWasntCompletedEmitsNoTelemetry() {
+    func testPopupOpenedOnOnboardingWasntCompletedEmitsOnlyNotifyWindowOpened() {
         let initial = self.state(onboardingStatus: .notCompleted)
         let (_, effects) = PopupReducer.reduce(
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        XCTAssertTrue(effects.contains(.notifyWindowOpened))
-        XCTAssertFalse(effects.contains(.sendTelemetry(.pageView(.main))))
+        XCTAssertEqual(effects, [.notifyWindowOpened])
+    }
+
+    // MARK: popupReady — page-view telemetry after health check
+
+    func testPopupReadyOnDomainLayoutEmitsMainPageView() {
+        let initial = self.state()
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupReady(hasHealthCheckAttention: false)
+        )
+        XCTAssertFalse(next.hasHealthCheckAttention)
+        XCTAssertEqual(effects, [.sendTelemetry(.pageView(.main))])
+    }
+
+    func testPopupReadyWithHealthCheckAttentionEmitsHealthCheckAttentionPageView() {
+        let initial = self.state()
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupReady(hasHealthCheckAttention: true)
+        )
+        XCTAssertTrue(next.hasHealthCheckAttention)
+        XCTAssertEqual(effects, [.sendTelemetry(.pageView(.healthCheckAttention))])
+    }
+
+    func testPopupReadyOnProtectionDisabledLayoutEmitsProtectionDisabledPageView() {
+        let initial = self.state(protectionEnabled: false)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupReady(hasHealthCheckAttention: false)
+        )
+        XCTAssertEqual(effects, [.sendTelemetry(.pageView(.protectionDisabled))])
+    }
+
+    func testPopupReadyOnSomethingWentWrongLayoutEmitsFailedEnableProtectionPageView() {
+        let initial = self.state(lastError: .launchFailed)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupReady(hasHealthCheckAttention: false)
+        )
+        XCTAssertEqual(effects, [.sendTelemetry(.pageView(.failedEnableProtection))])
+    }
+
+    func testPopupReadyOnNonTelemetryLayoutEmitsNoTelemetry() {
+        let initial = self.state(onboardingStatus: .notCompleted)
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupReady(hasHealthCheckAttention: false)
+        )
+        XCTAssertTrue(effects.isEmpty)
     }
 
     // MARK: appStateChanged — boundary and invalid-rawValue cases
@@ -1502,7 +1524,6 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .prereqsRefreshed(
                 onboardingCompleted: false,
-                allExtensionsEnabled: true,
                 tabUrl: "",
                 isFilteringEnabled: true
             )
@@ -1513,9 +1534,48 @@ final class PopupReducerTests: XCTestCase {
         )
     }
 
-    // MARK: popupOpened does not trigger XPC refresh
+    // MARK: healthCheckRefreshed
 
-    func testPopupOpenedDoesNotTriggerXpcRefresh() {
+    func testHealthCheckRefreshedSetsAttention() {
+        let initial = self.state(hasHealthCheckAttention: false)
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .healthCheckRefreshed(hasAttention: true)
+        )
+        XCTAssertTrue(next.hasHealthCheckAttention)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    func testHealthCheckRefreshedClearsAttention() {
+        let initial = self.state(hasHealthCheckAttention: true)
+        let (next, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .healthCheckRefreshed(hasAttention: false)
+        )
+        XCTAssertFalse(next.hasHealthCheckAttention)
+        XCTAssertTrue(effects.isEmpty)
+    }
+
+    // MARK: popupWillShow triggers popup preparation
+
+    func testPopupWillShowTriggersPreparePopup() {
+        let initial = self.state(
+            mainAppRunning: true,
+            tabContext: Store.TabContext(
+                windowToken: nil,
+                url: Constants.exampleURL,
+                domain: "example.com",
+                isSystemPage: false
+            )
+        )
+        let (_, effects) = PopupReducer.reduce(
+            state: initial,
+            action: .popupWillShow
+        )
+        XCTAssertEqual(effects, [.preparePopup])
+    }
+
+    func testPopupOpenedDoesNotTriggerHealthCheckOrPreparePopup() {
         let initial = self.state(
             mainAppRunning: true,
             tabContext: Store.TabContext(
@@ -1529,14 +1589,13 @@ final class PopupReducerTests: XCTestCase {
             state: initial,
             action: .popupOpened(openedAt: Constants.referenceDate)
         )
-        let xpcEffects = effects.filter {
-            if case .refreshAppState = $0 { return true }
-            if case .refreshPrereqs = $0 { return true }
-            return false
-        }
-        XCTAssertTrue(
-            xpcEffects.isEmpty,
-            "popupOpened must not trigger XPC refresh — toolbar validation already did it"
+        XCTAssertFalse(
+            effects.contains(.preparePopup),
+            "popupOpened must not trigger preparePopup — popupWillShow already did it"
+        )
+        XCTAssertFalse(
+            effects.contains(.refreshHealthCheck),
+            "popupOpened must not trigger health check — popupWillShow already did it"
         )
     }
 }

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+export * from './HealthCheckDismissId';
 export * from './HealthCheckCard';
 export * from './ExtensionsDisabledCard';
 export * from './BackgroundDisabledCard';

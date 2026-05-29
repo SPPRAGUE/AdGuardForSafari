@@ -21,7 +21,7 @@ protocol MainAppApi {
     func getCurrentFilteringState(withUrl url: String,
                                   reply: @escaping (EBACurrentFilteringState?, Error?) -> Void)
     func getExtraState(withUrl url: String, reply: @escaping (Bool, Error?) -> Void)
-    func isAllExtensionsEnabled(reply: @escaping (Bool, Error?) -> Void)
+    func hasHealthCheckAttention(reply: @escaping (Bool, Error?) -> Void)
     func isOnboardingCompleted(reply: @escaping (Bool, Error?) -> Void)
     func setProtectionStatus(_ enabled: Bool, reply: @escaping (EBATimestamp, Error?) -> Void)
     func setFilteringStatusWithUrl(_ url: String,

@@ -72,17 +72,19 @@ final class UrlSchemesProcessorImpl: UrlSchemesProcessor {
         case InternalUrlSchemeActionUrl.restart.path:
             LogInfo("Restart app received by deep link.")
             self.appLifecycleService.terminate(restart: true)
-        case InternalUrlSchemeActionUrl.openSettings.path:
+        case InternalUrlSchemeActionUrl.openSettings().path:
             LogInfo("Open settings received by deep link.")
-            self.handleShowSettings()
+            let page = urlComponents.queryItems?
+                .first { $0.name == InternalUrlSchemeActionUrl.OpenSettingsPageParam.page }?
+                .value
+            self.handleShowSettings(page: page)
         case InternalUrlSchemeActionUrl.subscribeFilter.path:
             LogInfo("Subscribe filter settings received by deep link.")
 
             Task {
                 let subscribeFilterParamUrl = InternalUrlSchemeActionUrl.SubscribeFilterParam.url
                 guard let queryItems = urlComponents.queryItems,
-                        let subscribeUrl = queryItems.first(
-                        where: {
+                        let subscribeUrl = queryItems.first(where: {
                             $0.name == subscribeFilterParamUrl
                         })?.value else {
                     LogError("Missing required parameter '\(subscribeFilterParamUrl)' in subscribe filter deep link.")
@@ -131,8 +133,12 @@ final class UrlSchemesProcessorImpl: UrlSchemesProcessor {
         self.handleShowSettings()
     }
 
-    private func handleShowSettings() {
-        let app: AvailableSciterApp = self.userSettings.firstRun ? .onboarding : .settings
+    private func handleShowSettings(page: String? = nil) {
+        let firstRun = self.userSettings.firstRun
+        let app: AvailableSciterApp = firstRun ? .onboarding : .settings
+        if let page, !firstRun {
+            self.eventBus.post(event: .settingsPageRequested, userInfo: page)
+        }
         self.sciterAppController.showApp(app)
     }
 }

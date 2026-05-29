@@ -14,15 +14,18 @@ extension PopupCell.Configuration {
         var title: String
         var subtitleLines: [String] = []
         var leftIcon: Image
+        var rightIcon: Image?
 
         init(
             title: String,
             subtitleLines: [String] = [],
-            leftIcon: Image
+            leftIcon: Image,
+            rightIcon: Image? = nil
         ) {
             self.title = title
             self.subtitleLines = subtitleLines
             self.leftIcon = leftIcon
+            self.rightIcon = rightIcon
         }
     }
 }

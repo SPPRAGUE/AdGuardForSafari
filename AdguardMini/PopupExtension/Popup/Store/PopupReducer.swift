@@ -14,6 +14,7 @@ private enum Constants {
     static let rateUrl = URL(
         string: "https://link.adtidy.org/forward.html?action=appstore&from=options_screen&app=mac-mini"
     )!
+    static let safariProtectionPage = "safari_protection"
 }
 
 /// Pure reducer for the popup. All business logic lives here — no I/O,
@@ -85,15 +86,20 @@ enum PopupReducer {
             return Self.handleReportSiteCompleted(state: state, result: result)
         case let .prereqsRefreshSkipped(isXpcUnavailable):
             return Self.handlePrereqsRefreshSkipped(state: state, isXpcUnavailable: isXpcUnavailable)
-        case let .prereqsRefreshed(onboardingCompleted, allExtensionsEnabled, tabUrl, isFilteringEnabled):
+        case let .prereqsRefreshed(onboardingCompleted, tabUrl, isFilteringEnabled):
             return Self.handlePrereqsRefreshed(
                 state: state,
                 onboardingCompleted: onboardingCompleted,
-                allExtensionsEnabled: allExtensionsEnabled,
                 tabUrl: tabUrl,
                 isFilteringEnabled: isFilteringEnabled
             )
+        case let .healthCheckRefreshed(hasAttention):
+            return Self.handleHealthCheckRefreshed(state: state, hasAttention: hasAttention)
+        case let .popupReady(hasAttention):
+            return Self.handlePopupReady(state: state, hasHealthCheckAttention: hasAttention)
         // MARK: Lifecycle
+        case .popupWillShow:
+            return Self.handlePopupWillShow(state: state)
         case .popupOpened:
             return Self.handlePopupOpened(state: state)
         }
@@ -103,8 +109,8 @@ enum PopupReducer {
 // MARK: - Helpers
 
 private extension PopupReducer {
-    static func mainOrExtensionsOff(_ state: Store.State) -> Telemetry.Screen {
-        state.allExtensionsEnabled ? .main : .extensionsOff
+    static func mainOrHealthCheckAttention(_ state: Store.State) -> Telemetry.Screen {
+        state.hasHealthCheckAttention ? .healthCheckAttention : .main
     }
 
     static func currentLayout(_ state: Store.State) -> Store.PopupLayout {
@@ -120,7 +126,7 @@ private extension PopupReducer {
     static func pageViewEffects(state: Store.State) -> [Store.Effect] {
         let screen: Telemetry.Screen?
         switch currentLayout(state) {
-        case .domain: screen = mainOrExtensionsOff(state)
+        case .domain: screen = mainOrHealthCheckAttention(state)
         case .protectionIsDisabled: screen = .protectionDisabled
         case .somethingWentWrong: screen = .failedEnableProtection
         case .adguardNotLaunched, .xpcUnavailable, .onboardingWasntCompleted: screen = nil
@@ -219,7 +225,7 @@ private extension PopupReducer {
         }
         return (next, [
             .setFilteringStatusForUrl(url, enable: enable),
-            .sendTelemetry(.action(.protectionPopupClick, screen: mainOrExtensionsOff(state)))
+            .sendTelemetry(.action(.protectionPopupClick, screen: mainOrHealthCheckAttention(state)))
         ] + RefreshPolicy.onUrlProtectionToggled())
     }
 
@@ -229,17 +235,17 @@ private extension PopupReducer {
         next.inFlight = .disabling
         return (next, [
             .setProtectionStatus(enable: false),
-            .sendTelemetry(.action(.pauseProtectionPopupClick, screen: mainOrExtensionsOff(state)))
+            .sendTelemetry(.action(.pauseProtectionPopupClick, screen: mainOrHealthCheckAttention(state)))
         ])
     }
 
     static func handleFixItTapped(state: Store.State) -> (Store.State, [Store.Effect]) {
         guard state.inFlight == nil else { return (state, []) }
         var next = state
-        next.inFlight = .openingSafariSettings
+        next.inFlight = .openingSettings
         return (next, [
-            .openSafariSettings,
-            .sendTelemetry(.action(.fixItPopupClick, screen: mainOrExtensionsOff(state)))
+            .openSettings(page: Constants.safariProtectionPage),
+            .sendTelemetry(.action(.fixItPopupClick, screen: mainOrHealthCheckAttention(state)))
         ])
     }
 
@@ -247,7 +253,7 @@ private extension PopupReducer {
         // Telemetry tracks the tap. Dismiss is deferred until the page-found completion.
         (state, [
             .dispatchPageScriptMessage(name: "blockElementPing"),
-            .sendTelemetry(.action(.blockElementPopupClick, screen: mainOrExtensionsOff(state)))
+            .sendTelemetry(.action(.blockElementPopupClick, screen: mainOrHealthCheckAttention(state)))
         ])
     }
 
@@ -260,7 +266,7 @@ private extension PopupReducer {
         next.inFlight = .reporting
         return (next, [
             .reportSite(url: url),
-            .sendTelemetry(.action(.reportIssueClick, screen: mainOrExtensionsOff(state)))
+            .sendTelemetry(.action(.reportIssueClick, screen: mainOrHealthCheckAttention(state)))
         ])
     }
 
@@ -269,7 +275,7 @@ private extension PopupReducer {
         (state, [
             .dismissPopover,
             .openUrlWithSystemHandler(Constants.rateUrl),
-            .sendTelemetry(.action(.rateMiniPopupClick, screen: mainOrExtensionsOff(state)))
+            .sendTelemetry(.action(.rateMiniPopupClick, screen: mainOrHealthCheckAttention(state)))
         ])
     }
 
@@ -279,9 +285,9 @@ private extension PopupReducer {
         next.inFlight = .openingSettings
         let screen: Telemetry.Screen = currentLayout(state) == .protectionIsDisabled
             ? .protectionDisabled
-            : mainOrExtensionsOff(state)
+            : mainOrHealthCheckAttention(state)
         return (next, [
-            .openSettings,
+            .openSettings(),
             .sendTelemetry(.action(.settingPopupClick, screen: screen))
         ])
     }
@@ -312,8 +318,8 @@ private extension PopupReducer {
             next.inFlight = .openingSettings
             // Dismiss is deferred to `handleOpenSettingsCompleted` so the user can see an error state if opening settings fails.
             return (next, [
-                .openSettings,
-                .sendTelemetry(.action(.settingPopupClick, screen: mainOrExtensionsOff(state)))
+                .openSettings(),
+                .sendTelemetry(.action(.settingPopupClick, screen: mainOrHealthCheckAttention(state)))
             ])
         }
     }
@@ -420,14 +426,12 @@ private extension PopupReducer {
     static func handlePrereqsRefreshed(
         state: Store.State,
         onboardingCompleted: Bool,
-        allExtensionsEnabled: Bool,
         tabUrl: String,
         isFilteringEnabled: Bool
     ) -> (Store.State, [Store.Effect]) {
         var next = state
         next.xpcAvailable = true
         next.onboardingStatus = onboardingCompleted ? .completed : .notCompleted
-        next.allExtensionsEnabled = allExtensionsEnabled
         // Sync per-URL filtering state from the main app.
         // Falls back to tabStats.url when tabContext.url is nil.
         // Reason: validateToolbarItem can fire before page.properties().url resolves.
@@ -462,6 +466,15 @@ private extension PopupReducer {
         return (next, effects)
     }
 
+    static func handleHealthCheckRefreshed(
+        state: Store.State,
+        hasAttention: Bool
+    ) -> (Store.State, [Store.Effect]) {
+        var next = state
+        next.hasHealthCheckAttention = hasAttention
+        return (next, [])
+    }
+
     static func handleAppStateRefreshSkipped(
         state: Store.State,
         isXpcUnavailable: Bool
@@ -484,10 +497,27 @@ private extension PopupReducer {
 
     // MARK: - Lifecycle
 
+    static func handlePopupWillShow(
+        state: Store.State
+    ) -> (Store.State, [Store.Effect]) {
+        (state, [.preparePopup])
+    }
+
     static func handlePopupOpened(
         state: Store.State
     ) -> (Store.State, [Store.Effect]) {
-        let effects: [Store.Effect] = [.notifyWindowOpened] + self.pageViewEffects(state: state)
-        return (state, effects)
+        (state, [.notifyWindowOpened])
+    }
+
+    /// Handles the result of the `.preparePopup` effect.
+    /// Updates health-check state and emits the initial page-view
+    /// telemetry with the now-correct screen type.
+    static func handlePopupReady(
+        state: Store.State,
+        hasHealthCheckAttention: Bool
+    ) -> (Store.State, [Store.Effect]) {
+        var next = state
+        next.hasHealthCheckAttention = hasHealthCheckAttention
+        return (next, self.pageViewEffects(state: next))
     }
 }
