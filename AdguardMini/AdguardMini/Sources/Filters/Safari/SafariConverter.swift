@@ -268,6 +268,9 @@ extension SafariConverterImpl: SafariConverter {
 
 // MARK: - Content blocker type mapping helpers
 
+// TODO: AG-55030
+// Duplicates SafariBlockerType.filtersGroups mapping.
+// Unify once FiltersDefinedGroup is moved to SharedSources.
 private extension ContentBlockerType {
     /// Maps a filter group identifier to a content blocker type.
     static func from(groupId: Int) -> ContentBlockerType? {
