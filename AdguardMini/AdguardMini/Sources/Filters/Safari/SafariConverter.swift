@@ -36,7 +36,6 @@ protocol SafariConverter {
 // MARK: - SafariConverterImpl
 
 final class SafariConverterImpl {
-    private let groupRules: RulesGrouper
     private let filtersConverter: FiltersConverter
     private let storage: SafariFiltersStorage
     private let webExtension: WebExtension
@@ -46,7 +45,6 @@ final class SafariConverterImpl {
     private weak var delegate: ConversionStateDelegate?
 
     init(
-        groupRules: RulesGrouper,
         filtersConverter: FiltersConverter,
         storage: SafariFiltersStorage,
         webExtension: WebExtension,
@@ -54,7 +52,6 @@ final class SafariConverterImpl {
         specialGroupId: Int,
         resultStateObserver: ConversionStateDelegate?
     ) {
-        self.groupRules = groupRules
         self.filtersConverter = filtersConverter
         self.storage = storage
         self.webExtension = webExtension
@@ -115,19 +112,14 @@ final class SafariConverterImpl {
 
     /// Checks that the rule does not contain any tokens applicable to trusted filters, and returns true if not
     private func isTrustedRule(ruleText: String) -> Bool {
-        // Trusted modifiers
-        if Constants.trustedRulesModifiers.contains(
-            where: { ruleText.contains($0) }
-        ) {
+        if Constants.trustedRulesModifiers.contains(where: { ruleText.contains($0) }) {
             return false
         }
 
-        // JavaScript oneliners, but not scriptlets
         if ruleText.contains("#%#") && !ruleText.contains("#%#//scriptlet") {
             return false
         }
 
-        // Trusted scriptlets
         if ruleText.contains("#%#//scriptlet('trusted-") || ruleText.contains("#%#//scriptlet(\"trusted-") {
             return false
         }
@@ -136,7 +128,7 @@ final class SafariConverterImpl {
     }
 
     private func convertAndSaveGroups(
-        groups: [GroupedRules],
+        groups: [ContentBlockerType: [String]],
         progress: Progress
     ) -> AsyncStream<SafariConversionResult> {
         AsyncStream { continuation in
@@ -144,15 +136,15 @@ final class SafariConverterImpl {
                 await withTaskGroup(
                     of: SafariConversionResult.self
                 ) { [delegate = self.delegate] taskGroup in
-                    for group in groups {
-                        let safariBlockerType = group.key
+                    for (contentBlockerType, rules) in groups where !rules.isEmpty {
+                        let safariBlockerType = SafariBlockerType(contentBlockerType)
                         taskGroup.addTask {
                             await delegate?.onStartConversion(blockerType: safariBlockerType)
                             let convStart = Date()
                             LogInfo("\(LogTag.safari) convertAndSave(\(safariBlockerType)) start")
                             let result = await self.convertAndSave(
                                 safariBlockerType: safariBlockerType,
-                                rules: group.rules,
+                                rules: rules,
                                 isAdvancedBlocking: true,
                                 progress: progress
                             )
@@ -175,6 +167,11 @@ final class SafariConverterImpl {
 // MARK: - SafariConverter implementation
 
 extension SafariConverterImpl: SafariConverter {
+    // The method orchestrates the full conversion pipeline: preparing rules,
+    // Mapping filter groups, running affinity grouping, and building the
+    // FilterEngine. The length and complexity reflect the sequential nature
+    // Rather than any single complex sub-task, both suppressions are justified.
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     func convertRulesAndSave(
         filters: [ActiveFilterInfo],
         advanced: Bool,
@@ -187,7 +184,23 @@ extension SafariConverterImpl: SafariConverter {
                 }
 
                 let preparedFilters = self.checkRulesAndPrepareForGetRules(filters: filters)
-                let grouped = self.groupRules.group(preparedFilters: preparedFilters)
+
+                var rulesByType: [(ContentBlockerType, [String])] = []
+                for (groupId, rules) in preparedFilters.data {
+                    if let contentBlockerType = ContentBlockerType.from(groupId: groupId) {
+                        rulesByType.append((contentBlockerType, rules))
+                    }
+                }
+
+                if !preparedFilters.userRulesList.isEmpty {
+                    rulesByType.append((.custom, preparedFilters.userRulesList))
+                }
+
+                if !preparedFilters.serviceGroups.isEmpty {
+                    rulesByType.append((.other, preparedFilters.serviceGroups))
+                }
+
+                let grouped = AffinityRulesGrouper.group(rules: rulesByType)
 
                 var advancedRules: OrderedSet<String> = []
                 var sourceRulesCount = 0
@@ -226,7 +239,6 @@ extension SafariConverterImpl: SafariConverter {
 
                 do {
                     let advancedRulesText = advancedRules.joined(separator: "\n")
-                    // Build the engine and serialize it to the shared location.
                     _ = try self.webExtension.buildFilterEngine(rules: advancedRulesText)
                     conversionResult = .success(
                         .init(
@@ -250,6 +262,43 @@ extension SafariConverterImpl: SafariConverter {
                     )
                 )
             }
+        }
+    }
+}
+
+// MARK: - Content blocker type mapping helpers
+
+private extension ContentBlockerType {
+    /// Maps a filter group identifier to a content blocker type.
+    static func from(groupId: Int) -> ContentBlockerType? {
+        let groupMapping: [(ContentBlockerType, [FiltersDefinedGroup])] = [
+            (.general, [.adBlocking, .languageSpecific]),
+            (.privacy, [.privacy]),
+            (.security, [.security]),
+            (.socialWidgetsAndAnnoyances, [.social, .annoyances]),
+            (.other, [.other]),
+            (.custom, [.custom])
+        ]
+
+        for (contentBlockerType, groups) in groupMapping
+        where groups.contains(where: { $0.id == groupId }) {
+            return contentBlockerType
+        }
+
+        return nil
+    }
+}
+
+private extension SafariBlockerType {
+    /// Bridges the library content blocker type to the app's blocker type.
+    init(_ contentBlockerType: ContentBlockerType) {
+        switch contentBlockerType {
+        case .general: self = .general
+        case .privacy: self = .privacy
+        case .security: self = .security
+        case .socialWidgetsAndAnnoyances: self = .socialWidgetsAndAnnoyances
+        case .other: self = .other
+        case .custom: self = .custom
         }
     }
 }

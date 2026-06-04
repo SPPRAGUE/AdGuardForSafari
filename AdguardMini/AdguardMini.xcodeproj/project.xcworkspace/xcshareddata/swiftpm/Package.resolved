@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AdguardTeam/SafariConverterLib",
       "state" : {
-        "branch" : "v4.2.2",
-        "revision" : "828f709a7a2ea6699e3788a5fcf492bfe24be560"
+        "branch" : "v4.3.0",
+        "revision" : "7a2e93f0afa70479cc59985f332025236c3f0c39"
       }
     },
     {
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ameshkov/swift-psl",
       "state" : {
-        "revision" : "cb2c44b99858261ff9c67de3bdf34296bf1337c9",
-        "version" : "1.1.59"
+        "revision" : "dfcc558c33cbd27062d2c73e7e98c9782f0ef7c5",
+        "version" : "1.1.143"
       }
     },
     {

@@ -11,7 +11,6 @@ protocol SupportDependent:         ServiceDependent { var support:         Suppo
 protocol AppUpdaterDependent:      ServiceDependent { var appUpdater:      AppUpdater! { get set } }
 protocol AppMetadataDependent:     ServiceDependent { var appMetadata:     AppMetadata! { get set } }
 protocol SentryHelperDependent:    ServiceDependent { var sentryHelper:    SentryHelper! { get set } }
-protocol RulesGrouperDependent:    ServiceDependent { var rulesGrouper:    RulesGrouper! { get set } }
 protocol BackendServiceDependent:  ServiceDependent { var backendService:  BackendService! { get set } }
 protocol ABTestsStorageDependent:  ServiceDependent { var abTestsStorage:  ABTests.Storage! { get set } }
 protocol AppResetServiceDependent: ServiceDependent { var appResetService: AppResetService! { get set } }

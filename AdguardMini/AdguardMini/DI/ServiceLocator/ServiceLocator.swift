@@ -37,7 +37,6 @@ extension ServiceLocator {
         (client as? AppUpdaterDependent)?.appUpdater = self.appUpdater
         (client as? AppMetadataDependent)?.appMetadata = self.appMetadata
         (client as? SentryHelperDependent)?.sentryHelper = self.sentryHelper
-        (client as? RulesGrouperDependent)?.rulesGrouper = self.groupRules
         (client as? BackendServiceDependent)?.backendService = self.backendService
         (client as? ABTestsStorageDependent)?.abTestsStorage = self.abTestsStorage
         (client as? AppResetServiceDependent)?.appResetService = self.appResetService
@@ -119,7 +118,6 @@ private final class ServiceLocator {
         fileManager: self.coreDIContainer.fileManager
     )
 
-    private lazy var groupRules: RulesGrouper = RulesGrouperImpl()
     private lazy var filtersConverter: FiltersConverter = FiltersConverterImpl(
         converter: self.coreDIContainer.contentBlockerConverter
     )
@@ -197,7 +195,6 @@ private final class ServiceLocator {
     }()
     private lazy var safariConverter: SafariConverter = {
         SafariConverterImpl(
-            groupRules: self.groupRules,
             filtersConverter: self.filtersConverter,
             storage: self.safariFiltersStorage,
             webExtension: WebExtensionDIContainer.shared.webExtension,

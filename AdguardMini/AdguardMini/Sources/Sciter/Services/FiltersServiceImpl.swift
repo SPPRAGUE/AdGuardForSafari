@@ -10,15 +10,14 @@
 import Foundation
 import SciterSchema
 import AML
+import FLM
 
 extension Sciter.FiltersServiceImpl:
-    FiltersSupervisorDependent,
-    RulesGrouperDependent {}
+    FiltersSupervisorDependent {}
 
 extension Sciter {
     final class FiltersServiceImpl: FiltersService.ServiceType {
         var filtersSupervisor: FiltersSupervisor!
-        var rulesGrouper: RulesGrouper!
 
         override init() {
             super.init()
@@ -169,14 +168,12 @@ extension Sciter {
                                            _ promise: @escaping (FiltersGroupedByExtensions) -> Void) {
             Task {
                 var filters = await self.filtersSupervisor.getActiveRulesInfo()
-                // Safari extension do not use language specific filters when languageSpecific option is disabled by user
-                // So exclude language specific filters
                 if !self.filtersSupervisor.languageSpecific {
                     filters = filters.filter { filter in
                         filter.groupId != FiltersDefinedGroup.languageSpecific.id
                     }
                 }
-                let res = self.rulesGrouper.groupFilters(filters: filters)
+                let res = self.groupFilters(filters: filters)
 
                 var data = FiltersGroupedByExtensions()
                 data.general = (res[SafariBlockerType.general] ?? []).map(Int32.init)
@@ -188,6 +185,49 @@ extension Sciter {
 
                 promise(data)
             }
+        }
+
+        /// Groups filters by Safari blocker type based on their groupId
+        private func groupFilters(filters: [ActiveFilterInfo]) -> [SafariBlockerType: [Int]] {
+            var result: [SafariBlockerType: [Int]] = [:]
+
+            var filtersGroupedByGroup: [Int: [Int]] = [:]
+
+            for filter in filters {
+                let filterId = filter.filterId
+                let groupId = filter.groupId
+                if filtersGroupedByGroup[groupId] != nil {
+                    filtersGroupedByGroup[groupId]?.append(filterId)
+                } else {
+                    filtersGroupedByGroup[groupId] = [filterId]
+                }
+            }
+
+            for blocker in SafariBlockerType.allCases {
+                var names: [Int] = []
+                blocker.filtersGroups.forEach { filterGroup in
+                    names.append(contentsOf: filtersGroupedByGroup[filterGroup.id] ?? [])
+                }
+                result[blocker] = names
+            }
+            return result
+        }
+    }
+}
+
+// MARK: - SafariBlockerType filter groups mapping
+
+private extension SafariBlockerType {
+    /// Maps Safari blocker type to filter groups
+    var filtersGroups: [FiltersDefinedGroup] {
+        switch self {
+        case .general:                    [.adBlocking, .languageSpecific]
+        case .privacy:                    [.privacy]
+        case .security:                   [.security]
+        case .socialWidgetsAndAnnoyances: [.social, .annoyances]
+        case .other:                      [.other]
+        case .custom:                     [.custom]
+        case .advanced:                   []
         }
     }
 }

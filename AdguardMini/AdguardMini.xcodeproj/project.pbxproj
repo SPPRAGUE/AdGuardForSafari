@@ -6512,7 +6512,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AdguardTeam/SafariConverterLib";
 			requirement = {
-				branch = v4.2.2;
+				branch = v4.3.0;
 				kind = branch;
 			};
 		};
