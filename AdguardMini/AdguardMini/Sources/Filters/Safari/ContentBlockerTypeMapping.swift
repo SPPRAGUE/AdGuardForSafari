@@ -14,23 +14,14 @@ import ContentBlockerConverter
 /// Bridges between library ContentBlockerType, app SafariBlockerType, and FiltersDefinedGroup.
 /// Centralizes the mapping logic that was previously duplicated across SafariConverter and FiltersServiceImpl.
 extension ContentBlockerType {
+    /// All content blocker types in the library.
+    private static let allCases: [ContentBlockerType] = [
+        .general, .privacy, .security, .socialWidgetsAndAnnoyances, .other, .custom
+    ]
+
     /// Maps a filter group identifier to a content blocker type.
     static func from(groupId: Int) -> ContentBlockerType? {
-        let groupMapping: [(ContentBlockerType, [FiltersDefinedGroup])] = [
-            (.general, [.adBlocking, .languageSpecific]),
-            (.privacy, [.privacy]),
-            (.security, [.security]),
-            (.socialWidgetsAndAnnoyances, [.social, .annoyances]),
-            (.other, [.other]),
-            (.custom, [.custom])
-        ]
-
-        for (contentBlockerType, groups) in groupMapping
-        where groups.contains(where: { $0.id == groupId }) {
-            return contentBlockerType
-        }
-
-        return nil
+        allCases.first { $0.filtersGroups.contains { $0.id == groupId } }
     }
 
     /// Maps content blocker type to filter groups.
