@@ -19,6 +19,12 @@ private enum Constants {
         withExtension: "js"
     )
 
+    /// Base interval for the adaptive toolbar update throttle.
+    static let toolbarThrottleBaseDelay: TimeInterval = 0.3
+
+    /// Maximum interval the adaptive throttle can grow to under sustained pressure.
+    static let toolbarThrottleMaxDelay: TimeInterval = 2.0
+
     static let adguardExtra: String? = {
         guard let scriptUrl = Constants.adguardExtraScriptUrl else {
             LogError("Can't find script in bundle")
@@ -90,6 +96,16 @@ final class SafariExtensionHandler: SFSafariExtensionHandler {
     private let appDiscovery: MainAppDiscovery
     private let statsReporter: BlockingStatsReporter
     private let perTabStatsTracker: PerTabStatsTracker
+    private let safariApp: SafariApp
+
+    /// Rate-limits toolbar updates (leading + trailing edge, adaptive backoff)
+    /// so heavy-tracker pages do not trigger a full toolbar-validation cycle on
+    /// every blocked resource. See `Throttler`.
+    ///
+    /// Used only by `contentBlocker(...)` — navigation callbacks (`willNavigateTo`)
+    /// fire at most a few times per redirect chain, so throttling there would
+    /// add complexity without measurable benefit.
+    private let toolbarThrottler: Throttler
 
     // MARK: Init
 
@@ -107,10 +123,27 @@ final class SafariExtensionHandler: SFSafariExtensionHandler {
         self.statsReporter = container.blockingStatsReporter
         self.perTabStatsTracker = container.perTabStatsTracker
 
+        let safariApp = container.safariApp
+        self.safariApp = safariApp
+        self.toolbarThrottler = Throttler(
+            baseDelay: Constants.toolbarThrottleBaseDelay,
+            maxDelay: Constants.toolbarThrottleMaxDelay,
+            // `setToolbarItemsNeedUpdate()` is UI-affecting, so hop to the main actor.
+            // Throttler itself fires on its own actor executor, which may be off-main.
+            // Labeled parameter makes the role of the closure explicit.
+            // swiftlint:disable:next trailing_closure
+            fire: { Task { @MainActor in safariApp.setToolbarItemsNeedUpdate() } }
+        )
+
         super.init()
     }
 
     deinit {
+        // Best-effort teardown: actor `cancel()` is async and `deinit` is synchronous.
+        // Cancellation is bridged through a `Task`.
+        // Pending trailing updates are intentionally dropped — the badge refreshes on the next wake-up.
+        let throttler = self.toolbarThrottler
+        Task { await throttler.cancel() }
         LogDebug("\(self) deinited")
     }
 
@@ -139,17 +172,24 @@ final class SafariExtensionHandler: SFSafariExtensionHandler {
                 page: page
             )
             await self.perTabStatsTracker.evictStaleEntries()
-            SFSafariApplication.setToolbarItemsNeedUpdate()
         }
 
         self.statsReporter.enqueueBlocking(pageHash: pageHash, urls: urls, blockerType: blockerType)
+
+        // Throttle toolbar updates.
+        // Each burst collapses into a leading fire plus one trailing fire per window.
+        Task { await self.toolbarThrottler.schedule() }
     }
 
     override func page(_ page: SFSafariPage, willNavigateTo url: URL?) {
         let pageHash = page.hashValue
+        // Task ensures ordering: stats reset completes before toolbar refresh.
         Task {
             await self.perTabStatsTracker.resetStats(pageHash: pageHash, to: url)
-            SFSafariApplication.setToolbarItemsNeedUpdate()
+            // Direct update: willNavigateTo fires rarely (1-3 times per redirect chain).
+            await MainActor.run {
+                self.safariApp.setToolbarItemsNeedUpdate()
+            }
         }
     }
 

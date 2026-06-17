@@ -10,7 +10,7 @@
 import SafariServices
 
 /// An object that is a wrapper for the necessary functions of the ``SFSafariApplication`` class.
-protocol SafariApp {
+protocol SafariApp: Sendable {
     func setToolbarItemsNeedUpdate()
     func getActiveWindow() async -> SFSafariWindow?
     func getActivePage() async -> SFSafariPage?

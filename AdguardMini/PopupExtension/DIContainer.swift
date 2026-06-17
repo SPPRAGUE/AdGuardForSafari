@@ -31,6 +31,7 @@ final class DIContainer {
     let mainAppDiscovery: MainAppDiscovery = MainAppDiscoveryImpl()
     let blockingStatsReporter: BlockingStatsReporter
     let perTabStatsTracker: PerTabStatsTracker = PerTabStatsTracker()
+    let safariApp: SafariApp = SafariAppImpl()
 
     /// Actor-isolated UDF store — singleton for the extension lifetime.
     let popupStore: PopupStore
@@ -42,7 +43,6 @@ final class DIContainer {
 
     // MARK: Private properties
 
-    private let safariApp: SafariApp = SafariAppImpl()
     private let effectRunner: EffectRunner
     private let popupViewState: PopupViewState
 
