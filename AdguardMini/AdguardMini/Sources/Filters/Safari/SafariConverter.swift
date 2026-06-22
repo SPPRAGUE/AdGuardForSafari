@@ -168,10 +168,10 @@ final class SafariConverterImpl {
 
 extension SafariConverterImpl: SafariConverter {
     // The method orchestrates the full conversion pipeline: preparing rules,
-    // Mapping filter groups, running affinity grouping, and building the
-    // FilterEngine. The length and complexity reflect the sequential nature
-    // Rather than any single complex sub-task, both suppressions are justified.
-    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    // Mapping filter groups, distributing user rules, and building the
+    // FilterEngine. The length reflects the sequential nature of the pipeline
+    // Rather than any single complex sub-task, so the suppression is justified.
+    // swiftlint:disable:next function_body_length
     func convertRulesAndSave(
         filters: [ActiveFilterInfo],
         advanced: Bool,
@@ -192,15 +192,11 @@ extension SafariConverterImpl: SafariConverter {
                     }
                 }
 
-                if !preparedFilters.userRulesList.isEmpty {
-                    rulesByType.append((.custom, preparedFilters.userRulesList))
-                }
-
-                if !preparedFilters.serviceGroups.isEmpty {
-                    rulesByType.append((.other, preparedFilters.serviceGroups))
-                }
-
-                let grouped = AffinityRulesGrouper.group(rules: rulesByType)
+                let deduplicatedGroups = SafariUserRulesDistributor.distribute(
+                    filterRules: rulesByType,
+                    userRules: preparedFilters.userRulesList,
+                    serviceGroups: preparedFilters.serviceGroups
+                )
 
                 var advancedRules: OrderedSet<String> = []
                 var sourceRulesCount = 0
@@ -210,7 +206,7 @@ extension SafariConverterImpl: SafariConverter {
                 var discardedSafariRules = 0
                 var errorsCount = 0
 
-                for await result in self.convertAndSaveGroups(groups: grouped, progress: progress) {
+                for await result in self.convertAndSaveGroups(groups: deduplicatedGroups, progress: progress) {
                     continuation.yield(result)
 
                     switch result.conversionInfo {

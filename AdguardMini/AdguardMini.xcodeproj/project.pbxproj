@@ -613,6 +613,7 @@
 				Core/RestartableService.swift,
 				Filters/Models/BlockerConversionError.swift,
 				Filters/Models/SafariConversionResult.swift,
+				Filters/Safari/SafariUserRulesDistributor.swift,
 				Filters/UrlFilteringChecker.swift,
 				Migration/BuildMigration/BuildMigration.swift,
 				Migration/BuildMigration/BuildMigrationStorage.swift,
@@ -636,7 +637,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Task+sleep.swift",
-				"Throttler.swift",
+				Throttler.swift,
 			);
 			target = EB843F052B90ED15009179E0 /* AdguardMiniTests */;
 		};
@@ -875,7 +876,7 @@
 				"NSApplication+SetTheme.swift",
 				"NSWorkspace.OpenConfiguration+Silent.swift",
 				"Task+sleep.swift",
-				"Throttler.swift",
+				Throttler.swift,
 			);
 			target = ECDF568D2A6029570017A270 /* PopupExtension */;
 		};
