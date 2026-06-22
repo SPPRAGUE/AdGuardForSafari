@@ -4,11 +4,8 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Ochrana webových stránok je vypnutá";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Niektoré rozšírenia sú vypnuté";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Opraviť";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Stále sa Vám zobrazujú reklamy? Zistite, ako to vyriešiť.";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Blokovanie prvku";
@@ -85,3 +82,12 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "Otváranie...";
+
+/* Domain view - Upsell CTA title "Unlock full protection" */
+"item_upsell_title" = "Odomknite úplnú ochranu";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "Vyskúšajte %d dní zadarmo";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "Kliknite pre upgrade";

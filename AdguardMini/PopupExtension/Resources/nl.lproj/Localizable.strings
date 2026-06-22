@@ -4,11 +4,8 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Website-bescherming uitgeschakeld";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Sommige uitbreidingen zijn uitgeschakeld";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Repareren";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Zie je nog steeds advertenties? Leren hoe je dit kunt oplossen";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Element blokkeren";
@@ -85,3 +82,12 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "Openen...";
+
+/* Domain view - Upsell CTA title "Unlock full protection" */
+"item_upsell_title" = "Volledige bescherming ontgrendelen";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "%d dagen gratis proberen";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "Klik voor opwaarderen";

@@ -1,12 +1,6 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "Бяспечная старонка";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Некаторыя пашырэнні выключаны";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Выправіць";
-
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Блакіраваць элемент";
 
@@ -59,7 +53,7 @@
 "info_base_common_subtitle" = "Вашы даныя могуць быць раскрыты";
 
 /* Info view - Common subtitle after an error occurs */
-"info_error_subtitle" = "Паўтарыце спробу або звярніцеся у службу падтрымкі";
+"info_error_subtitle" = "Калі ласка, паспрабуйце яшчэ раз або звяжыцеся з падтрымкай";
 
 /* Info view - Button title "Open AdGuard Mini" */
 "info_button_title_open_main_app" = "Адкрыць AdGuard Mini";

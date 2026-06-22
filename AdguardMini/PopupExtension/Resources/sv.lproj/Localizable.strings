@@ -1,11 +1,11 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "Säker sida";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Vissa tillägg är avstängda";
+/* Domain view - Domain Item hint "Website protection disabled" */
+"item_hint_domain_protection_off" = "Webbplatsskydd inaktiverat";
 
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Fixa det";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Ser du fortfarande annonser? Läs hur du åtgärdar detta";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Blockera element";
@@ -15,6 +15,12 @@
 
 /* Domain view - Item title "Rate AdGuard Mini" */
 "item_title_rate_adguard_mini" = "Betygsätt AdGuard Mini";
+
+/* Domain view - Stats label "{count} ad(s) blocked" */
+"item_stats_ads_blocked" = "%d annonser blockerade";
+
+/* Domain view - Stats label "{count} tracker(s) blocked" */
+"item_stats_trackers_blocked" = "%d spårare blockerade";
 
 /* Info view - Title "Protection is disabled" */
 "info_title_protection_disabled" = "Skyddet är inaktiverat";
@@ -76,3 +82,12 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "Öppnar...";
+
+/* Domain view - Upsell CTA title "Unlock full protection" */
+"item_upsell_title" = "Lås upp fullt skydd";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "Prova %d dagar gratis";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "Klicka för att uppgradera";

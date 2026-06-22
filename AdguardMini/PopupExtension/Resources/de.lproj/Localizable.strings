@@ -4,11 +4,8 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Website-Schutz deaktiviert";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Einige Erweiterungen sind deaktiviert";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Beheben";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Immer noch Werbung? So beheben Sie das";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Element blockieren";
@@ -85,3 +82,12 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "Öffnen...";
+
+/* Domain view - Upsell CTA title "Unlock full protection" */
+"item_upsell_title" = "Vollen Schutz freischalten";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "%d Tage kostenlos testen";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "Jetzt upgraden";

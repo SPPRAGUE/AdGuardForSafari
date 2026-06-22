@@ -11,10 +11,10 @@
 "app_menu_hide_title" = "AdGuard Mini'yi gizle";
 
 /* App Menu - "Hide Others" title. */
-"app_menu_hide_others_title" = "Diğerlerini Gizle";
+"app_menu_hide_others_title" = "Diğerlerini gizle";
 
 /* App Menu - "Show All" title. */
-"app_menu_show_all_title" = "Tümünü Göster";
+"app_menu_show_all_title" = "Tümünü göster";
 
 /* App Menu - "Close" title. */
 "app_menu_close_title" = "Kapat";

@@ -1,12 +1,6 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "Pagină sigură";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Unele extensii sunt dezactivate";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Corectați";
-
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Blocați elementul";
 

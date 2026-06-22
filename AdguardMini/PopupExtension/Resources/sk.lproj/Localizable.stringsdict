@@ -42,5 +42,25 @@
         <string>%2$@ sledovačov zablokovaných</string>
       </dict>
     </dict>
+    <key>item_upsell_description_trial</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%1$#@count@</string>
+      <key>count</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Vyskúšajte na %1$d deň zadarmo</string>
+        <key>few</key>
+        <string>Vyskúšajte na %1$d dni zadarmo</string>
+        <key>many</key>
+        <string>Vyskúšajte na %1$d dní zadarmo</string>
+        <key>other</key>
+        <string>Vyskúšajte na %1$d dní zadarmo</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

@@ -4,12 +4,6 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Webstedsbeskyttelse slået fra";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Nogle udvidelser er slået fra";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Korrigér det";
-
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Blokér element";
 

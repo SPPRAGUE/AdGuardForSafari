@@ -1,12 +1,6 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "Salattu sivu";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Jotkin laajennukset ovat pois päältä";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Korjaa tämä";
-
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Estä elementti";
 

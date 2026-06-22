@@ -1,11 +1,8 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "보안 페이지";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "일부 확장 프로그램이 꺼져 있습니다.";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "수리";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "아직도 광고가 표시되나요? 해결 방법 알아보기";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "요소 차단";
@@ -76,3 +73,12 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "여는 중...";
+
+/* Domain view - Upsell CTA title "Unlock full protection" */
+"item_upsell_title" = "모든 보호 기능 사용하기";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "%d일 무료 체험";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "업그레이드하려면 클릭하세요";

@@ -1,12 +1,6 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "صفحه امن";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "برخی افزونه‌ها غیر فعال هستند";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "تعمیر کن";
-
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "مسدودسازی اجزاء";
 

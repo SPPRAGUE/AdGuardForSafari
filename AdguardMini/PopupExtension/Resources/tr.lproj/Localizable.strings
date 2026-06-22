@@ -4,11 +4,8 @@
 /* Domain view - Domain Item hint "Website protection disabled" */
 "item_hint_domain_protection_off" = "Site koruması devre dışı";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "Bazı uzantılar kapalı";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "Düzelt";
+/* Domain view - Item title "Still seeing ads? Learn how to fix this" */
+"item_attention_title_health_check_trouble" = "Hâlâ reklam mı görüyorsun? Bunu nasıl düzelteceğinizi öğrenin";
 
 /* Domain view - Item title "Block element" */
 "item_title_block_element" = "Öğeyi engelle";
@@ -85,3 +82,9 @@ Info view - Subtitle "To get AdGuard Mini up and running properly, you’ll need
 
 /* Info view - Button title "Opening..." */
 "info_button_title_opening" = "Açılıyor...";
+
+/* Domain view - Upsell CTA description when trial is available */
+"item_upsell_description_trial" = "%d gün ücretsiz deneyin";
+
+/* Domain view - Upsell CTA description when trial is not available */
+"item_upsell_description_upgrade" = "Yükseltmek için tıklayın";

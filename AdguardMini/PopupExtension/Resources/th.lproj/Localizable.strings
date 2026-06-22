@@ -1,12 +1,6 @@
 /* Domain view - Item title "Secure page" */
 "item_title_secure_page" = "หน้าเว็บที่ปลอดภัย";
 
-/* Domain view - Item title "Some extensions are off" */
-"item_attention_title_extensions_off" = "ส่วนขยายบางตัวถูกปิดใช้งาน";
-
-/* Domain view - Item button title "Fix it" */
-"item_attention_button_title_fix_it" = "ซ่อมมัน";
-
 /* Domain view - Item title "Report an issue" */
 "item_title_report_an_issue" = "รายงานปัญหา";
 
