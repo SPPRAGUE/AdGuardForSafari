@@ -25,6 +25,7 @@ protocol UserSettingsService: AnyObject {
     var userRulesEditorGeometry: WindowGeometryDTO? { get set }
     var showSafariToolbarBadge:  Bool { get set }
     var dismissedHealthCheckCards: [String] { get set }
+    var hiddenStories:           [String] { get set }
 
     // MARK: Properties with side effects
 
@@ -64,6 +65,9 @@ final class UserSettingsServiceImpl {
 
     @UserDefault(key: .dismissedHealthCheckCards, defaultValue: [])
     private var dismissedHealthCheckCardsData: [String]
+
+    @UserDefault(key: .hiddenStories, defaultValue: [])
+    private var hiddenStoriesData: [String]
 
     init(
         keychain: KeychainManager,
@@ -136,6 +140,11 @@ extension UserSettingsServiceImpl: UserSettingsService {
     var dismissedHealthCheckCards: [String] {
         get { self.dismissedHealthCheckCardsData }
         set { self.dismissedHealthCheckCardsData = newValue }
+    }
+
+    var hiddenStories: [String] {
+        get { self.hiddenStoriesData }
+        set { self.hiddenStoriesData = newValue }
     }
 
     var userRulesEditorGeometry: WindowGeometryDTO? {

@@ -63,7 +63,8 @@ export type IconType
         | 'rightIcon'
         | 'extra'
         | 'flag'
-        | 'rocket';
+        | 'rocket'
+        | 'eye';
 
 export type IconsProps = {
     icon: IconType;
@@ -581,6 +582,16 @@ export function Icons({ icon }: IconsProps): JSXInternal.Element {
                     <line stroke="currentColor" stroke-linecap="round" stroke-width="1.5" x1="12.5835" x2="4.75016" y1="12.75" y2="12.75" />
                     <path d="M17.9802 5.10457L26.4655 6.04738L27.4083 14.5327L14.209 23.9607L8.55214 18.3039L17.9802 5.10457Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5" />
                 </svg>
+            );
+        case 'eye':
+            return (
+                <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 10C4 10 8 14.772 12 14.772C16 14.772 20 10 20 10" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+                    <path d="M12 15V17" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+                    <path d="M18 13V15" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+                    <path d="M6 13V15" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+                </svg>
+
             );
     }
 }

@@ -66,5 +66,7 @@
 	<string>__KEY_ONLY</string>
 	<key>dismissedHealthCheckCards</key>
 	<string>__KEY_ONLY</string>
+	<key>hiddenStories</key>
+	<array/>
 </dict>
 </plist>

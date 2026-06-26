@@ -5,11 +5,11 @@
 import { LogLevel } from '@adg/sciter-utils-kit';
 import { makeAutoObservable } from 'mobx';
 
-import { CheckApplicationVersionRequest, GetSafariExtensionsRequest, GetStatisticsRequest, GetTraySettingsRequest, RequestOpenSettingsPageRequest, UpdateTraySettingsRequest } from 'Apis/requests/SettingsService';
-import { GetAdvancedBlockingRequest } from 'Apis/requests/AdvancedBlockingService';
 import { GetLicenseRequest, GetTrialAvailableDaysRequest } from 'Apis/requests/AccountService';
+import { GetAdvancedBlockingRequest } from 'Apis/requests/AdvancedBlockingService';
 import { GetFiltersMetadataRequest, RequestFiltersUpdateRequest } from 'Apis/requests/FiltersService';
 import { OpenSettingsWindowRequest } from 'Apis/requests/InternalService';
+import { CheckApplicationVersionRequest, GetSafariExtensionsRequest, GetStatisticsRequest, GetTraySettingsRequest, RequestOpenSettingsPageRequest, UpdateTraySettingsRequest } from 'Apis/requests/SettingsService';
 import { GlobalSettings, LicenseOrError, LicenseStatus, ReleaseVariants, StatisticsPeriod, StatisticsResponse, FiltersStatus } from 'Apis/types';
 import { SafariExtensionsStore } from 'Common/stores/SafariExtensionsStore';
 import { updateLanguage } from 'Intl';
@@ -102,6 +102,11 @@ export class SettingsStore {
     public storyCompleted: Set<StoryId> = new Set();
 
     /**
+     * Set of hidden story IDs, persisted via GlobalSettings
+     */
+    public hiddenStories: Set<StoryId> = new Set();
+
+    /**
      * Trial availability status
      * Show available days for trial, if 0 - trial is not available
      */
@@ -175,8 +180,22 @@ export class SettingsStore {
             newValue.allowTelemetry = this.settings.allowTelemetry;
             newValue.theme = this.settings.theme;
             newValue.lastFiltersUpdateTimestampMs = this.settings.lastFiltersUpdateTimestampMs;
+            newValue.hiddenStories = this.settings.hiddenStories || [];
         }
         return newValue;
+    }
+
+    /**
+     * Persist hidden stories
+     */
+    private persistHiddenStories() {
+        if (!this.settings) {
+            return;
+        }
+        const newValue = this.buildGlobalSettings();
+        newValue.hiddenStories = [...this.hiddenStories];
+        this.setSettings(newValue);
+        window.API.Execute(new UpdateTraySettingsRequest(newValue));
     }
 
     /**
@@ -198,6 +217,22 @@ export class SettingsStore {
      */
     public setCompletedStory(storyId: StoryId) {
         this.storyCompleted.add(storyId);
+    }
+
+    /**
+     * Hide a story by ID and persist
+     */
+    public setHiddenStory(storyId: StoryId) {
+        this.hiddenStories.add(storyId);
+        this.persistHiddenStories();
+    }
+
+    /**
+     * Restore all hidden stories and persist
+     */
+    public showAllHiddenStories() {
+        this.hiddenStories.clear();
+        this.persistHiddenStories();
     }
 
     /**
@@ -279,6 +314,7 @@ export class SettingsStore {
     public setSettings(settings: GlobalSettings) {
         this.settings = settings;
         this.newVersionAvailable = settings.newVersionAvailable;
+        this.hiddenStories = new Set(settings.hiddenStories || []);
         log.setLogLevel(settings.debugLogging ? LogLevel.DBG : LogLevel.ERR);
         updateLanguage(settings.language);
     }

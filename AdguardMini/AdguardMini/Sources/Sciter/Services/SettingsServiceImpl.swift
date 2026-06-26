@@ -216,7 +216,7 @@ extension Sciter {
         func getTraySettings(_ message: EmptyValue,
                              _ promise: @escaping (GlobalSettings) -> Void) {
             Task {
-                let traySettings = GlobalSettings(
+                var traySettings = GlobalSettings(
                     enabled: self.protectionService.isProtectionEnabled,
                     newVersionAvailable: self.appUpdater.isNewVersionAvailable,
                     releaseVariant: ProductInfo.releaseVariant.toProto(),
@@ -228,6 +228,7 @@ extension Sciter {
                         max(0, self.userSettingsService.lastFiltersUpdateTime.timeIntervalSince1970 * 1000)
                     ),
                 )
+                traySettings.hiddenStories = self.userSettingsService.hiddenStories
                 promise(traySettings)
             }
         }
@@ -236,7 +237,7 @@ extension Sciter {
                                 _ promise: @escaping (EmptyValue) -> Void) {
             Task {
                 await self.protectionService.setProtectionStatus(isEnabled: message.enabled)
-                LogDebug("Protection state: \(self.protectionService.isProtectionEnabled)")
+                self.userSettingsService.hiddenStories = message.hiddenStories
                 promise(EmptyValue())
             }
         }

@@ -16,10 +16,11 @@ export type StoryCardProps = Omit<StoryInfo, 'storyConfig'> & {
     storyId: StoryId;
     setSelectedStoryId(storyId: StoryId): void;
     className?: string;
+    onHide?(): void;
 };
 
 /**
- * Story card component
+ * Story card component with optional hide affordance
  */
 function StoryCardComponent({
     style = 'default',
@@ -30,6 +31,7 @@ function StoryCardComponent({
     className,
     telemetryEvent,
     content,
+    onHide,
 }: StoryCardProps) {
     const { telemetry } = useTrayStore();
 
@@ -40,11 +42,25 @@ function StoryCardComponent({
         }
     }, [setSelectedStoryId, storyId, telemetry, telemetryEvent]);
 
+    const handleHide = useCallback((e: MouseEvent) => {
+        e.stopPropagation();
+        onHide?.();
+    }, [onHide]);
+
     return (
         <div className={cx(s.StoryCard, s[`StoryCard__${style}`], className)} onClick={onClick}>
-            <Icon className={cx(s.StoryCard_icon, s[`StoryCard_icon__${style}`])} icon={icon} big />
-            {content}
-            <Text type="t2">{text}</Text>
+            <div className={s.StoryCard_header}>
+                <Icon className={cx(s.StoryCard_icon, s[`StoryCard_icon__${style}`])} icon={icon} big />
+                {onHide && (
+                    <Text className={s.StoryCard_hideText} type="t3" onClick={handleHide}>
+                        {translate('tray.story.hide')}
+                    </Text>
+                )}
+            </div>
+            <div className={s.StoryCard_body}>
+                {content}
+                <Text type="t2">{text}</Text>
+            </div>
         </div>
     );
 }

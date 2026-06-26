@@ -464,6 +464,8 @@ public struct GlobalSettings: Sendable {
 
   public var lastFiltersUpdateTimestampMs: Int64 = 0
 
+  public var hiddenStories: [String] = []
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -963,7 +965,7 @@ extension ImportStatus: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
 
 extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = "GlobalSettings"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}enabled\0\u{2}\u{2}newVersionAvailable\0\u{1}releaseVariant\0\u{1}language\0\u{3}debug_logging\0\u{4}\u{2}allow_telemetry\0\u{1}theme\0\u{3}last_filters_update_timestamp_ms\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}enabled\0\u{2}\u{2}newVersionAvailable\0\u{1}releaseVariant\0\u{1}language\0\u{3}debug_logging\0\u{4}\u{2}allow_telemetry\0\u{1}theme\0\u{3}last_filters_update_timestamp_ms\0\u{3}hidden_stories\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -979,6 +981,7 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       case 8: try { try decoder.decodeSingularBoolField(value: &self.allowTelemetry) }()
       case 9: try { try decoder.decodeSingularEnumField(value: &self.theme) }()
       case 10: try { try decoder.decodeSingularInt64Field(value: &self.lastFiltersUpdateTimestampMs) }()
+      case 11: try { try decoder.decodeRepeatedStringField(value: &self.hiddenStories) }()
       default: break
       }
     }
@@ -1009,6 +1012,9 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     if self.lastFiltersUpdateTimestampMs != 0 {
       try visitor.visitSingularInt64Field(value: self.lastFiltersUpdateTimestampMs, fieldNumber: 10)
     }
+    if !self.hiddenStories.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.hiddenStories, fieldNumber: 11)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1021,6 +1027,7 @@ extension GlobalSettings: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     if lhs.allowTelemetry != rhs.allowTelemetry {return false}
     if lhs.theme != rhs.theme {return false}
     if lhs.lastFiltersUpdateTimestampMs != rhs.lastFiltersUpdateTimestampMs {return false}
+    if lhs.hiddenStories != rhs.hiddenStories {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

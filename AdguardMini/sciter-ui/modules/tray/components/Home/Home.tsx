@@ -18,7 +18,7 @@ import { Loader, Logo, Button, Text, Switch } from 'UILib';
 import { isDarkColorTheme } from 'Utils/colorThemes';
 
 import { StoryNavigation } from '../../modules/stories/classes';
-import { StoriesLayer, StoryCard } from '../../modules/stories/components';
+import { StoriesLayer, StoryCard, ShowHiddenCard } from '../../modules/stories/components';
 import { FlushCompletedStories } from '../../modules/stories/components/FlushCompletedStories';
 import { useStoriesConfig } from '../../modules/stories/hooks';
 import { resolveStoryEntryFrame } from '../../modules/stories/utils/navigationBoundary';
@@ -38,6 +38,16 @@ const openSafariPreferences = () => {
 };
 
 /**
+ * Story IDs that cannot be hidden (required stories)
+ */
+const NON_HIDEABLE_STORY_IDS = new Set([
+    'extensions',
+    'loginItem',
+    'statistics',
+    'statisticsPrivacy',
+]);
+
+/**
  * Home screen of tray
  */
 function HomeComponent() {
@@ -46,6 +56,7 @@ function HomeComponent() {
     const { settings: traySettings } = settings;
 
     const stories = useStoriesConfig();
+    const { hiddenStories } = settings;
     const [selectedStoryId, setSelectedStoryId] = useState<StoryId | null>(null);
     // Snapshot of Home cards order used during story-session navigation.
     const [storiesNavigationOrder, setStoriesNavigationOrder] = useState<StoryId[]>([]);
@@ -399,8 +410,14 @@ function HomeComponent() {
                                         key={props.storyConfig.id}
                                         setSelectedStoryId={openStory}
                                         storyId={props.storyConfig.id}
+                                        onHide={NON_HIDEABLE_STORY_IDS.has(props.storyConfig.id)
+                                            ? undefined
+                                            : () => settings.setHiddenStory(props.storyConfig.id)}
                                     />
                                 ))}
+                                {hiddenStories.size > 0 && (
+                                    <ShowHiddenCard onShowHidden={() => settings.showAllHiddenStories()} />
+                                )}
                             </div>
                         </div>
                     </>

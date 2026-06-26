@@ -4,9 +4,11 @@
 */
 
 .StoryCard {
+    position: relative;
     width: 108px;
     height: 116px;
     box-sizing: content-box;
+    flow: vertical;
     border-radius: var(--border-radius);
     padding: var(--m-s);
     margin-bottom: var(--m-xxs);
@@ -29,9 +31,18 @@
         background: var(--fills-notifications-orange-default);
     }
 
+    &_header {
+        flow: horizontal;
+        vertical-align: middle;
+    }
+
+    &_body {
+        flow: vertical;
+        margin-top: var(--m-xs);
+    }
+
     &_icon {
         color: var(--stroke-icons-product-icon-default);
-        margin-bottom: var(--m-xs);
 
         &__warning {
             color: var(--stroke-icons-attention-icon-default);
@@ -44,5 +55,11 @@
         &__orangeIcon {
             color: var(--stroke-icons-attention-icon-default);
         }
+    }
+
+    &_hideText {
+        margin-top: -9px;
+        margin-left: auto;
+        color: var(--text-links-tertiary-link-default);
     }
 }

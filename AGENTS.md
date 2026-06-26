@@ -345,6 +345,23 @@ You MUST follow the following rules for EVERY task that you perform:
   **Rationale**: Keeps orchestration components small and makes card behavior
   easier to maintain, test, and reuse.
 
+6. **Specification and design fidelity**: When writing feature specifications
+  or implementation plans, every requirement, UI element, and design detail
+  MUST trace back to an authoritative source: JIRA description, Figma design,
+  explicit user confirmation, or a documented assumption. Never invent UX
+  details (counts, icons, text content, layout elements) that are not present
+  in the source materials.
+
+  - Design details (icons, button text, spacing, colors) MUST come from Figma.
+    If Figma tools are unavailable, use the REST API or flag the gap.
+  - When adding something not explicitly in the sources, mark it as
+    `[ASSUMPTION]` and seek confirmation before implementing.
+  - Example anti-pattern: JIRA says "a Show hidden card appears" → do NOT add
+    "showing N hidden stories" unless Figma or JIRA explicitly includes it.
+
+  **Rationale**: Prevents fabricated requirements from entering the codebase
+  and ensures the implementation matches the designer's intent.
+
 ### III. Testing Discipline
 
 1. **XCTest for Swift**: Unit tests are located in `AdguardMini/AdguardMiniTests/`.

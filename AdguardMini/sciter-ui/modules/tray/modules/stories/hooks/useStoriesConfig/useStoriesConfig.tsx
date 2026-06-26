@@ -55,6 +55,7 @@ export function useStoriesConfig(): StoryInfo[] {
         isLicenseActive,
         trialAvailableDays,
         storyCompleted,
+        hiddenStories,
         advancedBlocking,
         safariExtensionsStore,
         license,
@@ -448,5 +449,8 @@ export function useStoriesConfig(): StoryInfo[] {
     // Equal groups keep their relative order from construction above.
     stories.sort((a, b) => Number(storyCompleted.has(a.storyConfig.id)) - Number(storyCompleted.has(b.storyConfig.id)));
 
-    return [...requiredStories, ...stories];
+    // Filter out hidden stories
+    const visibleStories = stories.filter((story) => !hiddenStories.has(story.storyConfig.id));
+
+    return [...requiredStories, ...visibleStories];
 }
