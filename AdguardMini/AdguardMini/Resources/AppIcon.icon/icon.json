@@ -20,10 +20,10 @@
           "image-name" : "mini2.svg",
           "name" : "mini2",
           "position" : {
-            "scale" : 1,
+            "scale" : 0.92,
             "translation-in-points" : [
-              0,
-              0
+              -0.45934819578951647,
+              -7.828125
             ]
           }
         }
@@ -48,27 +48,9 @@
       "layers" : [
         {
           "blend-mode" : "normal",
-          "fill-specializations" : [
-            {
-              "value" : "automatic"
-            },
-            {
-              "appearance" : "light",
-              "value" : "automatic"
-            },
-            {
-              "appearance" : "dark",
-              "value" : {
-                "solid" : "display-p3:0.89398,0.89398,0.89398,1.00000"
-              }
-            },
-            {
-              "appearance" : "tinted",
-              "value" : {
-                "solid" : "gray:0.89398,1.00000"
-              }
-            }
-          ],
+          "fill" : {
+            "solid" : "srgb:0.40392,0.69804,0.47451,1.00000"
+          },
           "glass-specializations" : [
             {
               "value" : false
@@ -85,10 +67,10 @@
           "image-name" : "mini3.svg",
           "name" : "mini3",
           "position" : {
-            "scale" : 1,
+            "scale" : 0.92,
             "translation-in-points" : [
-              0,
-              0
+              -0.45934819578951647,
+              -7.828125
             ]
           }
         }
@@ -128,10 +110,10 @@
           "image-name" : "mini1.svg",
           "name" : "mini1",
           "position" : {
-            "scale" : 1,
+            "scale" : 0.92,
             "translation-in-points" : [
-              0,
-              0
+              -0.45934819578951647,
+              -7.828125
             ]
           }
         }
